@@ -14,16 +14,18 @@
 \newcommand*{\getFaculty}{Informatics}
 \newcommand*{\getDegree}{Informatics}
 \newcommand*{\getSchool}{Computation, Information and Technology}
-\newcommand*{\getTitle}{Thesis title}
-\newcommand*{\getTitleGer}{Titel der Abschlussarbeit}
-\newcommand*{\getAuthor}{Author}
-\newcommand*{\getDoctype}{Bachelor's Thesis, Master's Thesis, \ldots}
-\newcommand*{\getSupervisor}{Supervisor}
-\newcommand*{\getAdvisor}{Advisor}
-\newcommand*{\getSubmissionDate}{Submission date}
+\newcommand*{\getTitle}{A Weakly-Relational Pointer Analysis for the Goblint Abstract Interpreter}
+\newcommand*{\getTitleGer}{Eine Relationale Pointer-Analyse für den Abstrakten Interpreter Goblint???}
+\newcommand*{\getAuthor}{Rebecca Ghidini}
+\newcommand*{\getDoctype}{Master's Thesis}
+\newcommand*{\getSupervisor}{Prof.\ Dr.\ Helmut Seidl}
+\newcommand*{\getAdvisor}{Julian Erhard}
+\newcommand*{\getSubmissionDate}{15.09.2024}
 \newcommand*{\getSubmissionLocation}{Munich}
 
 \begin{document}
+
+\input{defs}
 
 % Set page numbering to avoid "destination with the same identifier has been already used" warning for cover page.
 % (see https://en.wikibooks.org/wiki/LaTeX/Hyperlinks#Problems_with_Links_and_Pages).
@@ -43,6 +45,14 @@
 \mainmatter{}
 
 \input{chapters/01_introduction}
+\input{chapters/static_analysis}
+\input{chapters/2pointer}
+\input{chapters/domain}
+\input{chapters/analysis}
+\input{chapters/evaluation}
+\input{chapters/conclusion}
+
+
 % TODO: add more chapters here
 
 \appendix{}
