@@ -3,3 +3,227 @@
 \subsection{Join Using the Automaton}
 
 \subsubsection{Join Without The Automaton}
+
+
+\section{Lattice Operations}
+
+In this section we describe the lattice operations on our domain, i.e the partial ordering, the meet and the join.
+
+For two conjunctions $\Psi_1$ and $\Psi_2$, the \emph{meet} operation is simply the conjunction of the two conjunctions. $\Psi_1 \sqcap \Psi_2 \equiv \Psi_1 \land \Psi_2$.
+
+In~\cite{2pointer} it is described how to decide semantical equivalence between two conjunctions.
+This is done by computing a normal form $\nf(\Psi)$ of a conjunction $\Psi$, such that $\Psi$ is semantically equivalent to $\nf(\Psi)$ and such that two conjunctions $\Psi_1$ and $\Psi_2$ are semantically equivalent iff $\nf(\Psi_1)$ and $\nf(\Psi_2)$ are syntactically equivalent.
+
+The natural partial ordering between conjunctions is semantic implication, i.e.,
+$\Psi_1 \rightarrow \Psi_2$
+iff $(\rho, \nu, \mu) \models \Psi_1$ whenever $(\rho, \nu, \mu) \models \Psi_2$.
+This is the case iff $\Psi_1 \land \Psi_2$ is semantically equal to $\Psi_1$. Therefore it is possible to reduce the \emph{less equal} operation to a \emph{meet} and an \emph{equal} operation.
+
+The \emph{join} and \emph{widen} operations are more complex, and they will be described in the following sections.
+
+\subsection{Join}
+
+Given two conjunctions $\Psi_1$ and $\Psi_2$, we want to compute all the equalities and disequalities that follow both from $\Psi_1$ and from $\Psi_2$.
+Given that equalities only depend on the automaton and cannot follow from the disequalities, we first consider how to construct an automaton that represents the conjunction of two automata.
+Later, we will add all disequalities that follow from $\Psi_1$ and $\Psi_2$.
+
+\subsubsection{Join of Automata}
+
+We propose an implementation of the join algorithm of two quantitative finite automata.
+It is based on the work of Gulwani et al.~\cite{join}, where they discuss join algorithms for congruence closure data structures.
+They also prove that the join of two congruences is not necessarily representable by a finite conjunction of equalities, therefore it is not possible with our representation to compute the exact least upper bound of two congruences.
+
+\begin{example}\label{example:infinite-join}
+    Let $\Psi_1 \equiv (a = b)$ and $\Psi_2 \equiv (*a = a)\land (*b=b) \land (*(1 + a) = *(1 + b))$. Then for each $n \geq 0$, the equality $*(1+*^n a) = *(1 + *^n b)$ is implied both by $\Psi_1$ and $\Psi_2$, where $*^m$ denotes $m$-fold dereference.
+    It can be shown that the set of quantitative equalitites implied both by $\Psi_1$ and $\Psi_2$ cannot be represented by a finite conjunction\cite{join, 2pointer}.
+\end{example}
+
+This shows that it is not possible to compute the exact join between two conjunctions of quantitative equalities, because of the limitations in the expressiveness of the congruence closure representation.
+However, it is possible to define a join that is complete on  a specific set of pre-chosen terms $\T'$.
+This can be computed by adding all the terms $\T'$ to both automata that correspond to the conjunctions and then constructing the product automaton.
+
+\begin{definition}
+    Let $M_1 = (S_1,\eta_1,\delta_1)$ and $M_2 = (S_2, \eta_2,\delta_2)$ be two quantitative finite automata. The \emph{quantitative product automaton} $M_3 = (S_3, \eta_3, \delta_3)$ is defined as:
+    \begin{itemize}
+        \item $S_3 \subseteq S_1 \times S_2 \times \Z$.
+        \item If $\eta_1(a) = (z_1, s_1)$ and $\eta_2(a) = (z_2, s_2)$, then
+              $\eta_3(a) = (z_1, \angl{s_1, s_2, z_2-z_1})$.
+        \item If $\delta_1(z_1, s_1) = (z'_1, s'_1)$ and $\delta_2(z_2, s_2) = (z'_2, s'_2)$, then $\delta_3(z_1, \angl{s_1, s_2, z_2 - z_1}) =  (z'_1, \angl{s'_1, s'_2, z'_2 -z'_1})$
+    \end{itemize}
+\end{definition}
+
+The product automaton is a finite automaton, as there is only a finite amount of states in $S_1 \times S_2 \times \Z$ which are reachable.
+All the remaining states are unreachable, i.e.\ they neither occur in a return value of $\eta_3$, nor of $\delta_3$.
+This follows from the fact that $\eta_i$ and $\delta_i$ for $i = 1,2$ are defined only for a finite amount of values, as discussed in Section~\ref{qcc}.
+
+The product can be computed in polynomial time, as we need to add an initial state for all pairs of initial states of $M_1$ and $M_2$ and then add a transition for each pair of transitions of $M_1$ and $M_2$. Therefore the runtime is equal to the size of $M_1$ times the size of $M_2$.
+
+For two automata $M_1$ over the terms $\T_1$ and $M_2$ over the terms $\T_2$, we choose $\T' = \T_1 \cup \T_2$.
+We define the join of $M_1$ and $M_2$ as the automaton $M_3$ that is obtained by computing the product automaton of $M_1$ and $M_2$ after having added all terms of $\T'$ to both automata.
+
+\begin{lemma}\label{lemma:join-automata}
+    Let $M_3$ be the product automaton of two quantitative automata $M_1$ and $M_2$.
+    Then, for each term $t \in \L(M_1) \cap \L(M_2)$ it holds that $M_1[t] = (z_1, s_1)$ and $M_2[t] = (z_2, s_2)$ iff $M_3[t] = (z_1, \angl{s_1, s_2, z_2 - z_1})$.
+\end{lemma}
+\begin{proof}
+    We prove it by induction over the structure of the term $t$.
+\end{proof}
+
+As shown in Example~\ref{example:infinite-join}, it is not possible to define a join algorithm that is complete.
+In fact, we can only show for our definition of the join algorithm that it is at least complete over the terms in $\L(M_1) \cap \L(M_2)$, which will be shown in the following proposition.
+Additionally, the proposition shows that our definition of join is sound.
+
+\begin{proposition}\label{prop:join-automata}
+    Let $M_3$ be the product automaton of two quantitative automata $M_1$ and $M_2$.
+    Then, for all terms $t_1, t_2 \in \L(M_1) \cap \L(M_2)$ it holds that $M_3[t_1] = z + M_3[t_2]$ iff $M_1[t_1] = z + M_1[t_2]$ and $M_2[t_1] = z + M_2[t_2]$.
+\end{proposition}
+\begin{proof}
+    This proposition follows from Lemma~\ref{lemma:join-automata}.
+\end{proof}
+
+As we mentioned before, we added all terms of $\T'$ to both automata before computing the product automaton, and after having added these terms, it holds that $\T' \subseteq \L(M_1) \cap \L(M_2)$.
+Therefore, the join of two automata is complete at least over the terms of $\T'$.
+
+From the automata $M_3$ we can compute the corresponding partition $\Pi_3$ by finding for each state of $\Pi_3$ the set of terms $\L_{M_3}(s)$.
+Thus the join automaton could contain new terms that were not present in the partition of the original input automata.
+However, in the case that $M_3$ contains a cycle, some of these sets could contain an infinite number of terms.
+Therefore, for each cycle in the automaton, we only keep the terms that are reachable in the first iteration of the cycle, and we remove all the terms that are reachable by traversing the cycle multiple times.
+As before when we computed the restriction of an automaton, we choose for each equivalence class $Q\in \Pi_3$ a new representative term $\tau Q$ and for each term $t \in Q$ we adjust the weights $\omega t$ accordingly.
+
+\begin{example}
+    We consider two automatas $M_1$ and $M_2$, where $M_1$ represents the conjunction $A = B + 2 \land A = C + 3$ and $M_2$ represents the conjunction $A = B + 1 \land A = C + 2$.
+    The automaton $M_1$ has one single state $s_0$ that represents the equivalence class $\{A, B+2, C+3\}$
+    and $M_2$ has one single state $s_1$ that represents the equivalence class $s_1 = \{A, B+1, C+2\}$.
+    The product automaton $M_3$ is made of no transitions and two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_1, 1}$, where the first one represents the set $\{A\}$ and the second one the set $\{B, C+1\}$.
+    Therefore the product automaton represents the proposition $B = C + 1$.
+    The join operation keeps the relation between $B$ and $C$, as they have the same distance in $M_1$ and $M_2$.
+    On the other hand, $A$ has not the same distance to $B$ or $C$ in the input automata, therefore we forget all information about $A$.
+\end{example}
+
+\begin{example}\label{example:join-subset}
+    We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $x = \&x$ and $M_2$ represents the conjunction $*x = \&x$.
+    $M_1$ has one state $s_0$ and one transition from $s_0$ to itself. We have that $\L_{M_1}(s_0) =\{*^n\&x\mid n \geq 0\}$.
+    The automaton $M_2$ has two states $s_1$ and $s_2$ and two transitions from $s_1$ to $s_2$ and from $s_2$ to $s_1$. We have that $\L_{M_2}(s_1) = \{*^{2n}\&x\mid n \geq 0\}$ and $\L_{M_2}(s_2) = \{*^{2n}x\mid n \geq 0\}$.
+    We have that $\eta_1(\&x) = (0, s_0)$ and $\eta_2 (\&x) = (0, s_1)$.
+    The product automaton $M_3$ has two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_2, 0}$ and two transitions from the first state to the second and from the second state to the first state and $\eta_3(\&x) = (0, \angl{s_0, s_1, 0})$.
+    Therefore the product automaton is isomorphic to the second automaton and it represents the same equality $*x = \&x$.
+\end{example}
+
+\subsubsection{Disequalities of Join}
+Given two conjunctions $\Psi_1$ and $\Psi_2$, we want to compute all the disequalities that follow from both conjunctions.
+In Lemma~\ref{lemma:diseq_types} we defined the two types of disequalities that follow from a conjunction: the set of disequalities that follow from the explicitly stored disequalities, and the set of implicit disequalities that follow from the equalities or the block disequalities.
+As before with the equalities, it is also not possible to define a join operation that computes all disequalities that follow from two conjunctions, as is shown in the following example.
+
+\begin{example}
+    Let $\Psi_1 \equiv A = B + 1$ and $\Psi_2 \equiv A = B + 2$. There are infinitely many equalities that are implied by $\Psi_1$ and $\Psi_2$ i.e. $A \neq B + z$ for all $z \in \Z \backslash \{1,2\}$.
+    There is no way to represent these equalities implicitly via equalities or block disequalities, and we can only store a finite amount of explicit disequalities. Therefore, it is not always possible to compute the exact set of disequalities for the join.
+\end{example}
+
+We have seen that the intersection between the set of implicit disequalities that follow from two conjunctions $\Psi_1$ and $\Psi_2$ could be infinite.
+Therefore, we define the join to keep only those disequalities that follow from an explicit disequality in $\Psi_1$ and from an explicit or implicit disequality in $\Psi_2$ or vice versa.
+
+\begin{definition}
+    Let $\Psi_1$ and $\Psi_2$ be two conjunctions of 2-pointer propositions. We define $\Psi_1 \join_\neq \Psi_2 = \{t_1 \neq t_2 + z | t_1 \neq t_2 + z \text{ is an explicit disequality of } \Psi_1 \text{ or of } \Psi_2 \text{ and } t_1 \nequiv_{\Psi_1} t_2 + z \text{ and } t_1 \nequiv_{\Psi_2} t_2 + z\}$.
+\end{definition}
+
+This join can be computed in polynomial time in the number of explicitly stored disequalities by first constructing the set containing all equalities of $closure_\neq(\Psi_1)$.
+For each equality $t \neq t' + z$ in this set, we need to rewrite it to use the new representatives of the equivalence classes in $\Pi_3$.
+However, each equivalence class of $\Pi_1$ and $\Pi_2$ might now be divided into multiple equivalence classes in $\Pi_3$.
+Therefore for each term in each explicit disequality of $\Psi_1$ and $\Psi_2$, we need to consider all new representatives for each derived sub-equivalence class.
+
+Let $M_3$ be the join automaton of the automata $M_1 = M[\Psi_1]$ and $M_2 = M[\Psi_2]$.
+For a state $s_1$ in $M_1$, there could be multiple states of the form $s_3 = \angl{s_1, s_2', z'} \in S_3$ for some $s_2' \in S_2$ and some $z' \in \Z$.
+For each of these states, it holds that $\L_{M_3}(s_3) \subseteq \L_{M_1}(s_1)$.
+Therefore, for each disequality of the form $t_1 \neq z + t_2 \in closure_\neq(\Psi_1)$, such that $M_1[t_1] = (z_1, s_1)$ and $M_1[t_2] = (z_2, s_2)$ for some $z_1,z_2\in \Z$, we need to consider
+each of the states $s_1', s_2' \in S_3$ such that the first component of $s_1'$ is $s_1$ and the first component of $s_2'$ is $s_2$. Let $Q_1', Q_2' \in \Pi_3$ be the corresponding equivalence classes of $s1'$ and $s2'$, respectively.
+Then the equality $\tau_3 Q_1' \neq (z + \omega_1 (\tau_3 Q_2') - \omega_1 (\tau_3 Q_1')) +\tau_3 Q_2'$ is one of the equalities that follow from the explicitly stored disequalities of $\Psi_1$.
+For each of these disequalities that we found, we need to check if it is implied by $\Psi_1$ and $\Psi_2$.
+
+We do the same thing for each disequality of the form $t_1 \neq z + t_2 \in closure_\neq(\Psi_2)$:
+let $M_2[t_1] = (z_1, s_1)$ and $M_2[t_2] = (z_2, s_2)$ for some $z_1,z_2\in \Z$.
+We need to consider the equalities $\tau_3 Q_1' \neq (z + \omega_2 (\tau_3 Q_2') - \omega_2 (\tau_3 Q_1')) +\tau_3 Q_2'$ for each of the states $s_1', s_2' \in S_3$ such that the second component of $s_1'$ is $s_1$ and the second component of $s_2'$ is $s_2$ and $Q_1', Q_2' \in \Pi_3$ being the corresponding equivalence classes.
+
+The only disequalities that are lost by this definition of join are those that are implied only by the implicit disequalities of $\Psi_1$ and the implicit disequalities of $\Psi_2$.
+
+\begin{proposition}
+    Let $\Psi_1$ and $\Psi_2$ be conjunctions of 2-pointer propositions.
+    Then $\Psi_1 \Longrightarrow \Psi_1 \join_\neq \Psi_2$ and $\Psi_2 \Longrightarrow \Psi_1 \join_\neq \Psi_2$.
+\end{proposition}
+
+\begin{proof}
+    By definition of $\join_\neq$, we add only equalities that follow both from $\Psi_1$ and from $\Psi_2$.
+\end{proof}
+
+\subsubsection{Join of block disequalites}
+We have shown how to compute all equalities and disequalities that follow from two conjunctions $\Psi_1$ and $\Psi_2$.
+The only missing propositions are the block equalities.
+Exactly as with the disequalities, we need to rewrite them such that they use the new representatives of the new equivalence classes.
+
+As before, for each disequality $bl(t_1) \neq bl(t_2) \in \Psi_1$, let $M_1[t_1] = (z_1, s_1)$ and $M_1[t_2] = (z_2, s_2)$ for some $z_1,z_2\in \Z$.
+For each pair of states $s_1', s_2'$, where the first component of $s_1'$ is $s_1$ and the first component of $s_2'$ is $s_2$ and their corresponding equivalence classes $Q_1', Q_2' \in \Pi_3$, we add the disequality $bl(\tau Q_1') \neq bl(\tau Q_2')$.
+We do the same thing for $\Psi_2$ and then intersect the set of block disequalities that derive from the two conjunctions.
+
+\subsection{Widen}
+
+The partial order on $\mathcal{P}_2[=]$ has infinite strictly descending chains, as well as
+infinite strictly ascending chains. Therefore we need to define a widening operator.
+
+\begin{example}
+    Consider the sequence of conjunctions
+    \[
+        \Psi_n \equiv (*^{2^n} \&x = \&x)\hspace{6pt} (n\geq 0).
+    \]
+   This could for example occur in a list structure, where each list element points to the next element of the list, and the last element points again to the first element of the list.
+   Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M[\Psi_n]$ and $M[\Psi_{n+1}]$ is $M[\Psi_{n+1}]$.
+   The computation of this product automaton for $n = 0$ and $n = 1$ can be found in Example~\ref{example:join-subset}. This is an example of an infinite strictly ascending chain in $\mathcal{P}_2[=]$.
+\end{example}
+
+We decide to define the widening operator in such a way that the added result can't contain terms of arbitrary size, such that there can't be ascending chains of arbitrary size. Therefore we define the widening operator as first computing the join and then restricting the set of terms of the result to the set of terms that occur in the first input conjunction.
+
+\begin{definition}
+    For two conjunctions $\Psi_1$ and $\Psi_2$ over the sets of terms $\T_1$ and $\T_2$, respectively, we define the widening operation
+     $\Psi_1 \widen \Psi_2 = \restr{(\Psi_1 \join \Psi_2)}{\T_1}$.
+\end{definition}
+
+For a given set $\T$ of terms, there is only a finite number of possible automata and sets of disequations that contain only terms of $\T$.
+The set of terms doesn't change after having applied the widening operation, therefore the widening operator will always reach a fixpoint after a finite amount of iterations.
+\ignore{
+\begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
+
+    \node[state] (Q0) {$\&x$};
+
+    \path[->]
+      (Q0) edge [loop above] node {$0$} ();
+
+  \end{tikzpicture}
+
+  \begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
+
+    \node[state] (Q1) {$\&x$};
+    \node[state, right=of Q1] (Q2) {$x$};
+
+    \path[->]
+      (Q1) edge[bend left, above] node {$0$} (Q2)
+      (Q2) edge[bend left, below] node {$0$} (Q1);
+
+  \end{tikzpicture}
+
+% Automaton M1
+\begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
+
+    \node[state] (Q0) {$A; B+1; D+2$};
+  \end{tikzpicture}
+
+  % Automaton M2
+  \begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
+
+    \node[state] (Q1) {$A; B+1,D+2$};
+  \end{tikzpicture}
+
+  % Automaton M3
+  \begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
+
+    \node[state] (Q0Q1_0) {$A$};
+    \node[state, right=of Q0Q1_0] (Q0Q1_1) {$B; C-1$};
+  \end{tikzpicture}
+}

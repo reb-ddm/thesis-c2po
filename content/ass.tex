@@ -7,3 +7,127 @@
 \subsection{Memory Allocation}
 
 \section{Assignment}
+
+
+We consider assignments of the form $s_1\,{:=}\,s_2$ where $s_1$ is either an auxiliary $B \in \mathcal{A}$ or a pointer term $*(z+t)$, while $s_2$ is either the symbol $?$, which represents an unknown value, or is of the form $z_1 + t$ for some term $t$, or \malloc, which assigns an address from a fresh block to $s_1$.
+
+We define a fresh address block as an address block that does not occur as a mapping in any of the functions $\rho$, $\nu$ or $\mu$. More precisely we define the property $fresh$ as:
+
+\[ \begin{array}{c}
+		fresh(a, (\rho,\nu,\mu)) \equiv
+		(\nexists A\in \A . bl(\nu(A)) = a     \\
+		\land \nexists x\in \X. bl(\rho(x)) = a \\
+		\land \nexists a'\in \ZZ . bl(\mu(a')) = a)
+	\end{array}
+\]
+
+For a set $H$ of models $(\rho,\nu,\mu)$, we define the concrete semantics of the assignment
+$s_1\,{:=}\,s_2$ as the transformation
+$\sem{s_1\,{:=}\,s_2}\,H$, where:
+\[
+	\begin{array}{l}
+		\sem{B\,{:=}\,?}\,H =
+		\\
+		\quad \{(\rho,\nu\oplus\{B\mapsto a\},\mu)\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                    \\
+		\sem{*(z+t)\,{:=}\,?}\,H =                                                                     \\
+		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto a\})                           \\
+		\quad\quad\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                                                    \\
+		\sem{B\,{:=}\,z_1+s}\,H =                                                                      \\
+		\quad \{(\rho,\nu\oplus\{B\mapsto z_1+\sem{s}\,(\rho,\nu,\mu)\},\mu)\mid(\rho,\nu,\mu)\in H\}  \\
+		\sem{*(z+t)\,{:=}\,z_1+s}\,H =                                                                 \\
+		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto z_1+\sem{s}\,(\rho,\nu,\mu))\} \\
+		\quad\quad\mid(\rho,\nu,\mu)\in H\}                                                            \\
+		\sem{B\,{:=}\,\malloc}\,H =                                                                    \\
+		\quad \{(\rho,\nu\oplus\{B\mapsto (a,0)\},\mu)\mid
+		(\rho,\nu,\mu)\in H, a\in \Z,                                                                 \\
+		\quad\quad  fresh(a, (\rho,\nu,\mu))\}\}                                                       \\
+		\sem{*(z+t)\,{:=}\,\malloc}\,H =                                                               \\
+		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}\mid
+		(\rho,\nu,\mu)\in H,                                                                           \\
+		\quad\quad a\in \Z, fresh(a, (\rho, \nu, \mu))\}.
+	\end{array}
+\]
+Here,
+$f\oplus\{m\mapsto z\}$ is the mapping obtained
+from $f$ by
+setting the value of $f$ for $m$ to $z$.
+
+In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp$ of the assignment $s_1\,{:=}\,s_2$, for the three different types of assignments.
+
+\subsubsection{Indefinite Assignment}
+
+We consider an assignment of the form $s_1\,{:=}\,?$.
+After this assignment the value of $s_1$ changes to an unknown value, so we must forget all the equalities and disequalities that contain the term $s_1$, but also all other terms that may be modified by overwriting $s_1$.
+
+When overwriting $s_1$, all the terms whose value is written in the memory at the same address as $s_1$ are also modified.
+In the case that $s_1$ is an auxiliary $B \in \A$, then we can't reach the address of $B$ by dereferencing any other term.
+Therefore, the only terms that are modified by overwritng $B$ are the terms that contain $B$ as a subterm.
+On the other hand, if $s_1$ is a pointer term $*(z+t)$, then we need to forget all the terms that contain any subterm that may be equal to $z+t$.
+This is exactly how we defined the restriction in Section~\ref{restr}.
+Therefore we can define the assignment as follows:
+
+\[
+	\sem{s_1\,{:=}\;?}^\sharp\,\Psi \equiv \restr{\Psi}{M_{\neg s_1}}.
+\]
+
+\begin{proposition}\label{p:ass-unknown}
+	For every conjunction $\Psi$ and assignment $s_1\,{:=}\,?$,
+	\[
+		\sem{s_1\,{:=}\,?}\,(\gamma\,\Psi) \subseteq \gamma\,(\sem{s_1\,{:=}\,?}^\sharp\,\Psi)
+	\]
+\end{proposition}
+
+The proof of this proposition for the case of a one-dimensional memory model can be found in~\cite{2pointer}.
+This proof can easily be adapted to the two-dimensional model.
+
+\subsubsection{Definite Assignment}
+
+We consider an assignment of the form $s_1\,{:=}\,z_1+s$.
+As before, we need to forget all the equalities and disequalities about terms that may be modified by overwriting $s_1$.
+After this, is not sufficient to simply add the equality $s_1 = z_1+s$ to the set of equalities, because the term $z_1 + s$ may also be modified by the assignment, for example when we assign $B\,{:=}\,1+B$, where the equality $B = 1 + B$ would incorrectly lead to an unsatisfiable conjunction.
+Therefore we introduce a fesh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $s_1$ to $A$.
+This way we can remember the original value of $z_1 + s$ trough the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
+
+We define the transformer as follows:
+
+\[
+	\sem{s_1\,{:=}\,z_1+s}^\sharp\Psi\;\equiv\;
+	\restr{((s_1=A)\land\restr{((A=z_1+s)\land\Psi)}{M_{\neg s_1}})}{M_{\neg A}}
+\]
+
+\begin{proposition}\label{p:ass-definite}
+	For every conjunction $\Psi$ and any assignment of the form $s_1\,{:=}\,z_1+s$,
+	\[
+		\sem{s_1\,{:=}\,z_1+s}\,(\gamma\,\Psi) \subseteq \gamma\,(\sem{s_1\,{:=}\,z_1+s}^\sharp\,\Psi)
+	\]
+\end{proposition}
+
+As before, the proof of this proposition for the case of a one-dimensional memory model can be found in~\cite{2pointer}.
+
+\subsubsection{Allocation Assignment}
+
+We consider an assignment of the form $s_1\,{:=}\,\malloc$.
+The term $s_1$ is assigned to a fresh address, therefore we know that the block of the term $s_1$ is different from the block of any other term in the set $\T$ of the partition, but also different than any other term $t \in \oT$ that is not (yet) in the partition.
+We cannot remember an infinite number of equalities that contain an infinite number of possible terms, therefore we choose to only remember that this new address is different than the address of any other term in $\T$.
+For each equivalence class in the partition $\Pi$, we add a disequality that states that the block of the term $s_1$ is different from the block of the representative of the equivalence class.
+Let $\Pi'$ be the new equivalence classes after the restriction of the automaton.
+
+\[
+	\sem{s_1\,{:=}\,\text{\malloc}}^\sharp\,\Psi \equiv
+	\restr{\Psi}{M_{\neg s_1}}\;\land
+	\bigwedge_{Q'\in \Pi',s_1\notin Q'}(bl(s_1) \neq bl(\tau Q'))
+\]
+\begin{proposition}\label{p:ass-malloc}
+	For every conjunction $\Psi$ and any assignment of the form $s_1\,{:=}\,\malloc$,
+	\[
+		\sem{s_1\,{:=}\,\malloc}\,(\gamma\,\Psi) \subseteq \gamma\,(\sem{s_1\,{:=}\,\malloc}^\sharp\,\Psi)
+	\]
+\end{proposition}
+\begin{proof}
+	We only consider the case where $s_1$ equals the expression $*(z+t)$.
+	The other case where $s_1 = B$ is analogous.
+	Let $(\rho',\nu',\mu') \in \sem{s_1\,{:=}\,\malloc}\,(\gamma\,\Psi)$, then we know that there exists $(\rho,\nu,\mu) \in \gamma\,\Psi$ such that $\rho'=\rho$, $\nu'=\nu$ and $\mu' =\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto a\}$ and $fresh(a, (\rho, \nu, \mu))$.
+	From Proposition~\ref{p:ass-unknown} it follows that $(\rho',\nu',\mu') \models \restr{\Psi}{M_{\neg s_1}}$.
+	From $fresh(a,( \rho,\nu,\mu))$ it follows that all addresses stored in any term which is not $s_1$ do not have the same address block as $a$, therefore $(\rho',\nu',\mu') \models \bigwedge_{Q'\in \Pi', s_1\notin Q'}(bl(s_1) \neq bl(\tau(Q')))$.
+	It directly follows that $(\rho',\nu',\mu') \in \gamma\,(\sem{s_1\,{:=}\,\malloc}^\sharp\,\Psi)$
+\end{proof}

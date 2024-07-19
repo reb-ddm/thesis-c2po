@@ -1,1 +1,162 @@
 \section{Quantitative congruence closure}
+
+\section{2-Pointer Logic}
+
+In the following section, we describe the 2-pointer logic, which defines our new domain.
+It is composed of finite conjunctions of propositions between terms.
+It was first introduced by Seidl et al.\ in~\cite{2pointer} and we extend it here with an additional type of proposition.
+The logic is made up of terms, formed from address constants and auxiliaries using the addition of constant offsets and dereferencing.
+The address constants represent addresses of program variables.
+The auxiliaries are variables whose address is never taken, therefore
+we know of these variables that their address cannot be reached from other terms using address arithmetic or dereferencing.
+The terms can form three types of propositions: Equalities and disequalities between terms and additionally a proposition which states that two terms do not belong to the same address block.
+Let $\X$,$\A$ be disjoint finite sets of variables names and auxiliaries. The terms $t$ and propositions $p$ are defined by the following grammar:
+
+\[
+  \begin{array}{lll}
+    t & {::=} & A \mid \&x \mid *(z+t)                                \\
+    p & {::=} & t_1=z+t_2 \mid t_1\neq z+t_2\mid bl(t_1) \neq bl(t_2)
+  \end{array}
+\]
+
+where $A\in \A$ is an auxiliary, $x \in \X$ is a variable with address $\&x$, $z \in \Z$ is an integer, $*$ denotes the dereferencing operator and $bl(t)$ represents the address block of $t$. We call terms $\&x$ or $A$ \emph{atoms}. We use $*t$ as an abbreviation for $*(0+t)$ and $x$ as an abbreviation for $*(0+\&x)$.
+For a conjunction $\Psi$ of propositions, we denote the conjunctions of all the equalities in $\Psi$ by $\Psi_{=}$, the conjunction of disequalities between terms by $\Psi_{\neq}$ and the set of block disequalities of the type $bl(t_1) \neq bl(t_2)$ by $\Psi_{bl}$.
+
+\subsection{Semantics}
+
+We define the semantics of programs in a way that reflects the semantics of memory allocation in C.
+In C, when a memory block is allocated with a library function such as \malloc, the pointer that is returned is only allowed to access the allocated memory block, and it can never access an address outside of this block.
+(TODO cite C reference).
+Therefore we modify the semantics of~\cite{2pointer} by interpreting the conjunctions $\Psi$ over a bi-dimensional address space.
+Each address $(a, b) \in \ZZ$ belongs to a unique memory block $a$.
+Intuitively, each address block belongs to a unique call to \malloc.
+
+The semantics can be described by the following three functions: the mappings $\rho : \X \rightarrow \ZZ$ and $\nu : \mathcal{A} \rightarrow \ZZ$ that assign an address to each variable and auxiliary, respectively, and the map $\mu : \ZZ \rightarrow \ZZ$ which maps each address $(a, b)$ to the value $(a', b')$ which is stored at this address.
+We are only interested in analyzing the values of pointers and addresses, therefore we interpret each value stored in the memory and in the auxiliaries as an address.
+
+We also define the operator $(+) : \Z \rightarrow \ZZ \rightarrow \ZZ$ on addresses, where $z + (a,b) = (a, z+b)$.
+It adds the offset only to the second element of the address, thus modeling the fact that it's not possible to leave a memory block using address arithmetic.
+Moreover, we define the function $bl : \ZZ \rightarrow \Z$ that returns the address block identifier of an address, where $bl(a,b) = a$.
+
+A term $t$ is interpreted as the value $\sem{t}(\rho, \nu, \mu)$ defined by:
+\[
+  \begin{array}{lll}
+    \sem{\& x}\,(\rho,\nu,\mu)   & = & \rho\,x                          \\
+    \sem{A}\,(\rho,\nu,\mu)      & = & \nu\,A                           \\
+    \sem{*(z+t)}\,(\rho,\nu,\mu) & = & \mu\,(z+\sem{t}\,(\rho,\nu,\mu)) \\
+  \end{array}
+\]
+
+The validity is defined as:
+\[
+  \begin{array}{ll}
+    (\rho,\nu,\mu)\models t_1 = z+t_2          & \textbf{iff}
+    \\ \multicolumn{2}{c}{\quad\quad\quad\quad\sem{t_1}\,(\rho,\nu,\mu) = z+\sem{t_2}\,(\rho,\nu,\mu)}	\\
+    (\rho,\nu,\mu)\models t_1 \neq z+t_2       & \textbf{iff}
+    \\ \multicolumn{2}{c}{\quad\quad\quad\quad\sem{t_1}\,(\rho,\nu,\mu) \neq z+\sem{t_2}\,(\rho,\nu,\mu)}	\\
+    (\rho,\nu,\mu)\models bl(t_1) \neq bl(t_2) & \textbf{iff}
+    \\ \multicolumn{2}{c}{\quad\quad\quad\quad bl(\sem{t_1}\,(\rho, \nu, \mu)) \neq bl(\sem{t_2}\,(\rho, \nu, \mu))}
+  \end{array}
+\]
+
+If $(\rho, \nu, \mu)\models p$ for each proposition $p$ in $\Psi$, then we say that $(\rho, \nu, \mu) \models \Psi$. The domain of 2-Pointer Logic $\mathcal{P}_2[=]$ consists of all finite conjunctions
+of propositions over terms up to semantic equivalence.
+We define the concretization function $\gamma(\Psi)$ as the set of all $(\rho, \nu, \mu)$ with $(\rho, \nu, \mu) \models \Psi$.
+
+\subsection{Quantitative Congruence Closure}\label{qcc}
+
+In order to infer all equalities that are logically implied by a conjunction $\Psi$ of propositions, we compute the \emph{quantitative congruence closure} of the equalities in $\Psi$.
+The representation of the quantitative congruence closure consists of a \emph{quantitative partition} $P = (\Pi,\tau,\omega)$ and a \emph{quantitative automaton} $M = (S, \eta, \delta)$, which will be described in this section.
+
+Given that there can be an infinite number of equalities that follow from a certain conjunction $\Psi$, we only consider equalities that contain terms from a subterm-closed set $\T$ of \emph{interesting terms} that contains at least all the terms that occur in $\Psi$.
+
+The \emph{quantitative partition} $(\Pi, \tau, \omega)$ consists of a partition $\Pi$ of $\T$, a function $\tau : \Pi \rightarrow \T$ that assigns a representative term to each equivalence class $Q \in \Pi$ and a mapping $\omega : \T \rightarrow \Z$, which assigns to each term its offset from the representative of its equivalence class.
+We can derive the function $\otau : \T \rightarrow \T$ that maps each term to its representative, where $\otau t = \tau Q$ if $t \in Q$ for some $Q \in \Pi$.
+These functions represent equalities of the form $t = \omega t + \otau t$.
+For an equality $t_1 = z + t_2$, this is satisfied by a partition $(\Pi, \tau, \omega)$ iff $\otau t_1 = \otau t_2$ and $z = \omega t_1 - \omega t_2$.
+
+This kind of partition can be represented in a similar fashion as a congruence closure data structure\cite{abstract-cc}, by additionally storing information about the integer offsets.
+This is a dynamic data structure, which means that it is possible to add terms and equalities to the representation, such that the closure of equivalences is computed.
+There exist multiple possible implementations of congruence closure\cite{cc-nelson, cc-shostak, cc-tarjan}.
+In~\cite{2pointer} it is described how to implement the \emph{quantitative} version of it.
+Here, we will assume that we can build a representation of the partition $(\Pi, \tau, \omega)$ starting from the conjunction $\Psi$, and that it is possible to add new terms and equalities to the representation.
+
+The second part of the representation of our domain is the \emph{quantitative finite automaton} (QFA). It relates each equivalence class of the partition to the equivalence class that corresponds to the dereferenced terms.
+It is defined by a triple $(S, \eta, \delta)$, where $S$ is a finite set of states, where each state represents an equivalence class from $\Pi$, $\eta : (\mathcal{A} \cup \{\&x | x \in \X\} \rightarrow \Z \times S)$ is a partial mapping that provides initial offsets and states for atoms, and $\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition function.
+
+We can derive the automaton directly from the partition $(\Pi, \tau, \omega)$ by defining $M[\Psi,\T] = (S, \eta, \delta)$ where $S = \{s_i | Q_i \in \Pi\}$, $\eta a = (\omega a, s_i)$ if $a \in Q_i$ for some $Q_i \in \Pi$, and $\delta z s_i = (\omega t', s_j)$ if there is a $t' \in Q_j$ with $Q_j \in \Pi$, such that $t' = *(z_1 + t_1)$ with $t_1 \in Q_i$ and $z = z_1 + (\omega t_1)$.
+We remark that a transition $\delta z s_i$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $t_2 \in Q_i$ and $z = z_2 + (\omega t_2)$.
+Since $t_i \equiv (\omega t_i) + (\tau Q_i)$ for $i = 1,2$, it follows that $t_1 \equiv (z_2 - z_1)+ t_2$. Therefore $*(z_2+t_2)\in Q_j$ with offset $\omega(*(z_2+t_2)) = \omega t'$.
+This shows that the result of $\delta z s_i$ is well defined and doesn't depend on which term $t'$ we choose for deriving a transition.
+Additionally, $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
+
+We use $\oT$ to denote the set of \emph{all} terms with variable names from $\X$ and auxiliaries from $\A$.
+We can extend the mappings $\eta$,$\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M[a] = \eta(a)$ for atoms $a$, and $M[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M[t_1] = (z_1,s)$.
+We define the action $(+): \Z \rightarrow (\Z \times S) \rightarrow (\Z \times S)$ where $z_1 + (z_2,s) = (z_1 + z_2, s)$.
+We define $M[\Psi] = M[\Psi,\T_\Psi]$, where $\T_\Psi$ is the set of terms and subterms occurring in $\Psi$.
+
+We also define the set $\L(M)$ of terms $t \in \oT$ for which $M$ is defined.
+For each state $s \in S$ we define the set $\L_M(s)$ of terms $t \in \oT$ for which it holds that $M[t] = (z, s)$ for some $z \in \Z$.
+\begin{theorem}
+  % This is Theorem 3 in the other paper
+  Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$. We can construct a corresponding quantitative partition $(\Pi, \tau,\omega)$
+  and a corresponding QFA $M = (S, \eta, \delta)$ such that for every $t_1, t_2 \in \L(M)$, the following statements are equivalent:
+  \begin{enumerate}
+    \item $M[t_1] = z + M[t_2]$
+    \item $\Psi$ implies $(t_1 = z + t_2)$
+  \end{enumerate}
+\end{theorem}
+
+This theorem was proven in~\cite{2pointer} for the case of a one-dimensional memory model.
+The proof can easily be adapted for the two-dimensional memory model.
+
+We remark that the only equalities that can be derived from $\Psi$ are derived from $\Psi_=$. We cannot derive equalities from any of the disequalities.
+
+\subsection{Disequalities}\label{disequalities}
+
+In order to implement a more precise abstract transformer for the assignment, it is important to know which terms definitely
+point to different addresses. Let $\Psi$ be a conjunction of 2-pointer logic terms.
+We define the binary relation $\nequivp$ which represents all disequalities that can be derived from $\Psi$.
+
+\begin{enumerate}
+  \item[(D0)] If $t_1 \neq z + t_2 \in \Psi$, then $t_1 \nequivp z + t_2$.
+  \item[(D1)] If $t_1 \nequivp z + t_2$, then:
+    \begin{enumerate}
+      \item $t_2 \nequivp - z + t_1$.
+      \item $t'_1\nequivp (z_1 + z) + t_2$ if $t_1' = z_1 + t_1$ is implied by $\Psi$.
+      \item If $t_1 = z + t_2$ is implied by $\Psi$, then $\Psi$ is Unsat.
+    \end{enumerate}
+  \item[(D2)] If $*(z_1 + t_1) \nequivp *(z_2 + t_2)$ then also $t_1 \nequivp (z_2 - z_1) + t_2$.
+  \item[(D3)] If $t_1 = z' + t_2$ is implied by $\Psi$ then $t_1 \nequivp z + t_2$ for all $z \neq z'$.
+  \item[(D4)] If $bl(t_1) \neq bl(t_2) \in \Psi$, then:
+    \begin{enumerate}
+      \item $t_1 \nequivp z + t_2$ for all $z \in \Z$.
+      \item If $t_1 = z + t_2$ for any $z \in \Z$, then $\Psi$ is Unsat.
+    \end{enumerate}
+\end{enumerate}
+
+The set of disequalities following from (D3) and (D4) can be infinite, but we don't need to explicitly store them, as they implicitly derive from the congruence closure of $\Psi_=$ or respectively from the propositions in $\Psi_{bl}$.
+We construct the set of all disequalities and block disequalities deriving from (D0), (D1), (D2) and (D4),but only those that contain representative terms of components $Q\in\Pi$.
+This set is finite, because we only store equalities between different representatives and not the implicit equalities following from (D3) and (D4).
+We denote these explicitly stored disequalities as $closure_\neq(\Psi)$.
+
+This set can be computed in polynomial time in the size of the formula $\Psi$ by going through all the
+disequalities $t_1 \neq z + t_2$ in $\Psi_\neq$ and storing the disequalities
+$\otau t_1  \neq (\omega t_2 - \omega t_1 + z) + \otau t_2$ and $\otau t_2 \neq - (\omega t_2 - \omega t_1 + z) + \otau t_1$.
+Then for each disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$ that follows from a stored disequality or from the congruence closure of $\Psi_=$ or from a block disequality,
+the disequalities propagate backwards using the rule (D2).
+This only adds a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
+
+For each block disequality $bl(t_1) \neq bl(t_2) \in \Psi$, we store the disequalities $bl(\otau t_1) \neq bl(\otau t_2)$.
+We call the set of these disequalities $closure_{bl}(\Psi)$.
+
+\begin{lemma}\label{lemma:diseq_types}
+  $t_1 \nequivp t_2 + z$ iff one of the following holds:
+
+  \begin{enumerate}
+    \item $\otau t_1 \neq (\omega t_1 - \omega t_2 + z) + \otau t_2 \in closure_\neq(\Psi)$.
+    \item Either $bl(\otau t_1) \neq bl(\otau t_2) \in closure_{bl}(\Psi)$ or $bl(\otau t_2) \neq bl(\otau t_1) \in closure_{bl}(\Psi)$.
+    \item $t_1 = z' + t_2$ for any $z' \neq z$ is implied by $\Psi$.
+  \end{enumerate}
+  We call the disequalities that follow from 1.\ the \emph{explicit} disequalities and those following from 2.\ and 3.\ the \emph{implicit} disequalities.
+\end{lemma}

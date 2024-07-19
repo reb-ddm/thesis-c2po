@@ -1,1 +1,64 @@
 \section{Restriction}
+
+
+For the assignment and the widen operation, it will be useful to be able to forget all information about specific sets of terms.
+For example, when we assign a value to a term, we need to remove all terms from the domain that may be modified by this assignment, i.e., all the terms that may alias with this term.
+In the following, we will describe how to find the set of terms that may alias with a term and how to restrict the automaton and the disequalities to only keep the propositions that contain terms from a specific set.
+
+Given a partition $P = (\Pi, \tau, \omega)$, a QFA $M = (S, \eta, \delta)$, and a term $t$, we want to compute the partition $\restr{P}{\neg t}$ and the QFA $\restr{M}{\neg t}$ that represents all equalities that follow from $M$ and that are still valid after overwriting the value of $t$.
+
+Let $\T = \L(M)$. We construct the subterm-closed set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias with $t$.
+This is exactly the set of terms that are not modified when the value of $t$ changes.
+We differentiate between two cases: the case where $t$ is an atom and the case where $t$ is a dereferenced term.
+
+If $t$ is an atom, then it is impossible to reach the address of $t$ by dereferencing.
+Therefore, $\restr{\T}{\neg t}$ is the set of all terms that do not contain $t$ as a subterm.
+
+If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms of $\T$ where for each subterm of the form $*(z' + v)$ it holds that $t' \nequivp (z' - z) + v$.
+
+Given the set $\restr{\T}{\neg t}$, we can find the restricted automaton $\restr{M}{\neg t} = (S', \eta', \delta')$ by conducting a breadth-first search on the automaton $M$ and computing which paths of the automaton are still reachable by using only the terms in $\restr{\T}{\neg t}$.
+In order to correctly update the weights in the automaton and later find representative terms of the equivalence classes that derive from the automaton, we will need to choose a representative term for each state of the automaton, which we will denote as the function $\repr : S' \rightarrow \Z \times \restr{\T}{\neg t}$.
+
+We start with the initial states of $M$:
+for each atom $a \in \restr{\T}{\neg t}$ where $\eta(a) = (z, s)$, if we haven't already visited $s$, then we need to choose a new representative for $s$. We simply define $\repr s = (z, a)$ and $\eta'(a) = (0, s)$.
+If we have already visited $s$, then let $\repr s = (z', t)$. We define $\eta'(a) = (z - z', s)$.
+
+Then for each visited state $s_1$, we consider all outgoing transitions: for each $\delta(z_1, s_1) = (z_2, s_2)$,
+we define $\repr s_2$ if we haven't visited $s_2$ yet.
+For this, we find a term $*(t+z)$ such that $M[t] = (z_1', s_1)$ and $z = z_1 - z_1'$ for some $z_1' \in \Z$.
+If we manage to find such a term, we define $\repr s_2 = *(t+z)$.
+Otherwise, this transition is not valid in $\restr{M}{\neg t}$ anymore, and we don't add $s_2$ to the set of visited states.
+Now let $\repr s_1 = (z_1', t_1)$ and $\repr s_2 = (z_2', t_2)$.
+We can define the corresponding transition $\delta'(z_1 - z_1', s_1) = (z_2 - z_2', s_2)$.
+We add $s_2$ to the set of reachable states, and we continue the search for all outgoing transitions for the remaining visited states.
+
+Essentially, we keep the transitions between the states that are still reachable after removing the terms, and we adjust the weights of the transitions to the new representatives.
+
+The new partition $\restr{P}{\neg t} = (\Pi', \tau', \omega')$ is defined as $\Pi' = \{\L(s) \mid s \in S, s \text{ is reachable in $\restr{M}{\neg t}$}\}$,
+$\tau' (\L(s)) = t$ if $\repr s = (z, t)$, and
+for each $t \in \L(\restr{M}{\neg t})$ we define $\omega'(t) = z'$ if $\restr{M}{\neg t}[t] = (z', t')$.
+
+This definition of restriction can be applied in the same way by using any subterm-closed set $\T' \subseteq \L(M)$ of terms and restricting the automaton $M$ to the automaton $\restr{M}{\T'}$ that only remembers the equalities that only contain terms from $\T'$.
+
+\begin{lemma}\label{restriction}
+    Let $M = (S, \eta, \delta)$ be a QFA and let $\restr{M}{\T'} = (S', \eta', \delta')$ and $\repr : S' \rightarrow \Z \times \T'$ be the automaton and the function that are obtained by restricting $M$ as described above.
+    Then for each term $t_1 \in \T'$, it holds that $M[t_1] = (z, s)$ iff $\restr{M}{\T'}[t_1] = (z - \repr s, s)$.
+\end{lemma}
+\begin{proof}
+    This lemma can be proven by induction over the structure of the term $t_1$.
+\end{proof}
+
+\begin{proposition}
+    Let $M = (S, \eta, \delta)$ be a QFA and let $\restr{M}{\T'} = (S', \eta', \delta')$ be the automaton that is obtained by restricting $M$ as described above.
+    Then for each term $t_1, t_2 \in \T'$, it holds that $M[t_1] = z + M[t_2]$ iff $\restr{M}{\T'}[t_1] = z + \restr{M}{\T'}[t_2]$.
+\end{proposition}
+\begin{proof}
+    This proposition follows from Lemma~\ref{restriction}.
+\end{proof}
+
+We can also find the set of disequalities and the block disequalities that are still valid when considering only the terms $\T'$.
+We keep only the propositions between representatives of the equivalence classes that are still reachable in the automaton $\restr{M}{\T'}$, but we need to update the representatives to the new representatives.
+The remaining disequalities are removed.
+
+Given a conjunction $\Psi$, we denote the restriction of the automaton and disequalities derived from $\Psi$ to the set of terms $\T'$ by $\restr{\Psi}{\T'}$.
+Correspondingly, $\restr{\Psi}{\neg t}$ is the restriction of $\Psi$ to the terms of $\restr{\T}{\neg t}$, where $\T = \L(M)$ and $M$ is the automaton that derives from $\Psi$.
