@@ -1,1 +1,51 @@
-%\section{Representation of 2-Pointer Logic}
+\section{Representation of C expressions as 2-Pointer Logic Terms}
+
+Since the \cpo\ analysis only considers C expressions with pointer types, they have a uniform size.
+For instance, on an x86-64 architecture, pointers are 64 bits in size.
+
+However, the offsets added to pointers vary depending on the pointer's type.
+For example, if we have a pointer $p$ to a 32-bit integer,
+the expression \textsf{p + z} represents an offset of $32 \cdot z$ bits.
+If the same pointer $p$ is cast to a pointer to a 64-bit integer, the offset becomes $64 \cdot z$ bits.
+It is important to take this in consideration in order to know what the relative positioning of
+different expressions is in the memory.
+Therefore, the abstract term that represents a C expression contains the offset in bits, rather than the offset as written in the C expression.
+For instance, if $p$ is a pointer to a 32-bit integer and $q$ is a pointer to a 64-bit integer, then \textsf{p + 1} is represented as $p + 32$, and \textsf{q + 1} is represented as $q + 64$.
+
+Additionally, arrays and structs are treated the same way as pointers in C.
+For example, the expression \textsf{a[1]} for an array $a$ is equivalent to the expression \textsf{*(a + 1)}.
+Hence, the analysis treats arrays as pointers to their first element.
+A two-dimensional array in C with dimensions $n$ and $m$ can be viewed as a one-dimensional array with $n \cdot m$ elements.
+The expression \textsf{a[i][j]} is treated as \textsf{*(a + $(i \cdot m + j) \cdot s$)}, where $s$ is the size in bits of the array elements.
+This method can be extended to calculate offsets for arrays with more dimension.
+
+For a struct $s$, the analysis treats $\&s$ as a pointer to the first field of the struct.
+For a field $f$ of the struct $s$ with an offset of $z$ bits,
+the expression \textsf{s.f} is treated as \textsf{*(\&s + z)}.
+In C, the offset of a struct element may not always be a multiple of 8 bits.
+Thus, offsets are represented in bits rather than bytes.
+\todo{how do you calculate the offset of a struct element in goblint?}
+
+In some cases, it's not possible to determine the offset of a pointer expression,
+e.g., if the offset is an unknown variable instead of a constant.
+Here, the \goblint\ constant propagation analysis is used to infer the offset value.
+If the value remains indeterminable, the expression is treated as unknown.
+
+\begin{example}
+    Consider the following C struct:
+    \begin{lstlisting}
+        struct S {
+            int first;
+            int arr[5];
+        };
+    \end{lstlisting}
+    and the following C variable declaration: \textsf{struct S x[3][2];}.
+    The expression \textsf{x[2][1].arr[4]} is treated as \textsf{*(\&x + 1120)}.
+\end{example}
+%struct S x[3][2];
+%struct S {
+    % int first;
+    % int arr[5];
+%   };
+%x[2][1].arr[4]
+%*(1120+x[Ptr64])[Int32]
