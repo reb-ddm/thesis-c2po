@@ -1,5 +1,22 @@
 \section{Block Disequalities}
 
+The 2-Pointer Logic considers not only equalities, but also block disequalities and disequalities between terms.
+These are necessary in order to infer which terms are definitely not
+modified when an assignment takes place.
+Given a conjunction $\Psi$ of propositions, the block disequalities implied by the $\Psi_{bl}$
+and $\equivp$ can be derived by the following rules:
+
+\begin{enumerate}[label={[B\arabic*]}, ref={[B\arabic*]}]
+    \setcounter{enumi}{-1} % to start with B0
+    \item	If $bl(t_1)\neq bl(t_2)$ then $bl(t_2)\nequivp bl(t_1)$ (\emph{symmetry});
+          \item\label{item:closure-under-quantitative-equalities}
+          If $bl(t_1)\nequivp bl(t_2)$, $t'_1 \equivp z_1+t_1$ and $t'_2\equivp z_2+t_2$, then
+          also $bl(t'_1)\nequivp bl(t'_2)$ (\emph{closure under quantitative equalities});
+          \item\label{item:distinct-vars-block-neq} $bl(\&x) \neq bl(\&y)$ for all distinct $x, y \in \X$.
+\end{enumerate}
+
+\todo[inline]{We only store those between representatives}
+
 
 \section{Disequalities}\label{disequalities}
 
@@ -7,22 +24,20 @@ In order to implement a more precise abstract transformer for the assignment, it
 point to different addresses. Let $\Psi$ be a conjunction of 2-pointer logic terms.
 We define the binary relation $\nequivp$ which represents all disequalities that can be derived from $\Psi$.
 
-\begin{enumerate}
-  \item[(D0)] If $t_1 \neq z + t_2 \in \Psi$, then $t_1 \nequivp z + t_2$.
-  \item[(D1)] If $t_1 \nequivp z + t_2$, then:
-    \begin{enumerate}
-      \item $t_2 \nequivp - z + t_1$.
-      \item $t'_1\nequivp (z_1 + z) + t_2$ if $t_1' = z_1 + t_1$ is implied by $\Psi$.
-      \item If $t_1 = z + t_2$ is implied by $\Psi$, then $\Psi$ is Unsat.
-    \end{enumerate}
-  \item[(D2)] If $*(z_1 + t_1) \nequivp *(z_2 + t_2)$ then also $t_1 \nequivp (z_2 - z_1) + t_2$.
-  \item[(D3)] If $t_1 = z' + t_2$ is implied by $\Psi$ then $t_1 \nequivp z + t_2$ for all $z \neq z'$.
-  \item[(D4)] If $bl(t_1) \neq bl(t_2) \in \Psi$, then:
-    \begin{enumerate}
-      \item $t_1 \nequivp z + t_2$ for all $z \in \Z$.
-      \item If $t_1 = z + t_2$ for any $z \in \Z$, then $\Psi$ is Unsat.
-    \end{enumerate}
+\begin{enumerate}[label={[D\arabic*]}, ref={[D\arabic*]}]
+    \setcounter{enumi}{-1} % to start with D0
+    \item\label{item:neq-quantitative-equalities}
+    If $t_1 \neq z + t_2$ occurs in $\Psi$, and $t_1 \equivp z'_1 + t'_1$ and $t_2\equivp z'_2+t'_2$,
+    then $t'_1\nequivp (z'_2-z'_1+z)+t'_2$ (\emph{closure under quantitative equalities});
+    \item If $t_1 \nequivp z + t_2$, then $t_2 \nequivp -z + t_1$ (\emph{quantitative symmetry}).
+          %
+          \item\label{item:inverse-deref}
+          If $*(z_1 + t_1) \nequivp *(z_2 + t_2)$, then $t_1 \nequivp (z_2 - z_1) + t_2$
+          (\emph{inverse dereferencing});
+          \item\label{item:eq-neq} If $t_1 \equivp z + t_2$, then $t_1\nequivp z'+t_2$ for all $z'\neq z$;
+          \item\label{item:block-neq} If $bl(t_1) \neq bl(t_2) \in \Psi$, then $t_1 \nequivp z + t_2$ for all $z \in \Z$.
 \end{enumerate}
+
 
 The set of disequalities following from (D3) and (D4) can be infinite, but we don't need to explicitly store them, as they implicitly derive from the congruence closure of $\Psi_=$ or respectively from the propositions in $\Psi_{bl}$.
 We construct the set of all disequalities and block disequalities deriving from (D0), (D1), (D2) and (D4),but only those that contain representative terms of components $Q\in\Pi$.
@@ -40,12 +55,12 @@ For each block disequality $bl(t_1) \neq bl(t_2) \in \Psi$, we store the disequa
 We call the set of these disequalities $closure_{bl}(\Psi)$.
 
 \begin{lemma}\label{lemma:diseq_types}
-  $t_1 \nequivp t_2 + z$ iff one of the following holds:
+    $t_1 \nequivp t_2 + z$ iff one of the following holds:
 
-  \begin{enumerate}
-    \item $\otau t_1 \neq (\omega t_1 - \omega t_2 + z) + \otau t_2 \in closure_\neq(\Psi)$.
-    \item Either $bl(\otau t_1) \neq bl(\otau t_2) \in closure_{bl}(\Psi)$ or $bl(\otau t_2) \neq bl(\otau t_1) \in closure_{bl}(\Psi)$.
-    \item $t_1 = z' + t_2$ for any $z' \neq z$ is implied by $\Psi$.
-  \end{enumerate}
-  We call the disequalities that follow from 1.\ the \emph{explicit} disequalities and those following from 2.\ and 3.\ the \emph{implicit} disequalities.
+    \begin{enumerate}
+        \item $\otau t_1 \neq (\omega t_1 - \omega t_2 + z) + \otau t_2 \in closure_\neq(\Psi)$.
+        \item Either $bl(\otau t_1) \neq bl(\otau t_2) \in closure_{bl}(\Psi)$ or $bl(\otau t_2) \neq bl(\otau t_1) \in closure_{bl}(\Psi)$.
+        \item $t_1 = z' + t_2$ for any $z' \neq z$ is implied by $\Psi$.
+    \end{enumerate}
+    We call the disequalities that follow from 1.\ the \emph{explicit} disequalities and those following from 2.\ and 3.\ the \emph{implicit} disequalities.
 \end{lemma}

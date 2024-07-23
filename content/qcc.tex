@@ -111,16 +111,20 @@ Using the automata, the \emph{closure}$(t_1,t_2,z)$ operation, which is the modi
   and let $P = (\Pi, \tau, \omega)$ be the partition before the union operation and $P' = (\Pi', \tau', \omega')$ be the partition after the union operation.
   For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L(s_1)$,
   we set $\delta'(z_1 - \tau\,t'', s_1) = \delta'(z_2, s_2)$.
+  \todo[inline]{Then use merge for the successors.}
   \todo{change $z_2$ in incoming transitions? how deep should I go in the details?}
 \end{enumerate}
 
+\todo[inline]{This is the same as congruence closure (cite) but restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets as in (cite Oliveras Nieuwenhuis).}
+
 \begin{theorem}
   % This is Theorem 3 in the other paper
-  Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$. We can construct a corresponding quantitative partition $(\Pi, \tau,\omega)$
-  and a corresponding QFA $M = (S, \eta, \delta)$ such that for every $t_1, t_2 \in \L(M)$, the following statements are equivalent:
+  Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
+  The corresponding quantitative partition $(\Pi, \tau,\omega)$ and a corresponding QFA $M = (S, \eta, \delta)$ are constructed by applying the closure operation to all equalities in $\Psi$.
+  Then $\T \subseteq \L(M)$ and for every $t_1, t_2 \in \L(M)$ the following statements are equivalent:
   \begin{enumerate}
-    \item $M[t_1] = z + M[t_2]$
-    \item $\Psi$ implies $(t_1 = z + t_2)$
+    \item $M[t_1] = z + M[t_2]$,
+    \item $\Psi$ implies $(t_1 = z + t_2)$.
   \end{enumerate}
 \end{theorem}
 
@@ -128,5 +132,3 @@ This theorem was proven in~\cite{2pointer} for the case of a one-dimensional mem
 The proof can easily be adapted for the two-dimensional memory model.
 
 We remark that the only equalities that can be derived from $\Psi$ are derived from $\Psi_=$. We cannot derive equalities from any of the disequalities.
-
-This is the same as congruence closure (cite) but restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets as in (cite Oliveras Nieuwenhuis).
