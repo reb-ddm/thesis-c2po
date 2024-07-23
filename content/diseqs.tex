@@ -1,4 +1,51 @@
 \section{Block Disequalities}
 
 
-\section{Disequalities}
+\section{Disequalities}\label{disequalities}
+
+In order to implement a more precise abstract transformer for the assignment, it is important to know which terms definitely
+point to different addresses. Let $\Psi$ be a conjunction of 2-pointer logic terms.
+We define the binary relation $\nequivp$ which represents all disequalities that can be derived from $\Psi$.
+
+\begin{enumerate}
+  \item[(D0)] If $t_1 \neq z + t_2 \in \Psi$, then $t_1 \nequivp z + t_2$.
+  \item[(D1)] If $t_1 \nequivp z + t_2$, then:
+    \begin{enumerate}
+      \item $t_2 \nequivp - z + t_1$.
+      \item $t'_1\nequivp (z_1 + z) + t_2$ if $t_1' = z_1 + t_1$ is implied by $\Psi$.
+      \item If $t_1 = z + t_2$ is implied by $\Psi$, then $\Psi$ is Unsat.
+    \end{enumerate}
+  \item[(D2)] If $*(z_1 + t_1) \nequivp *(z_2 + t_2)$ then also $t_1 \nequivp (z_2 - z_1) + t_2$.
+  \item[(D3)] If $t_1 = z' + t_2$ is implied by $\Psi$ then $t_1 \nequivp z + t_2$ for all $z \neq z'$.
+  \item[(D4)] If $bl(t_1) \neq bl(t_2) \in \Psi$, then:
+    \begin{enumerate}
+      \item $t_1 \nequivp z + t_2$ for all $z \in \Z$.
+      \item If $t_1 = z + t_2$ for any $z \in \Z$, then $\Psi$ is Unsat.
+    \end{enumerate}
+\end{enumerate}
+
+The set of disequalities following from (D3) and (D4) can be infinite, but we don't need to explicitly store them, as they implicitly derive from the congruence closure of $\Psi_=$ or respectively from the propositions in $\Psi_{bl}$.
+We construct the set of all disequalities and block disequalities deriving from (D0), (D1), (D2) and (D4),but only those that contain representative terms of components $Q\in\Pi$.
+This set is finite, because we only store equalities between different representatives and not the implicit equalities following from (D3) and (D4).
+We denote these explicitly stored disequalities as $closure_\neq(\Psi)$.
+
+This set can be computed in polynomial time in the size of the formula $\Psi$ by going through all the
+disequalities $t_1 \neq z + t_2$ in $\Psi_\neq$ and storing the disequalities
+$\otau t_1  \neq (\omega t_2 - \omega t_1 + z) + \otau t_2$ and $\otau t_2 \neq - (\omega t_2 - \omega t_1 + z) + \otau t_1$.
+Then for each disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$ that follows from a stored disequality or from the congruence closure of $\Psi_=$ or from a block disequality,
+the disequalities propagate backwards using the rule (D2).
+This only adds a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
+
+For each block disequality $bl(t_1) \neq bl(t_2) \in \Psi$, we store the disequalities $bl(\otau t_1) \neq bl(\otau t_2)$.
+We call the set of these disequalities $closure_{bl}(\Psi)$.
+
+\begin{lemma}\label{lemma:diseq_types}
+  $t_1 \nequivp t_2 + z$ iff one of the following holds:
+
+  \begin{enumerate}
+    \item $\otau t_1 \neq (\omega t_1 - \omega t_2 + z) + \otau t_2 \in closure_\neq(\Psi)$.
+    \item Either $bl(\otau t_1) \neq bl(\otau t_2) \in closure_{bl}(\Psi)$ or $bl(\otau t_2) \neq bl(\otau t_1) \in closure_{bl}(\Psi)$.
+    \item $t_1 = z' + t_2$ for any $z' \neq z$ is implied by $\Psi$.
+  \end{enumerate}
+  We call the disequalities that follow from 1.\ the \emph{explicit} disequalities and those following from 2.\ and 3.\ the \emph{implicit} disequalities.
+\end{lemma}
