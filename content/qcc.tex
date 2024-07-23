@@ -1,7 +1,5 @@
 \section{Quantitative congruence closure}
 
-\subsection{Quantitative Congruence Closure}\label{qcc}
-
 Given a conjunction $\Psi$ of propositions, the quantitative congruence closure infers all equalities that are logically implied by $\Psi$.
 As there are infinitely many such equalities, we consider only the equalities that contain terms from a specific set $\T$ of terms.
 The set $\T$ must be subterm-closed and contain at least all the terms that occur in $\Psi$.
@@ -17,12 +15,45 @@ which is the smallest equivalence relation $\equivp$ that satisfies these rules:
 \item\label{item:dereferencing} If $t_1 \equivp (z_2 - z_1) + t_2$, then $*(z_1 + t_1) \equivp *(z_2 + t_2)$ holds as well, whenever $*(z_1 + t_1),  *(z_2 + t_2)$ are in $\T$ (\emph{dereferencing}).
 \end{enumerate}
 
-This relation can be represented by a \emph{quantitative congruence closure} $(\Pi, \tau, \omega, \zeta)$.
+\subsection{Quantitative union-find}
 
-The \emph{quantitative partition} $(\Pi, \tau, \omega)$ consists of a partition $\Pi$ of $\T$, a function $\tau : \Pi \rightarrow \T$ that assigns a representative term to each equivalence class $Q \in \Pi$ and a mapping $\omega : \T \rightarrow \Z$, which assigns to each term its offset from the representative of its equivalence class.
-We can derive the function $\otau : \T \rightarrow \T$ that maps each term to its representative, where $\otau t = \tau Q$ if $t \in Q$ for some $Q \in \Pi$.
-These functions represent equalities of the form $t = \omega t + \otau t$.
+We can represent the quantitative equivalence relation $\equivp$ by using a data structure similar to union-find, but extended with integer offsets.
+The \emph{quantitative union-find} $(\Pi, \tau, \omega)$ consists of a partition $\Pi$ of $\T$,
+a function $\tau : \Pi \rightarrow \T$ that assigns a representative term to each equivalence class $Q \in \Pi$ and a mapping $\omega : \T \rightarrow \Z$,
+which assigns to each term its offset from the representative of its equivalence class.
+A set $Q \in \Pi$ contains all terms that are equivalent up to an integer offset.
+
+There exist efficient algorithms for the union-find data structure,
+in particular the well-known representation proposed by~\textcite{uf-tarjan},
+which we will present in this section.
+We extend this approach to handle integer offsets as well.
+
+The union-find partition is represented as an acyclic directed weighted graph,
+where each node represents a term $t \in \T$ and
+each connected component is a tree, which represents an equivalence class $Q \in \Pi$.
+Each tree has a root, that is the representative $\tau Q$ of the equivalence class $Q$.
+All the edges in the tree are directed towards the root.
+Each edge from $t_1$ to $t_2$ is weighted with an integer $z$,
+which means that $t_1 \equivp z + t_2$.
+$\omega t$ can be computed by following the path from $t$ to the root of the tree and summing up the weights of the edges.
+The \find{t} operation returns the pair $(\otau t, \omega t)$ for a given term $t$.
+
+The union-find data structure is initialized with a partition $\Pi$ that contains all the terms from $\T$ as singletons.
+The corresponding graph contains a node for each $t \in \T$ and no edges.
+Then for each equality $t_1 = z + t_2$ in $\Psi$, we perform the \union{t_1}{t_2}{z} operation, which merges two trees by adding an edge from $\tau\,t_1$ to $\tau\,t_2$ with weight $z - \omega\,t_1 + \omega\,t_2$.
+
+\todo{Is it worth it to mention path compression and union by rank?}
+
+\begin{example}
+Consider the conjunction $\Psi \equiv A = 1 + B \land \&x = 2 + D \land  = 3 + A$.
+\end{example}
+
 For an equality $t_1 = z + t_2$, this is satisfied by a partition $(\Pi, \tau, \omega)$ iff $\otau t_1 = \otau t_2$ and $z = \omega t_1 - \omega t_2$.
+We can derive the function $\otau : \T \rightarrow \T$ that maps each term to its representative, where $\otau t = \tau Q$ if $t \in Q$ for some $Q \in \Pi$.
+The partition is constructed in such a way that for each $t \in \T$,
+the equality $t \equivp \omega t + \otau t$ is derivable from the rules above.
+
+
 
 This kind of partition can be represented in a similar fashion as a congruence closure data structure\cite{abstract-cc}, by additionally storing information about the integer offsets.
 This is a dynamic data structure, which means that it is possible to add terms and equalities to the representation, such that the closure of equivalences is computed.
