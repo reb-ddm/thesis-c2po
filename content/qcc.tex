@@ -2,10 +2,22 @@
 
 \subsection{Quantitative Congruence Closure}\label{qcc}
 
-In order to infer all equalities that are logically implied by a conjunction $\Psi$ of propositions, we compute the \emph{quantitative congruence closure} of the equalities in $\Psi$.
-The representation of the quantitative congruence closure consists of a \emph{quantitative partition} $P = (\Pi,\tau,\omega)$ and a \emph{quantitative automaton} $M = (S, \eta, \delta)$, which will be described in this section.
+Given a conjunction $\Psi$ of propositions, the quantitative congruence closure infers all equalities that are logically implied by $\Psi$.
+As there are infinitely many such equalities, we consider only the equalities that contain terms from a specific set $\T$ of terms.
+The set $\T$ must be subterm-closed and contain at least all the terms that occur in $\Psi$.
+The equalities implied by $\Psi$ are described by the quantitative equivalence relation $\equivp$,
+which is the smallest equivalence relation $\equivp$ that satisfies these rules:
+\begin{enumerate}[label={[E\arabic*]}, ref={[E\arabic*]}]
+  \setcounter{enumi}{-1}
+\item\label{item:persistence} If $t_1 = z+t_2$ occurs in $\Psi$, then $t_1 \equivp z+t_2$;
+\item\label{item:quantitative-reflexivity} $t_1 \equivp 0+t_1$ for all $t\in\T$(\emph{quantitative reflexivity});
+\item\label{item:quantitative-symmetry} If $t_1 \equivp z+t_2$, then $t_2 \equivp -z+t_1$ (\emph{quantitative symmetry});
+\item\label{item:quantitative-transitivity} If $t_1 \equivp z_1+t_2$ and $t_2 \equivp z_2 + t_3$,
+		then $t_1 \equivp (z_1+z_2)+t_3$ (\emph{quantitative transitivity});
+\item\label{item:dereferencing} If $t_1 \equivp (z_2 - z_1) + t_2$, then $*(z_1 + t_1) \equivp *(z_2 + t_2)$ holds as well, whenever $*(z_1 + t_1),  *(z_2 + t_2)$ are in $\T$ (\emph{dereferencing}).
+\end{enumerate}
 
-Given that there can be an infinite number of equalities that follow from a certain conjunction $\Psi$, we only consider equalities that contain terms from a subterm-closed set $\T$ of \emph{interesting terms} that contains at least all the terms that occur in $\Psi$.
+This relation can be represented by a \emph{quantitative congruence closure} $(\Pi, \tau, \omega, \zeta)$.
 
 The \emph{quantitative partition} $(\Pi, \tau, \omega)$ consists of a partition $\Pi$ of $\T$, a function $\tau : \Pi \rightarrow \T$ that assigns a representative term to each equivalence class $Q \in \Pi$ and a mapping $\omega : \T \rightarrow \Z$, which assigns to each term its offset from the representative of its equivalence class.
 We can derive the function $\otau : \T \rightarrow \T$ that maps each term to its representative, where $\otau t = \tau Q$ if $t \in Q$ for some $Q \in \Pi$.
