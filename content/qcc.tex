@@ -36,7 +36,8 @@ All the edges in the tree are directed towards the root.
 Each edge from $t_1$ to $t_2$ is weighted with an integer $z$,
 which means that $t_1 \equivp z + t_2$.
 $\omega t$ can be computed by following the path from $t$ to the root of the tree and summing up the weights of the edges.
-The \find{t} operation returns the pair $(\otau t, \omega t)$ for a given term $t$.
+The \find{t} operation returns the pair $(\otau\,t, \omega\,t)$ for a given term $t$,
+where $\otau\,t$ denotes the representative $\tau\,Q$ of the equivalence class $Q\in\Pi$ that contains $t$.
 
 The union-find data structure is initialized with a partition $\Pi$ that contains all the terms from $\T$ as singletons.
 The corresponding graph contains a node for each $t \in \T$ and no edges.
