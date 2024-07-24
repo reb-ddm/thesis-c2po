@@ -1,4 +1,4 @@
-\section{Quantitative congruence closure}
+\section{Quantitative congruence closure}\label{chapter:qcc}
 
 Given a conjunction $\Psi$ of propositions, the quantitative congruence closure infers all equalities that are logically implied by $\Psi$.
 As there are infinitely many such equalities, we consider only the equalities that contain terms from a specific set $\T$ of terms.
@@ -8,14 +8,14 @@ which is the smallest equivalence relation $\equivp$ that satisfies these rules:
 \begin{enumerate}[label={[E\arabic*]}, ref={[E\arabic*]}]
   \setcounter{enumi}{-1}
 \item\label{item:persistence} If $t_1 = z+t_2$ occurs in $\Psi$, then $t_1 \equivp z+t_2$;
-\item\label{item:quantitative-reflexivity} $t_1 \equivp 0+t_1$ for all $t\in\T$(\emph{quantitative reflexivity});
+\item\label{item:quantitative-reflexivity} $t_1 \equivp 0+t_1$ for all $t\in\T$ (\emph{quantitative reflexivity});
 \item\label{item:quantitative-symmetry} If $t_1 \equivp z+t_2$, then $t_2 \equivp -z+t_1$ (\emph{quantitative symmetry});
 \item\label{item:quantitative-transitivity} If $t_1 \equivp z_1+t_2$ and $t_2 \equivp z_2 + t_3$,
 		then $t_1 \equivp (z_1+z_2)+t_3$ (\emph{quantitative transitivity});
 \item\label{item:dereferencing} If $t_1 \equivp (z_2 - z_1) + t_2$, then $*(z_1 + t_1) \equivp *(z_2 + t_2)$ holds as well, whenever $*(z_1 + t_1),  *(z_2 + t_2)$ are in $\T$ (\emph{dereferencing}).
 \end{enumerate}
 
-\subsection{Quantitative union-find}
+\subsection{Quantitative union-find}\label{subsection:quantitative-union-find}
 
 We can represent the quantitative equivalence relation $\equivp$ by using a data structure similar to union-find, but extended with integer offsets.
 The \emph{quantitative union-find} $(\Pi, \tau, \omega)$ consists of a partition $\Pi$ of $\T$,
@@ -73,12 +73,12 @@ more efficient if we call it again for the same term $t$ or a term in the same e
 We define the action $(+): \Z \rightarrow (\Z \times \T) \rightarrow (\Z \times \T)$, where $z_1 + (z_2,t) = (z_1 + z_2, t)$.
 An equality $t_1 = z + t_2$ is satisfied by a partition $(\Pi, \tau, \omega)$, i.e., \find{t_1} = z + \find{t_2}, iff $t_1 \equivp z + t_2$.
 
-\subsection{Quantitative finite automaton}
+\subsection{Quantitative finite automaton}\label{subsection:qfa}
 
 The union-find data structure is useful for representing equalities between atoms
 with an addition of integer offsets.
 The union operation needs to be modified in order to take into account also the dereferencing operation.
-For example if $\T = {A, B, *A, *B}$ and we perform a union of $A$ and $B$, the
+For example if $\T = \{A, B, *A, *B\}$ and we perform a union of $A$ and $B$, the
 closure rule~\ref{item:dereferencing} tells us, that also the equivalence classes of $*A$ and $*B$ should be merged.
 In order to efficiently find the equivalence class corresponding to the dereferenced terms of another equivalence class, we introduce the \emph{quantitative finite automaton} (QFA).
 
