@@ -14,8 +14,25 @@ as they sometimes need to be added to existing equivalence classes.
 \end{example}
 
 Given a partition $P = (\Pi, \tau, \omega)$ of set of terms $\T$ and a set $\T'$, which is a superset of $\T$ and closed under subterms,
-we
-we want to compute the partition $P'$ and the set of terms $\T'$ that include the new term $t$
-and all its subterms without modifying the semantics of the representation.
+we define the operation $\ext{k}{\T'}$ that extends the kernel $k = \angl{\T, P, M, B, D}$ to the set of terms $\T'$,
+without altering the semantics of the representation.
 
-We differentiate between two cases: the case where $t$ is an atom and the case where $t$ is a dereferenced term.
+The extension is built inductively based on the structure of the terms in $\T'$.
+We describe how to add a new atom and a term of the form $*(z+t)$, where $t$ is already a part of $\T$.
+This can be repeated for all terms in $\T'$.
+
+In the case that $\T' = \T \cup \{a\}$ for an atom $a \notin \T$, we simply add a new
+equivalence class $\{a\}$ to $\Pi$ and a new state $s_i$ to the states $S$ of $M$.
+We define $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s_i)$, $Q_i = \{a\}$.
+The remaining elements of $k$ remain unchanged.
+
+Consider $\T' = \T \cup \{*(z+t)\}$ for a term $t \in \T$, but $*(z + t) \notin \T$.
+First we add a new equivalence class $\{*(z+t)\}$ to $\Pi$.
+We define $\tau\,(*(z+t)) = *(z+t)$ and $\omega\,(*(z+t))=0$.
+Let $Q_i \in \Pi$ be the equivalence class that contains $t$.
+If $\delta(z + \omega\,t,s_i)$ is not defined, then we add a new state $s_j$ to $S$
+and define $\delta(z + \omega\,t, s_i) = (0, s_j)$ and $Q_j = \{*(z+t)\}$.
+Otherwise, let $\delta(z + \omega\,t, s_i) = (z', s_j)$.
+Then we perform the operation \union{*(z + t)}{\tau\,Q_j}{z'}.
+In this case, we do not need to add a new state to the automaton,
+as the new term is added to the existing equivalence class $Q_j$.
