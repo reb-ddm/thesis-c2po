@@ -36,7 +36,7 @@ All the edges in the tree are directed towards the root.
 Each edge from $t_1$ to $t_2$ is weighted with an integer $z$,
 which means that $t_1 \equivp z + t_2$.
 $\omega t$ can be computed by following the path from $t$ to the root of the tree and summing up the weights of the edges.
-The \find{t} operation returns the pair $(\otau\,t, \omega\,t)$ for a given term $t$,
+The $\find{t}$ operation returns the pair $(\otau\,t, \omega\,t)$ for a given term $t$,
 where $\otau\,t$ denotes the representative $\tau\,Q$ of the equivalence class $Q\in\Pi$ that contains $t$.
 
 The union-find data structure is initialized with a partition $\Pi$ that contains all the terms from $\T$ as singletons.
@@ -62,16 +62,16 @@ From this representation, we can for example derive that $B = 4 + \&x$.
 
 Depending on the choice of the representatives, the tree can look different.
 In a practical implementation, the representatives are chosen in such a way that the trees have the lowest possible height,
-thus making the \find{t} operation more efficient.
+thus making the $\find{t}$ operation more efficient.
 Another possible optimization is to set the parent node of a term to the representative of the tree,
-each time the \find{t} operation is called.
-This way, the tree is flattened, which makes the \find{t} operation
+each time the $\find{t}$ operation is called.
+This way, the tree is flattened, which makes the $\find{t}$ operation
 more efficient if we call it again for the same term $t$ or a term in the same equivalence class.
 \todo{cite}
 \end{example}
 
 We define the action $(+): \Z \rightarrow (\Z \times \T) \rightarrow (\Z \times \T)$, where $z_1 + (z_2,t) = (z_1 + z_2, t)$.
-An equality $t_1 = z + t_2$ is satisfied by a partition $(\Pi, \tau, \omega)$, i.e., \find{t_1} = z + \find{t_2}, iff $t_1 \equivp z + t_2$.
+An equality $t_1 = z + t_2$ is satisfied by a partition $(\Pi, \tau, \omega)$, i.e., $\find{t_1} = z + \find{t_2}$, iff $t_1 \equivp z + t_2$.
 
 \subsection{Quantitative finite automaton}\label{subsection:qfa}
 
