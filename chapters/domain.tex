@@ -1,10 +1,43 @@
-\chapter{Domain}
+\chapter{Abstract Domain}
 
-\section{Representation}
+In this chapter we present the representation of the abstract domain used for the \cpo\ analysis, alongside the operations that are fundamental for implementing an analysis based on abstract interpretation.
+This includes a partial order and the operations \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing}.
+Two different versions of the \emph{join} and of the \emph{equal} operation are introduced,
+differing in precision and efficiency.
+Prior to defining these operations, we discuss the extension of the domain to include additional terms and the restriction of the domain to a subset of terms,
+both crucial for the subsequent operations.
 
-Set $\T$, partition $P$, QFA $M$, block diseqs $B$, diseqs $D$.
+The abstract values of the \cpo\ analysis consist of a representation
+of 2-Pointer Logic conjunctions, as detailed in the previous chapter.
+This ensures that whenever propositions are added to or removed from the domain,
+the closure of all implied propositions is computed.
 
-Query: ...
+The representation consists of a tuple $k = \angl{\T,P,M,B,D}$,
+where $\T$ is a set of terms closed under subterms, $P = (\Pi, \tau, \omega)$ is a partition
+of $\T$, as described in \cref{subsection:quantitative-union-find}.
+Each state of the QFA $M$ represents an equivalence class of $P$, as outlined in \cref{subsection:qfa}.
+$B$ and $D$ are lists of explicit block disequalities and disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
+
+The tuple $k$ is called the \emph{kernel} representation of $\Psi$.
+For an unsatisfiable formula $\Psi$, the kernel representation is $\bot$.
+
+It is posible to convert a kernel representation $k = \angl{\T,P,M,B,D}$ with $M = (S, \eta, \delta)$ to a formula $\F[k]$, that is given by
+
+\[
+\begin{array}{lll}
+    \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s_i)} (a = z + \tau\,Q_i) \land \\
+    & & \bigwedge_{\delta\,(z_i,s_i)=(z_j,s_j)} (*(z_i + \tau\,Q_i) = z_j + \tau\,Q_j) \land \\
+    & & \bigwedge_{\{t_1, t_2\} \in B} (bl(t_1) \neq bl(t_2)) \land \\
+    & & \bigwedge_{(t_1, z, t_2) \in D} (t_1 \neq z + t_2)
+\end{array}
+\]
+
+If $k$ is the kernel of a conjunction $\Psi$, then $\F[k]$ is equivalent to $\Psi$,
+even though it may not be syntactically identical.
+
+\input{content/insert_terms}
+\input{content/restriction}
+\input{content/equal}
 
 \section{Meet}
 
