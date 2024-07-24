@@ -1,19 +1,8 @@
 \section{Restriction to a subset of terms}
 
-For the assignment and the widen operation, it will be useful to be able to forget all information about specific sets of terms.
+For the definition of the assignment operation, it is necessary to be able to forget information about specific sets of terms.
 For example, when we assign a value to a term, we need to remove all terms from the domain that may be modified by this assignment, i.e., all the terms that may alias with this term.
-In the following, we will describe how to find the set of terms that may alias with a term and how to restrict the automaton and the disequalities to only keep the propositions that contain terms from a specific set.
-
-Given a partition $P = (\Pi, \tau, \omega)$, a QFA $M = (S, \eta, \delta)$, and a term $t$, we want to compute the partition $\restr{P}{\neg t}$ and the QFA $\restr{M}{\neg t}$ that represents all equalities that follow from $M$ and that are still valid after overwriting the value of $t$.
-
-Let $\T = \L(M)$. We construct the subterm-closed set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias with $t$.
-This is exactly the set of terms that are not modified when the value of $t$ changes.
-We differentiate between two cases: the case where $t$ is an atom and the case where $t$ is a dereferenced term.
-
-If $t$ is an atom, then it is impossible to reach the address of $t$ by dereferencing.
-Therefore, $\restr{\T}{\neg t}$ is the set of all terms that do not contain $t$ as a subterm.
-
-If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms of $\T$ where for each subterm of the form $*(z' + v)$ it holds that $t' \nequivp (z' - z) + v$.
+In the following, we will describe how to restrict the automaton and the disequalities to only keep the propositions that contain terms from a specific set.
 
 Given the set $\restr{\T}{\neg t}$, we can find the restricted automaton $\restr{M}{\neg t} = (S', \eta', \delta')$ by conducting a breadth-first search on the automaton $M$ and computing which paths of the automaton are still reachable by using only the terms in $\restr{\T}{\neg t}$.
 In order to correctly update the weights in the automaton and later find representative terms of the equivalence classes that derive from the automaton, we will need to choose a representative term for each state of the automaton, which we will denote as the function $\repr : S' \rightarrow \Z \times \restr{\T}{\neg t}$.
