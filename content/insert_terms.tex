@@ -1,1 +1,21 @@
-\section{Insert new terms}
+\section{Extension to a superset of terms}
+
+When new terms appear during the analysis, the set $\T$ and the partition $P$ need to be updated
+in order to be able to express properties about the new terms.
+It is not sufficient to simply add the new terms to a fresh equivalence class,
+as they sometimes need to be added to existing equivalence classes.
+
+\begin{example}
+    Let $\Psi \equiv A = B$ and $\T = \{A, B, *A\}$.
+    The parttion $\Pi$ is equal to $\{\{A, B\}, \{*A\}\}$.
+    If we want to add the term $*B$ to $\T$, we need add it to the same equivalence class as $*A$,
+    as they are equivalent according to the rules defined in \cref{chapter:qcc}.
+    \todo{The same example is already somewhere else}
+\end{example}
+
+Given a partition $P = (\Pi, \tau, \omega)$ of set of terms $\T$ and a set $\T'$, which is a superset of $\T$ and closed under subterms,
+we
+we want to compute the partition $P'$ and the set of terms $\T'$ that include the new term $t$
+and all its subterms without modifying the semantics of the representation.
+
+We differentiate between two cases: the case where $t$ is an atom and the case where $t$ is a dereferenced term.
