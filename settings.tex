@@ -6,6 +6,9 @@
 \usepackage{stmaryrd}
 \usepackage{amsmath,amsthm,amssymb}
 \usepackage[ngerman,american]{babel}
+
+\usepackage[outputdir=build]{minted}
+
 \usepackage[autostyle]{csquotes}
 \usepackage[%
   backend=biber,
@@ -17,8 +20,8 @@
   giveninits,
   uniquename=init]{biblatex} % TODO: adapt citation style
 \usepackage{graphicx}
-\usepackage{scrhack} % necessary for listings package
-\usepackage{listings}
+% \usepackage{scrhack} % necessary for listings package
+% \usepackage{listings}
 \usepackage{lstautogobble}
 \usepackage{tikz}
 \usepackage{pgfplots}
@@ -30,6 +33,7 @@
 \usepackage{todonotes}
 \usepackage{enumitem}
 \usepackage{showkeys} % TODO: remove
+\usepackage{ifthen}
 
 \usepackage[hidelinks]{hyperref} % hidelinks removes colored boxes around references and links
 \AtBeginDocument{%
@@ -39,7 +43,7 @@
 	}
 }
 \usepackage[capitalize]{cleveref}
-\usepackage{ifthen}
+
 
 % for fachschaft_print.pdf
 \makeatletter
@@ -107,11 +111,11 @@
 }
 
 % Settings for lstlistings
-\lstset{%
-  basicstyle=\ttfamily,
-  columns=fullflexible,
-  autogobble,
-  keywordstyle=\bfseries\color{TUMBlue},
-  stringstyle=\color{TUMAccentGreen},
-  captionpos=b
-}
+% \lstset{%=\ttfamily,
+%   columns=fullflexible,
+%   autogobble,
+%   keywordsty
+%   basicstylele=\bfseries\color{TUMBlue},
+%   stringstyle=\color{TUMAccentGreen},
+%   captionpos=b
+% }

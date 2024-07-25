@@ -3,11 +3,11 @@ OUT  := build
 
 .PHONY: pdf
 pdf:
-	+latexmk -interaction=nonstopmode -outdir="$(OUT)" -pdf -halt-on-error -jobname="$(jobname)" $(FILE)
+	+latexmk -interaction=nonstopmode -outdir="$(OUT)" -pdf -halt-on-error -latexoption="-shell-escape" -jobname="$(jobname)" $(FILE)
 
 .PHONY: watch
 watch:
-	+latexmk -interaction=nonstopmode -outdir="$(OUT)" -pdf -pvc -halt-on-error -jobname="$(jobname)" $(FILE)
+	+latexmk -interaction=nonstopmode -outdir="$(OUT)" -pdf -pvc -halt-on-error -latexoption="-shell-escape" -jobname="$(jobname)" $(FILE)
 
 .PHONY: _fachschaft-print
 _fachschaft-print:

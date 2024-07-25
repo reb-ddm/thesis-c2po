@@ -33,12 +33,12 @@ If the value remains indeterminable, the expression is treated as unknown.
 
 \begin{example}
     Consider the following C struct:
-    \begin{lstlisting}
+    \begin{minted}{C}
         struct S {
             int first;
             int arr[5];
         };
-    \end{lstlisting}
+    \end{minted}
     and the following C variable declaration: \textsf{struct S x[3][2];}.
     The expression \textsf{x[2][1].arr[4]} is treated as \textsf{*(\&x + 1120)}.
 \end{example}
