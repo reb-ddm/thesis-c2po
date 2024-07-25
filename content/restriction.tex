@@ -2,9 +2,21 @@
 
 For the definition of the assignment operation, it is necessary to be able to forget information about specific sets of terms.
 For example, when we assign a value to a term, we need to remove all terms from the domain that may be modified by this assignment, i.e., all the terms that may alias with this term.
-In the following, we will describe how to restrict the automaton and the disequalities to only keep the propositions that contain terms from a specific set.
+In the following, we will describe how to restrict the automaton and the disequalities to forget all propositions that contain terms from a specific set.
 
-Given the set $\restr{\T}{\neg t}$, we can find the restricted automaton $\restr{M}{\neg t} = (S', \eta', \delta')$ by conducting a breadth-first search on the automaton $M$ and computing which paths of the automaton are still reachable by using only the terms in $\restr{\T}{\neg t}$.
+As a first step, we define the restriction of a partition and its corresponding automaton to forget information about the terms of a set $\Set$.
+Let $P = (\Pi, \tau, \omega)$ be a partition and $M = (S, \eta, \delta)$ its corresponding QFA.\@
+Given a set $\Set$, we can find the restricted partition $\restr{P}{-\Set} = (\Pi', \tau', \omega')$ and restricted
+automaton $\restr{M}{-\Set} = (S', \eta', \delta')$ by first removing all terms of $\Set$ from $\Pi$ and
+then using the automaton to restore equalities about terms in $\L(M) \backslash (\T \cup \S)$ that could be inferred by
+the automaton before the removal of these terms and that are still valid after the removal.
+In order to not forget them, we need to add some terms of $\L(M)$ to $\Pi'$.
+
+\begin{example}
+
+\end{example}
+
+by conducting a breadth-first search on the automaton $M$ and computing which paths of the automaton are still reachable after forgetting all the terms in $\Set$.
 In order to correctly update the weights in the automaton and later find representative terms of the equivalence classes that derive from the automaton, we will need to choose a representative term for each state of the automaton, which we will denote as the function $\repr : S' \rightarrow \Z \times \restr{\T}{\neg t}$.
 
 We start with the initial states of $M$:
