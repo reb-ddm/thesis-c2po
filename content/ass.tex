@@ -1,12 +1,8 @@
 \section{Assignment}
 
-\subsection{Indefinite Assignment}
 
-\subsection{Definite Assignment}
 
-\subsection{Memory Allocation}
 
-\section{Assignment}
 
 %%% BEGIN this is how to find all the terms that may alias with a term
 
@@ -69,7 +65,7 @@ setting the value of $f$ for $m$ to $z$.
 
 In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp$ of the assignment $s_1\,{:=}\,s_2$, for the three different types of assignments.
 
-\subsubsection{Indefinite Assignment}
+\subsection{Indefinite Assignment}
 
 We consider an assignment of the form $s_1\,{:=}\,?$.
 After this assignment the value of $s_1$ changes to an unknown value, so we must forget all the equalities and disequalities that contain the term $s_1$, but also all other terms that may be modified by overwriting $s_1$.
@@ -95,7 +91,7 @@ Therefore we can define the assignment as follows:
 The proof of this proposition for the case of a one-dimensional memory model can be found in~\cite{2pointer}.
 This proof can easily be adapted to the two-dimensional model.
 
-\subsubsection{Definite Assignment}
+\subsection{Definite Assignment}
 
 We consider an assignment of the form $s_1\,{:=}\,z_1+s$.
 As before, we need to forget all the equalities and disequalities about terms that may be modified by overwriting $s_1$.
@@ -119,7 +115,7 @@ We define the transformer as follows:
 
 As before, the proof of this proposition for the case of a one-dimensional memory model can be found in~\cite{2pointer}.
 
-\subsubsection{Allocation Assignment}
+\subsection{Memory Allocation}
 
 We consider an assignment of the form $s_1\,{:=}\,\malloc$.
 The term $s_1$ is assigned to a fresh address, therefore we know that the block of the term $s_1$ is different from the block of any other term in the set $\T$ of the partition, but also different than any other term $t \in \oT$ that is not (yet) in the partition.
