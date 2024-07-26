@@ -15,10 +15,10 @@ which is the smallest equivalence relation $\equivp$ that satisfies these rules:
 \item\label{item:dereferencing} If $t_1 \equivp (z_2 - z_1) + t_2$, then $*(z_1 + t_1) \equivp *(z_2 + t_2)$ holds as well, whenever $*(z_1 + t_1),  *(z_2 + t_2)$ are in $\T$ (\emph{dereferencing}).
 \end{enumerate}
 
-\subsection{Quantitative union-find}\label{subsection:quantitative-union-find}
+\subsection{Quantitative partition}\label{subsection:quantitative-union-find}
 
-We can represent the quantitative equivalence relation $\equivp$ by using a data structure similar to union-find, but extended with integer offsets.
-The \emph{quantitative union-find} $(\T, \tau, \omega)$ consists of a set of terms $\T$,
+We can represent the quantitative equivalence relation $\equivp$ as a partition.
+The \emph{quantitative partition} $P = (\T, \tau, \omega)$ consists of a set of terms $\T$,
 a function $\tau : \T \rightarrow \T$ that assigns a representative term to each term $t \in \T$ and a mapping $\omega : \T \rightarrow \Z$,
 which assigns to each term its offset from the representative of its equivalence class.
 This mean that for each $t \in \T$, it holds that $t \equivp \omega\,t + \tau\,t$.
@@ -29,7 +29,8 @@ For each representative term $t$, it holds that $\tau\,t=t$ and $\omega\,t = 0$.
 
 \subsubsection{Implementation}
 
-The Union-Find data structure can be represented as a forest of trees,
+This partition is represented by using a data structure similar to union-find, but extended with integer offsets.
+The union-find data structure can be represented as a forest of trees,
 where each tree represents an equivalence class.
 Each node in the tree corresponds to a term $t \in \T$, and each tree is rooted at a representative element $\tau\,t$,
 which serves as the identifier for the entire set.\cite{uf-tarjan}
@@ -48,7 +49,10 @@ The representative $\tau\,t$ is the root of the tree.
 
 Initially, each term $t\in\T$ is its own parent, and equalities $t_1 = z + t_2$ between terms can be added by performing the
 $\union{t_1}{z}{t_2}$ operation.
-This operation merges two trees by adding an edge from $\tau\,t_1$ to $\tau\,t_2$ with weight $z - \omega\,t_1 + \omega\,t_2$.
+This operation merges two trees by adding an edge from $\tau\,t_1$ to $\tau\,t_2$ with weight $z - \omega\,t_1 + \omega\,t_2$,
+thus merging the two equivalence classes of $t_1$ and $t_2$.
+If $\tau\,t_1 = \tau\,t_2$, but $z - \omega\,t_1 + \omega\,t_2 \neq 0$, then the conjunction is
+unsatisfiable.
 
 \begin{example}
 Consider the conjunction $\Psi \equiv B = 1 + A \land D = 2 + \&x \land A = 3 + \&x$.
@@ -81,43 +85,54 @@ This is the so-called \emph{path compression}.~\cite{uf-tarjan}
 
 \subsection{Quantitative finite automaton}\label{subsection:qfa}
 
-The union-find data structure is useful for representing equalities between atoms
-with an addition of integer offsets.
-The union operation needs to be modified in order to take into account also the dereferencing operation.
+A partition $P = (\T, \tau, \omega)$ is useful for representing equalities between atoms
+with an addition of integer offsets and it computes the closure under the rules
+\labelcref{item:persistence,item:quantitative-reflexivity,item:quantitative-symmetry,item:quantitative-transitivity}
+by construction.
+In order to take into account the dereferencing operation, we need to
+keep track for each term $t$, which equivalence classes contain terms of the form $*(z+t)$.
+This way, we can efficiently compute the equalities deriving from rule \labelcref{item:dereferencing}.
 For example if $\T = \{A, B, *A, *B\}$ and we perform a union of $A$ and $B$, the
-closure rule~\ref{item:dereferencing} tells us, that also the equivalence classes of $*A$ and $*B$ should be merged.
-In order to efficiently find the equivalence class corresponding to the dereferenced terms of another equivalence class, we introduce the \emph{quantitative finite automaton} (QFA).
+closure rule~\labelcref{item:dereferencing} tells us, that also the equivalence classes of $*A$ and $*B$ should be merged.
+Therefore, we introduce an alternative representation of the partition $P$ as a \emph{quantitative finite automaton} (QFA) $M_P$.
 
-The QFA is defined by a triple $(S, \eta, \delta)$, where $S$ is a finite set of states, where each state represents an equivalence class from $\Pi$, $\eta : (\mathcal{A} \cup \{\&x | x \in \X\} \rightarrow \Z \times S)$ is a partial mapping that provides initial offsets and states for atoms, and $\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition function.
-Intuitively, if $\delta(z_1, s_1) = \delta(z_2, s_2)$, this means that for the representatives
+The QFA is defined by a triple $M_P = (S, \eta, \delta)$, where $S$ is a finite set of states, where each state represents an equivalence class of the partition.
+The partial mapping $\eta : (\mathcal{A} \cup \{\&x | x \in \X\} \rightarrow \Z \times S)$ provides initial offsets and states for atoms, meaning that if $\eta\,a = (z,s)$, then $a$ is in the equivalence class represented by $s$.
+$\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition function.
+Intuitively, if $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that for the representatives
 $t_1, t_2$ of the equivalence class of $s_1,s_2$, resepectively, it holds that $*(z_1 + t_1) \equivp z_2 + t_2$.
+We denote as $\otau\,s$ the representative of the equivalence class represented by $s$.
 
-The QFA is constructed from the partition  $(\Pi, \tau, \omega)$ by defining $M[\Psi,\T] = (S, \eta, \delta)$ where $S = \{s_i | Q_i \in \Pi\}$, $\eta a = (\omega a, s_i)$ if $a \in Q_i$ for some $Q_i \in \Pi$, and $\delta z s_i = (\omega t', s_j)$ if there is a $t' \in Q_j$ with $Q_j \in \Pi$, such that $t' = *(z_1 + t_1)$ with $t_1 \in Q_i$ and $z = z_1 + (\omega t_1)$.
+The QFA is constructed from the partition  $(\T, \tau, \omega)$ by defining $M_P = (S, \eta, \delta)$ where $S$ contains a state $s_i$ for each equivalence class of $P$,
+$\eta\,a = (\omega\,a, s_i)$ if $s_i \in S$ and $\otau\,s = \tau\,a$,
+and $\delta\,z\,s_i = (\omega\,t', s_j)$ if there is a $\tau\,t'=\tau\,s_j$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_i$ and $z = z_1 + \omega\,t_1$.
 
-We remark that a transition $\delta z s_i$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $t_2 \in Q_i$ and $z = z_2 + (\omega t_2)$.
-Since $t_i \equiv (\omega t_i) + (\tau Q_i)$ for $i = 1,2$, it follows that $t_1 \equiv (z_2 - z_1)+ t_2$. Therefore $*(z_2+t_2)\in Q_j$ with offset $\omega(*(z_2+t_2)) = \omega t'$.
-This shows that the result of $\delta z s_i$ is well defined and doesn't depend on which term $t'$ we choose for deriving a transition.
+We remark that a transition $\delta\,z\,s_i$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $\tau\,t_2=\otau\,s_i$ and $z = z_2 + \omega\,t_2$.
+Since $t_i \equivp (\omega t_i) + (\tau Q_i)$ for $i = 1,2$, it follows that $t_1 \equivp (z_2 - z_1)+ t_2$.
+Therefore $\tau\,*(z_2+t_2)=\otau\,s_j$ with offset $\omega(*(z_2+t_2)) = \omega\,t'$.
+This shows that the result of $\delta\,z\,s_i$ is well defined and doesn't depend on which term $t'$ we choose for deriving a transition.
 Additionally, $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
 
 We use $\oT$ to denote the set of \emph{all} terms with variable names from $\X$ and auxiliaries from $\A$.
-We can extend the mappings $\eta$,$\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M[a] = \eta(a)$ for atoms $a$, and $M[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M[t_1] = (z_1,s)$.
+We can extend the mappings $\eta$ and $\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M[a] = \eta(a)$ for atoms $a$, and $M[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M[t_1] = (z_1,s)$.
 
-We define $M[\Psi] = M[\Psi,\T_\Psi]$, where $\T_\Psi$ is the set of terms and subterms occurring in $\Psi$.
+Additionally, we define the set $\L(M)$ of terms $t \in \oT$ for which $M$ is defined.
+For each state $s \in S$, the set $\L_M(s)$ is the set of terms $t \in \oT$ for which it holds that $M[t] = (z, s)$ for some $z \in \Z$.
 
-We also define the set $\L(M)$ of terms $t \in \oT$ for which $M$ is defined.
-For each state $s \in S$ we define the set $\L_M(s)$ of terms $t \in \oT$ for which it holds that $M[t] = (z, s)$ for some $z \in \Z$.
-
-Using the automata, the \emph{closure}$(t_1,t_2,z)$ operation, which is the modified version of the union operation, is defined as follows:
+Using the automata, the $\closure{t_1}{z}{t_2}$ operation perform the union of $t_1$ and $t_2$ and at
+then computes the closure using the rule \labelcref{item:dereferencing}.
+It is defined as follows:
 
 \begin{enumerate}
   \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$ we are done.
-  If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunctioin is unsatisfiable.
+  If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunction is unsatisfiable.
   \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{t_2}{z}$.
   Now either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
-  Let $t$ be the term that has a new representative,
-  and let $P = (\Pi, \tau, \omega)$ be the partition before the union operation and $P' = (\Pi', \tau', \omega')$ be the partition after the union operation.
+  Let $t$ be the term between $t_1$ and $t_2$ that has a new representative,
+  and let $P = (\T, \tau, \omega)$ and $M_P = (S, \eta, \delta)$ be the partition and qutomaton before the union operation
+  and $P' = (\T, \tau', \omega')$ and $M_{P'} = (S', \eta', \delta')$ be the partition after the union operation.
   For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L(s_1)$,
-  we set $\delta'(z_1 - \tau\,t'', s_1) = \delta'(z_2, s_2)$.
+  we set $\delta'(z_1 - \omega\,(\tau\,t), s_1) = \delta'(z_2, s_2)$.
   \todo[inline]{Then use merge for the successors.}
   \todo{change $z_2$ in incoming transitions? how deep should I go in the details?}
 \end{enumerate}
@@ -127,7 +142,7 @@ Using the automata, the \emph{closure}$(t_1,t_2,z)$ operation, which is the modi
 \begin{theorem}
   % This is Theorem 3 in the other paper
   Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
-  The corresponding quantitative partition $(\Pi, \tau,\omega)$ and a corresponding QFA $M = (S, \eta, \delta)$ are constructed by applying the closure operation to all equalities in $\Psi$.
+  The corresponding quantitative partition $(\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \eta, \delta)$ are constructed by applying the closure operation to all equalities in $\Psi$.
   Then $\T \subseteq \L(M)$ and for every $t_1, t_2 \in \L(M)$ the following statements are equivalent:
   \begin{enumerate}
     \item $M[t_1] = z + M[t_2]$,
