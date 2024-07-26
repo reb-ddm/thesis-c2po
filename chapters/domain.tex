@@ -12,21 +12,20 @@ of 2-Pointer Logic conjunctions, as detailed in the previous chapter.
 This ensures that whenever propositions are added to or removed from the domain,
 the closure of all implied propositions is computed.
 
-The representation consists of a tuple $k = \angl{\T,P,M,B,D}$,
-where $\T$ is a set of terms closed under subterms, $P = (\Pi, \tau, \omega)$ is a partition
-of $\T$, as described in \cref{subsection:quantitative-union-find}.
+The representation consists of a tuple $k = \angl{P,M,B,D}$,
+where $P = (\T, \tau, \omega)$ is a quantitative partition, as described in \cref{subsection:quantitative-union-find}.
 Each state of the QFA $M$ represents an equivalence class of $P$, as outlined in \cref{subsection:qfa}.
 $B$ and $D$ are lists of explicit block disequalities and disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
 
 The tuple $k$ is called the \emph{kernel} representation of $\Psi$.
 For an unsatisfiable formula $\Psi$, the kernel representation is $\bot$.
 
-It is posible to convert a kernel representation $k = \angl{\T,P,M,B,D} \neq \bot$ with $M = (S, \eta, \delta)$ to a formula $\F[k]$, that is given by
+It is posible to convert a kernel representation $k = \angl{P,M,B,D} \neq \bot$ with $M = (S, \eta, \delta)$ to a formula $\F[k]$, that is given by
 
 \[
 \begin{array}{lll}
-    \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s_i)} (a = z + \tau\,Q_i) \land \\
-    & & \bigwedge_{\delta\,(z_i,s_i)=(z_j,s_j)} (*(z_i + \tau\,Q_i) = z_j + \tau\,Q_j) \land \\
+    \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s_i)} (a = z + \otau\,s_i) \land \\
+    & & \bigwedge_{\delta\,(z_i,s_i)=(z_j,s_j)} (*(z_i + \otau\,s_i) = z_j + \otau\,s_j) \land \\
     & & \bigwedge_{\{t_1, t_2\} \in B} (bl(t_1) \neq bl(t_2)) \land \\
     & & \bigwedge_{(t_1, z, t_2) \in D} (t_1 \neq z + t_2)
 \end{array}
@@ -34,6 +33,7 @@ It is posible to convert a kernel representation $k = \angl{\T,P,M,B,D} \neq \bo
 
 If $k$ is the kernel of a conjunction $\Psi$, then $\F[k]$ is equivalent to $\Psi$,
 even though it may not be syntactically identical.
+They could be syntactically different because of a different choice of representative terms.
 
 \input{content/insert_terms}
 \input{content/restriction}

@@ -1,20 +1,20 @@
 \section{Extension to a superset of terms}
 
-When new terms appear during the analysis, the set $\T$ and the partition $P$ need to be updated
+When new terms appear during the analysis, the partition $P$ and the automaton $M$ need to be updated
 in order to be able to express properties about the new terms.
 It is not sufficient to simply add the new terms to a fresh equivalence class,
 as they sometimes need to be added to existing equivalence classes.
 
 \begin{example}
     Let $\Psi \equiv A = B$ and $\T = \{A, B, *A\}$.
-    The parttion $\Pi$ is equal to $\{\{A, B\}, \{*A\}\}$.
+    The partition $\Pi$ is equal to $\{\{A, B\}, \{*A\}\}$.
     If we want to add the term $*B$ to $\T$, we need add it to the same equivalence class as $*A$,
     as they are equivalent according to the rules defined in \cref{chapter:qcc}.
     \todo{The same example is already somewhere else}
 \end{example}
 
-Given a partition $P = (\Pi, \tau, \omega)$ of set of terms $\T$ and a set $\T'$, which is a superset of $\T$ and closed under subterms,
-we define the operation $\ext{k}{\T'}$ that extends the kernel $k = \angl{\T, P, M, B, D}$ to the set of terms $\T'$,
+Given a partition $P = (\T, \tau, \omega)$ and the QFA $M_P = (S, \eta, \delta)$ and a set $\T'$, which is a superset of $\T$ and closed under subterms,
+we define the operation $\ext{k}{\T'}$ that extends the kernel $k = \angl{P, M, B, D}$ to the set of terms $\T'$,
 without altering the semantics of the representation.
 
 The extension is built inductively based on the structure of the terms in $\T'$.
@@ -22,17 +22,17 @@ We describe how to add a new atom and a term of the form $*(z+t)$, where $t$ is 
 This can be repeated for all terms in $\T'$.
 
 In the case that $\T' = \T \cup \{a\}$ for an atom $a \notin \T$, we simply add a new
-equivalence class $\{a\}$ to $\Pi$ and a new state $s_i$ to the states $S$ of $M$.
-We define $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s_i)$, $Q_i = \{a\}$.
+equivalence class $\{a\}$ to $\Pi$ and a new state $s_i$ to the states $S$ of $M_P$.
+We define $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s_i)$, $\otau\,s_i = a$.
 The remaining elements of $k$ remain unchanged.
 
 Consider $\T' = \T \cup \{*(z+t)\}$ for a term $t \in \T$, but $*(z + t) \notin \T$.
 First we add a new equivalence class $\{*(z+t)\}$ to $\Pi$.
 We define $\tau\,(*(z+t)) = *(z+t)$ and $\omega\,(*(z+t))=0$.
-Let $Q_i \in \Pi$ be the equivalence class that contains $t$.
+Let $s_i \in S$ be the state for which it holds that $\otau\,s_i = \tau\,t$.
 If $\delta(z + \omega\,t,s_i)$ is not defined, then we add a new state $s_j$ to $S$
-and define $\delta(z + \omega\,t, s_i) = (0, s_j)$ and $Q_j = \{*(z+t)\}$.
+and define $\delta(z + \omega\,t, s_i) = (0, s_j)$ and $\otau\,s_j = *(z+t)$.
 Otherwise, let $\delta(z + \omega\,t, s_i) = (z', s_j)$.
-Then we perform the operation $\union{*(z + t)}{\tau\,Q_j}{z'}$.
+Then we perform the operation $\union{*(z + t)}{z'}{\otau\,s_j}$.
 In this case, we do not need to add a new state to the automaton,
 as the new term is added to the existing equivalence class $Q_j$.
