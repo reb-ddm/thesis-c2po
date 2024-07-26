@@ -43,7 +43,7 @@ The nodes that have themselves as a parent are the representative terms.
 If $parent(t_1) = (z,t_2)$, then there is an edge from $t_1$ to $t_2$ with weight $z$
 in the graph and it holds that $t_1 \equivp z + t_2$.
 
-The $\find(t)$ operation returns the pair $(\omega\,t,\tau\,t)$.
+The $\find{t}$ operation returns the pair $(\omega\,t,\tau\,t)$.
 The offset $\omega t$ can be computed by following the path from $t$ to the root of the tree and summing up the weights of the edges.
 The representative $\tau\,t$ is the root of the tree.
 
@@ -142,10 +142,11 @@ It is defined as follows:
 \begin{theorem}
   % This is Theorem 3 in the other paper
   Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
-  The corresponding quantitative partition $(\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \eta, \delta)$ are constructed by applying the closure operation to all equalities in $\Psi$.
+  The corresponding quantitative partition $(\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
   Then $\T \subseteq \L(M)$ and for every $t_1, t_2 \in \L(M)$ the following statements are equivalent:
   \begin{enumerate}
     \item $M[t_1] = z + M[t_2]$,
+    \item $\tau\,t_1 = \tau\,t_2$ and $\omega\,t_1 = z + \omega\,t_2$,
     \item $\Psi$ implies $(t_1 = z + t_2)$.
   \end{enumerate}
 \end{theorem}
@@ -154,5 +155,3 @@ This theorem was proven in~\cite{2pointer} for the case of a one-dimensional mem
 The proof can easily be adapted for the two-dimensional memory model.
 
 We remark that the only equalities that can be derived from $\Psi$ are derived from $\Psi_=$. We cannot derive equalities from any of the disequalities.
-
-bla bla if they have the same rep they are equal
