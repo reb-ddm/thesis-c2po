@@ -5,9 +5,6 @@ In this section we describe the lattice operations on our domain, i.e the partia
 
 For two conjunctions $\Psi_1$ and $\Psi_2$, the \emph{meet} operation is simply the conjunction of the two conjunctions. $\Psi_1 \sqcap \Psi_2 \equiv \Psi_1 \land \Psi_2$.
 
-In~\cite{2pointer} it is described how to decide semantical equivalence between two conjunctions.
-This is done by computing a normal form $\nf(\Psi)$ of a conjunction $\Psi$, such that $\Psi$ is semantically equivalent to $\nf(\Psi)$ and such that two conjunctions $\Psi_1$ and $\Psi_2$ are semantically equivalent iff $\nf(\Psi_1)$ and $\nf(\Psi_2)$ are syntactically equivalent.
-
 The natural partial ordering between conjunctions is semantic implication, i.e.,
 $\Psi_1 \rightarrow \Psi_2$
 iff $(\rho, \nu, \mu) \models \Psi_1$ whenever $(\rho, \nu, \mu) \models \Psi_2$.
