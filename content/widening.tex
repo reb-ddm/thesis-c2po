@@ -12,7 +12,7 @@ infinite strictly ascending chains. Therefore we need to define a widening opera
         \Psi_n \equiv (*^{2^n} \&x = \&x)\hspace{6pt} (n\geq 0).
     \]
    This could for example occur in a list structure, where each list element points to the next element of the list, and the last element points again to the first element of the list.
-   Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M[\Psi_n]$ and $M[\Psi_{n+1}]$ is $M[\Psi_{n+1}]$.
+   Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M_P[\Psi_n]$ and $M_P[\Psi_{n+1}]$ is $M_P[\Psi_{n+1}]$.
    The computation of this product automaton for $n = 0$ and $n = 1$ can be found in Example~\ref{example:join-subset}. This is an example of an infinite strictly ascending chain in $\mathcal{P}_2[=]$.
 \end{example}
 

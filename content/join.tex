@@ -125,7 +125,7 @@ For each equality $t \neq t' + z$ in this set, we need to rewrite it to use the 
 However, each equivalence class of $\Pi_1$ and $\Pi_2$ might now be divided into multiple equivalence classes in $\Pi_3$.
 Therefore for each term in each explicit disequality of $\Psi_1$ and $\Psi_2$, we need to consider all new representatives for each derived sub-equivalence class.
 
-Let $M_3$ be the join automaton of the automata $M_1 = M[\Psi_1]$ and $M_2 = M[\Psi_2]$.
+Let $M_3$ be the join automaton of the automata $M_1 = M_P[\Psi_1]$ and $M_2 = M_P[\Psi_2]$.
 For a state $s_1$ in $M_1$, there could be multiple states of the form $s_3 = \angl{s_1, s_2', z'} \in S_3$ for some $s_2' \in S_2$ and some $z' \in \Z$.
 For each of these states, it holds that $\L_{M_3}(s_3) \subseteq \L_{M_1}(s_1)$.
 Therefore, for each disequality of the form $t_1 \neq z + t_2 \in closure_\neq(\Psi_1)$, such that $M_1[t_1] = (z_1, s_1)$ and $M_1[t_2] = (z_2, s_2)$ for some $z_1,z_2\in \Z$, we need to consider

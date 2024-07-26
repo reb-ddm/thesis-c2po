@@ -5,19 +5,21 @@ For example, when we assign a value to a term, we need to remove all terms from 
 In the following, we will describe how to restrict the automaton and the disequalities to forget all propositions that contain terms from a specific set.
 
 As a first step, we define the restriction of a partition and its corresponding automaton to forget information about the terms of a set $\Set$.
-Let $P = (\Pi, \tau, \omega)$ be a partition and $M = (S, \eta, \delta)$ its corresponding QFA.\@
-Given a set $\Set$, we can find the restricted partition $\restr{P}{-\Set} = (\Pi', \tau', \omega')$ and restricted
-automaton $\restr{M}{-\Set} = (S', \eta', \delta')$ by first removing all terms of $\Set$ from $\Pi$ and
-then using the automaton to restore equalities about terms in $\L(M) \backslash (\T \cup \S)$ that could be inferred by
+Let $P = (\T, \tau, \omega)$ be a partition and $M_P = (S, \eta, \delta)$ its corresponding QFA.\@
+Given a set $\Set$, we can find the restricted partition $\restr{P}{-\Set} = (\T', \tau', \omega')$ and restricted
+automaton $\restr{M}{-\Set} = (S', \eta', \delta')$ by first removing all terms of $\Set$ from $\T$ and
+then using the automaton to restore equalities about terms in $\L(M_P) \backslash (\T \cup \S)$ that could be inferred by
 the automaton before the removal of these terms and that are still valid after the removal.
-In order to not forget them, we need to add some terms of $\L(M)$ to $\Pi'$.
+In order to not forget them, we need to add some terms of $\L(M_P)$ to $\T'$.
 
 \begin{example}
-
+\todo{see implementation/sturataiing for variable removal }
 \end{example}
 
-by conducting a breadth-first search on the automaton $M$ and computing which paths of the automaton are still reachable after forgetting all the terms in $\Set$.
-In order to correctly update the weights in the automaton and later find representative terms of the equivalence classes that derive from the automaton, we will need to choose a representative term for each state of the automaton, which we will denote as the function $\repr : S' \rightarrow \Z \times \restr{\T}{\neg t}$.
+The restriction is computed by conducting a breadth-first search on the automaton $M_P$ and computing which paths of the automaton are still reachable after forgetting all the terms in $\Set$.
+For states $s \in S$, it may be that the representative $\otau\,s$ is in $\Set$.
+In this case, we need to find a new representative for $s$, if there are any elements in
+the set $\L(M_P) \backslash \Set$.
 
 We start with the initial states of $M$:
 for each atom $a \in \restr{\T}{\neg t}$ where $\eta(a) = (z, s)$, if we haven't already visited $s$, then we need to choose a new representative for $s$. We simply define $\repr s = (z, a)$ and $\eta'(a) = (0, s)$.
@@ -25,7 +27,7 @@ If we have already visited $s$, then let $\repr s = (z', t)$. We define $\eta'(a
 
 Then for each visited state $s_1$, we consider all outgoing transitions: for each $\delta(z_1, s_1) = (z_2, s_2)$,
 we define $\repr s_2$ if we haven't visited $s_2$ yet.
-For this, we find a term $*(z+t)$ such that $M[t] = (z_1', s_1)$ and $z = z_1 - z_1'$ for some $z_1' \in \Z$.
+For this, we find a term $*(z+t)$ such that $M_P[t] = (z_1', s_1)$ and $z = z_1 - z_1'$ for some $z_1' \in \Z$.
 If we manage to find such a term, we define $\repr s_2 = *(z+t)$.
 Otherwise, this transition is not valid in $\restr{M}{\neg t}$ anymore, and we don't add $s_2$ to the set of visited states.
 Now let $\repr s_1 = (z_1', t_1)$ and $\repr s_2 = (z_2', t_2)$.
@@ -38,11 +40,11 @@ The new partition $\restr{P}{\neg t} = (\Pi', \tau', \omega')$ is defined as $\P
 $\tau' (\L(s)) = t$ if $\repr s = (z, t)$, and
 for each $t \in \L(\restr{M}{\neg t})$ we define $\omega'(t) = z'$ if $\restr{M}{\neg t}[t] = (z', t')$.
 
-This definition of restriction can be applied in the same way by using any subterm-closed set $\T' \subseteq \L(M)$ of terms and restricting the automaton $M$ to the automaton $\restr{M}{\T'}$ that only remembers the equalities that only contain terms from $\T'$.
+This definition of restriction can be applied in the same way by using any subterm-closed set $\T' \subseteq \L(M_P)$ of terms and restricting the automaton $M$ to the automaton $\restr{M}{\T'}$ that only remembers the equalities that only contain terms from $\T'$.
 
 \begin{lemma}\label{restriction}
     Let $M = (S, \eta, \delta)$ be a QFA and let $\restr{M}{\T'} = (S', \eta', \delta')$ and $\repr : S' \rightarrow \Z \times \T'$ be the automaton and the function that are obtained by restricting $M$ as described above.
-    Then for each term $t_1 \in \T'$, it holds that $M[t_1] = (z, s)$ iff $\restr{M}{\T'}[t_1] = (z - \repr s, s)$.
+    Then for each term $t_1 \in \T'$, it holds that $M_P[t_1] = (z, s)$ iff $\restr{M}{\T'}[t_1] = (z - \repr s, s)$.
 \end{lemma}
 \begin{proof}
     This lemma can be proven by induction over the structure of the term $t_1$.
@@ -50,7 +52,7 @@ This definition of restriction can be applied in the same way by using any subte
 
 \begin{proposition}
     Let $M = (S, \eta, \delta)$ be a QFA and let $\restr{M}{\T'} = (S', \eta', \delta')$ be the automaton that is obtained by restricting $M$ as described above.
-    Then for each term $t_1, t_2 \in \T'$, it holds that $M[t_1] = z + M[t_2]$ iff $\restr{M}{\T'}[t_1] = z + \restr{M}{\T'}[t_2]$.
+    Then for each term $t_1, t_2 \in \T'$, it holds that $M_P[t_1] = z + M_P[t_2]$ iff $\restr{M}{\T'}[t_1] = z + \restr{M}{\T'}[t_2]$.
 \end{proposition}
 \begin{proof}
     This proposition follows from Lemma~\ref{restriction}.
@@ -61,4 +63,4 @@ We keep only the propositions between representatives of the equivalence classes
 The remaining disequalities are removed.
 
 Given a conjunction $\Psi$, we denote the restriction of the automaton and disequalities derived from $\Psi$ to the set of terms $\T'$ by $\restr{\Psi}{\T'}$.
-Correspondingly, $\restr{\Psi}{\neg t}$ is the restriction of $\Psi$ to the terms of $\restr{\T}{\neg t}$, where $\T = \L(M)$ and $M$ is the automaton that derives from $\Psi$.
+Correspondingly, $\restr{\Psi}{\neg t}$ is the restriction of $\Psi$ to the terms of $\restr{\T}{\neg t}$, where $\T = \L(M_P)$ and $M$ is the automaton that derives from $\Psi$.

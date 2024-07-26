@@ -8,9 +8,9 @@
 
 In the following, we will describe how to find the set of terms that may alias with a term and how to restrict the automaton and the disequalities to only keep the propositions that contain terms from a specific set.
 
-Given a partition $P = (\Pi, \tau, \omega)$, a QFA $M = (S, \eta, \delta)$, and a term $t$, we want to compute the partition $\restr{P}{\neg t}$ and the QFA $\restr{M}{\neg t}$ that represents all equalities that follow from $M$ and that are still valid after overwriting the value of $t$.
+Given a partition $P = (\Pi, \tau, \omega)$, a QFA $M_P = (S, \otau, \eta, \delta)$, and a term $t$, we want to compute the partition $\restr{P}{\neg t}$ and the QFA $\restr{M}{\neg t}$ that represents all equalities that follow from $M$ and that are still valid after overwriting the value of $t$.
 
-Let $\T = \L(M)$. We construct the subterm-closed set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias with $t$.
+Let $\T = \L(M_P)$. We construct the subterm-closed set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias with $t$.
 This is exactly the set of terms that are not modified when the value of $t$ changes.
 We differentiate between two cases: the case where $t$ is an atom and the case where $t$ is a dereferenced term.
 

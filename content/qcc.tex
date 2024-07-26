@@ -96,16 +96,16 @@ For example if $\T = \{A, B, *A, *B\}$ and we perform a union of $A$ and $B$, th
 closure rule~\labelcref{item:dereferencing} tells us, that also the equivalence classes of $*A$ and $*B$ should be merged.
 Therefore, we introduce an alternative representation of the partition $P$ as a \emph{quantitative finite automaton} (QFA) $M_P$.
 
-The QFA is defined by a triple $M_P = (S, \eta, \delta)$, where $S$ is a finite set of states, where each state represents an equivalence class of the partition.
+The QFA is defined by a triple $M_P = (S, \otau, \eta, \delta)$, where $S$ is a finite set of states, where each state represents an equivalence class of the partition.
+In order to know which state represents which equivalence class, the mapping $\otau : S \rightarrow \T$
+assigns a representative term to each state.
 The partial mapping $\eta : (\mathcal{A} \cup \{\&x | x \in \X\} \rightarrow \Z \times S)$ provides initial offsets and states for atoms, meaning that if $\eta\,a = (z,s)$, then $a$ is in the equivalence class represented by $s$.
 $\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition function.
-Intuitively, if $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that for the representatives
-$t_1, t_2$ of the equivalence class of $s_1,s_2$, resepectively, it holds that $*(z_1 + t_1) \equivp z_2 + t_2$.
-We denote as $\otau\,s$ the representative of the equivalence class represented by $s$.
+Intuitively, if $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that it holds that $*(z_1 + \otau\,s_1) \equivp z_2 + \otau\,s_2$.
 
-The QFA is constructed from the partition  $(\T, \tau, \omega)$ by defining $M_P = (S, \eta, \delta)$ where $S$ contains a state $s_i$ for each equivalence class of $P$,
+The QFA is constructed from the partition  $(\T, \tau, \omega)$ by defining $M_P = (S, \otau, \eta, \delta)$ where $S$ contains a state $s$ for each representative term $t$ of $P$ and we set $\otau\,s = t$.
 $\eta\,a = (\omega\,a, s_i)$ if $s_i \in S$ and $\otau\,s = \tau\,a$,
-and $\delta\,z\,s_i = (\omega\,t', s_j)$ if there is a $\tau\,t'=\tau\,s_j$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_i$ and $z = z_1 + \omega\,t_1$.
+and $\delta\,z\,s_i = (\omega\,t', s_j)$ if there is a $\tau\,t'=\otau\,s_j$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_i$ and $z = z_1 + \omega\,t_1$.
 
 We remark that a transition $\delta\,z\,s_i$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $\tau\,t_2=\otau\,s_i$ and $z = z_2 + \omega\,t_2$.
 Since $t_i \equivp (\omega t_i) + (\tau Q_i)$ for $i = 1,2$, it follows that $t_1 \equivp (z_2 - z_1)+ t_2$.
@@ -114,10 +114,10 @@ This shows that the result of $\delta\,z\,s_i$ is well defined and doesn't depen
 Additionally, $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
 
 We use $\oT$ to denote the set of \emph{all} terms with variable names from $\X$ and auxiliaries from $\A$.
-We can extend the mappings $\eta$ and $\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M[a] = \eta(a)$ for atoms $a$, and $M[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M[t_1] = (z_1,s)$.
+We can extend the mappings $\eta$ and $\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M_P[a] = \eta(a)$ for atoms $a$, and $M_P[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M_P[t_1] = (z_1,s)$.
 
-Additionally, we define the set $\L(M)$ of terms $t \in \oT$ for which $M$ is defined.
-For each state $s \in S$, the set $\L_M(s)$ is the set of terms $t \in \oT$ for which it holds that $M[t] = (z, s)$ for some $z \in \Z$.
+Additionally, we define the set $\L(M_P)$ of terms $t \in \oT$ for which $M$ is defined.
+For each state $s \in S$, the set $\L_M(s)$ is the set of terms $t \in \oT$ for which it holds that $M_P[t] = (z, s)$ for some $z \in \Z$.
 
 Using the automata, the $\closure{t_1}{z}{t_2}$ operation perform the union of $t_1$ and $t_2$ and at
 then computes the closure using the rule \labelcref{item:dereferencing}.
@@ -129,8 +129,8 @@ It is defined as follows:
   \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{t_2}{z}$.
   Now either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
   Let $t$ be the term between $t_1$ and $t_2$ that has a new representative,
-  and let $P = (\T, \tau, \omega)$ and $M_P = (S, \eta, \delta)$ be the partition and qutomaton before the union operation
-  and $P' = (\T, \tau', \omega')$ and $M_{P'} = (S', \eta', \delta')$ be the partition after the union operation.
+  and let $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \eta, \delta)$ be the partition and qutomaton before the union operation
+  and $P' = (\T, \tau', \omega')$ and $M_{P'} = (S', \otau', \eta', \delta')$ be the partition after the union operation.
   For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L(s_1)$,
   we set $\delta'(z_1 - \omega\,(\tau\,t), s_1) = \delta'(z_2, s_2)$.
   \todo[inline]{Then use merge for the successors.}
@@ -142,10 +142,10 @@ It is defined as follows:
 \begin{theorem}
   % This is Theorem 3 in the other paper
   Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
-  The corresponding quantitative partition $(\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
-  Then $\T \subseteq \L(M)$ and for every $t_1, t_2 \in \L(M)$ the following statements are equivalent:
+  The corresponding quantitative partition $(\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \otau, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
+  Then $\T \subseteq \L(M_P)$ and for every $t_1, t_2 \in \L(M_P)$ the following statements are equivalent:
   \begin{enumerate}
-    \item $M[t_1] = z + M[t_2]$,
+    \item $M_P[t_1] = z + M_P[t_2]$,
     \item $\tau\,t_1 = \tau\,t_2$ and $\omega\,t_1 = z + \omega\,t_2$,
     \item $\Psi$ implies $(t_1 = z + t_2)$.
   \end{enumerate}
