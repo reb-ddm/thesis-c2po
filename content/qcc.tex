@@ -104,13 +104,13 @@ $\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition fu
 Intuitively, if $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that it holds that $*(z_1 + \otau\,s_1) \equivp z_2 + \otau\,s_2$.
 
 The QFA is constructed from the partition  $(\T, \tau, \omega)$ by defining $M_P = (S, \otau, \eta, \delta)$ where $S$ contains a state $s$ for each representative term $t$ of $P$ and we set $\otau\,s = t$.
-$\eta\,a = (\omega\,a, s_i)$ if $s_i \in S$ and $\otau\,s = \tau\,a$,
-and $\delta\,z\,s_i = (\omega\,t', s_j)$ if there is a $\tau\,t'=\otau\,s_j$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_i$ and $z = z_1 + \omega\,t_1$.
+$\eta\,a = (\omega\,a, s_1)$ if $s_1 \in S$ and $\otau\,s = \tau\,a$,
+and $\delta\,z\,s_1 = (\omega\,t', s_2)$ if there is a $\tau\,t'=\otau\,s_2$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_1$ and $z = z_1 + \omega\,t_1$.
 
-We remark that a transition $\delta\,z\,s_i$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $\tau\,t_2=\otau\,s_i$ and $z = z_2 + \omega\,t_2$.
+We remark that a transition $\delta\,z\,s_1$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $\tau\,t_2=\otau\,s_1$ and $z = z_2 + \omega\,t_2$.
 Since $t_i \equivp (\omega t_i) + (\tau Q_i)$ for $i = 1,2$, it follows that $t_1 \equivp (z_2 - z_1)+ t_2$.
-Therefore $\tau\,*(z_2+t_2)=\otau\,s_j$ with offset $\omega(*(z_2+t_2)) = \omega\,t'$.
-This shows that the result of $\delta\,z\,s_i$ is well defined and doesn't depend on which term $t'$ we choose for deriving a transition.
+Therefore $\tau\,*(z_2+t_2)=\otau\,s_2$ with offset $\omega(*(z_2+t_2)) = \omega\,t'$.
+This shows that the result of $\delta\,z\,s_1$ is well defined and doesn't depend on which term $t'$ we choose for deriving a transition.
 Additionally, $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
 
 We use $\oT$ to denote the set of \emph{all} terms with variable names from $\X$ and auxiliaries from $\A$.

@@ -23,16 +23,16 @@ We describe how to add a new atom and a term of the form $*(z+t)$, where $t$ is 
 This can be repeated for all terms in $\T'$.
 
 In the case that $\T' = \T \cup \{a\}$ for an atom $a \notin \T$, we simply add a new
-equivalence class $\{a\}$ to $\Pi$ and a new state $s_i$ to the states $S$ of $M_P$.
-We define $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s_i)$, $\otau\,s_i = a$.
+equivalence class $\{a\}$ to $\Pi$ and a new state $s_1$ to the states $S$ of $M_P$.
+We define $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s_1)$, $\otau\,s_1 = a$.
 
 Consider $\T' = \T \cup \{*(z+t)\}$ for a term $t \in \T$, but $*(z + t) \notin \T$.
 First we add a new equivalence class $\{*(z+t)\}$ to $\Pi$.
 We define $\tau\,(*(z+t)) = *(z+t)$ and $\omega\,(*(z+t))=0$.
-Let $s_i \in S$ be the state for which it holds that $\otau\,s_i = \tau\,t$.
-If $\delta(z + \omega\,t,s_i)$ is not defined, then we add a new state $s_j$ to $S$
-and define $\delta(z + \omega\,t, s_i) = (0, s_j)$ and $\otau\,s_j = *(z+t)$.
-Otherwise, let $\delta(z + \omega\,t, s_i) = (z', s_j)$.
-Then we perform the operation $\union{*(z + t)}{z'}{\otau\,s_j}$.
+Let $s_1 \in S$ be the state for which it holds that $\otau\,s_1 = \tau\,t$.
+If $\delta(z + \omega\,t,s_1)$ is not defined, then we add a new state $s_2$ to $S$
+and define $\delta(z + \omega\,t, s_1) = (0, s_2)$ and $\otau\,s_2 = *(z+t)$.
+Otherwise, let $\delta(z + \omega\,t, s_1) = (z', s_2)$.
+Then we perform the operation $\union{*(z + t)}{z'}{\otau\,s_2}$.
 In this case, we do not need to add a new state to the automaton,
-as the new term is added to the existing equivalence class of $s_j$.
+as the new term is added to the existing equivalence class of $s_2$.
