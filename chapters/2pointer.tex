@@ -1,9 +1,9 @@
 \chapter{2-Pointer Logic}
 
 
-The abstract domain of the \cpo\ analysis consists of porpositions from the 2-Pointer Logic.
-In the following section, we describe this logic and how it is represented in the implementation.
-The logic is composed of finite conjunctions of propositions.
+The abstract domain of the \cpo\ analysis consists of finite conjunctions of propositions from the 2-Pointer Logic.
+In the following section, we describe this logic and how to represent the propositions in order to
+infer also all deriving propositions.
 It was first introduced by Seidl et al.\ in~\cite{2pointer} and was later extended with an additional type of proposition.
 The propositions are made up of terms, formed from address constants and auxiliaries using the addition of constant offsets and dereferencing.
 The address constants represent addresses of program variables.

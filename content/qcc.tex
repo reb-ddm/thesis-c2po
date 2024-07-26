@@ -18,30 +18,37 @@ which is the smallest equivalence relation $\equivp$ that satisfies these rules:
 \subsection{Quantitative union-find}\label{subsection:quantitative-union-find}
 
 We can represent the quantitative equivalence relation $\equivp$ by using a data structure similar to union-find, but extended with integer offsets.
-The \emph{quantitative union-find} $(\Pi, \tau, \omega)$ consists of a partition $\Pi$ of $\T$,
-a function $\tau : \Pi \rightarrow \T$ that assigns a representative term to each equivalence class $Q \in \Pi$ and a mapping $\omega : \T \rightarrow \Z$,
+The \emph{quantitative union-find} $(\T, \tau, \omega)$ consists of a set of terms $\T$,
+a function $\tau : \T \rightarrow \T$ that assigns a representative term to each term $t \in \T$ and a mapping $\omega : \T \rightarrow \Z$,
 which assigns to each term its offset from the representative of its equivalence class.
-A set $Q \in \Pi$ contains all terms that are equivalent up to an integer offset.
+This mean that for each $t \in \T$, it holds that $t \equivp \omega\,t + \tau\,t$.
+All terms that have the same representative belong to the same equivalence class, i.e., they are equivalent up to an integer offset.
+A representative term is a term $t \in \T$ that occurs on the right-hand side of the function $\tau$,
+i.e., there exists a $t'\in \T$ such that $\tau\,t' = t$.
+For each representative term $t$, it holds that $\tau\,t=t$ and $\omega\,t = 0$.
 
-There exist efficient algorithms for the union-find data structure,
-in particular the well-known representation proposed by~\textcite{uf-tarjan},
-which we will present in this section.
-We extend this approach to handle integer offsets as well.
+\subsubsection{Implementation}
 
-The union-find partition is represented as an acyclic directed weighted graph,
-where each node represents a term $t \in \T$ and
-each connected component is a tree, which represents an equivalence class $Q \in \Pi$.
-Each tree has a root, that is the representative $\tau Q$ of the equivalence class $Q$.
+The Union-Find data structure can be represented as a forest of trees,
+where each tree represents an equivalence class.
+Each node in the tree corresponds to a term $t \in \T$, and each tree is rooted at a representative element $\tau\,t$,
+which serves as the identifier for the entire set.\cite{uf-tarjan}
 All the edges in the tree are directed towards the root.
-Each edge from $t_1$ to $t_2$ is weighted with an integer $z$,
-which means that $t_1 \equivp z + t_2$.
-$\omega t$ can be computed by following the path from $t$ to the root of the tree and summing up the weights of the edges.
-The $\find{t}$ operation returns the pair $(\otau\,t, \omega\,t)$ for a given term $t$,
-where $\otau\,t$ denotes the representative $\tau\,Q$ of the equivalence class $Q\in\Pi$ that contains $t$.
+In order to represent the integer offset, we store a weight for each edge.
 
-The union-find data structure is initialized with a partition $\Pi$ that contains all the terms from $\T$ as singletons.
-The corresponding graph contains a node for each $t \in \T$ and no edges.
-Then for each equality $t_1 = z + t_2$ in $\Psi$, we perform the \union{t_1}{t_2}{z} operation, which merges two trees by adding an edge from $\tau\,t_1$ to $\tau\,t_2$ with weight $z - \omega\,t_1 + \omega\,t_2$.
+The forest is represented as a map $parent : \T \rightarrow \Z \times \T$ that maps each
+term $t$ to its parent node in the tree.
+The nodes that have themselves as a parent are the representative terms.
+If $parent(t_1) = (z,t_2)$, then there is an edge from $t_1$ to $t_2$ with weight $z$
+in the graph and it holds that $t_1 \equivp z + t_2$.
+
+The $\find(t)$ operation returns the pair $(\omega\,t,\tau\,t)$.
+The offset $\omega t$ can be computed by following the path from $t$ to the root of the tree and summing up the weights of the edges.
+The representative $\tau\,t$ is the root of the tree.
+
+Initially, each term $t\in\T$ is its own parent, and equalities $t_1 = z + t_2$ between terms can be added by performing the
+$\union{t_1}{z}{t_2}$ operation.
+This operation merges two trees by adding an edge from $\tau\,t_1$ to $\tau\,t_2$ with weight $z - \omega\,t_1 + \omega\,t_2$.
 
 \begin{example}
 Consider the conjunction $\Psi \equiv B = 1 + A \land D = 2 + \&x \land A = 3 + \&x$.
@@ -59,19 +66,18 @@ The union-find algorithm computes the following tree after having performed the 
 \end{tikzpicture}
 
 From this representation, we can for example derive that $B = 4 + \&x$.
-
 Depending on the choice of the representatives, the tree can look different.
-In a practical implementation, the representatives are chosen in such a way that the trees have the lowest possible height,
-thus making the $\find{t}$ operation more efficient.
-Another possible optimization is to set the parent node of a term to the representative of the tree,
-each time the $\find{t}$ operation is called.
-This way, the tree is flattened, which makes the $\find{t}$ operation
-more efficient if we call it again for the same term $t$ or a term in the same equivalence class.
-\todo{cite}
 \end{example}
 
-We define the action $(+): \Z \rightarrow (\Z \times \T) \rightarrow (\Z \times \T)$, where $z_1 + (z_2,t) = (z_1 + z_2, t)$.
-An equality $t_1 = z + t_2$ is satisfied by a partition $(\Pi, \tau, \omega)$, i.e., $\find{t_1} = z + \find{t_2}$, iff $t_1 \equivp z + t_2$.
+In a practical implementation, the representatives are chosen in such a way that the trees have the lowest possible height,
+thus making the $\find{t}$ operation more efficient.
+This optimization is called \emph{union by rank} and consists in adding the edge from
+the smallest to the biggest equivalence class.
+Another possible optimization is to set the parent node of a term to the representative of the tree,
+each time the $\find{t}$ operation is traverses the node.
+This way, the tree is flattened, which makes the $\find{t}$ operation
+more efficient if we call it again for the same term $t$ or a term in the same equivalence class.
+This is the so-called \emph{path compression}.~\cite{uf-tarjan}
 
 \subsection{Quantitative finite automaton}\label{subsection:qfa}
 
@@ -106,7 +112,7 @@ Using the automata, the \emph{closure}$(t_1,t_2,z)$ operation, which is the modi
 \begin{enumerate}
   \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$ we are done.
   If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunctioin is unsatisfiable.
-  \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call \union{t_1}{t_2}{z}.
+  \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{t_2}{z}$.
   Now either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
   Let $t$ be the term that has a new representative,
   and let $P = (\Pi, \tau, \omega)$ be the partition before the union operation and $P' = (\Pi', \tau', \omega')$ be the partition after the union operation.
@@ -133,3 +139,5 @@ This theorem was proven in~\cite{2pointer} for the case of a one-dimensional mem
 The proof can easily be adapted for the two-dimensional memory model.
 
 We remark that the only equalities that can be derived from $\Psi$ are derived from $\Psi_=$. We cannot derive equalities from any of the disequalities.
+
+bla bla if they have the same rep they are equal

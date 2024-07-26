@@ -1,7 +1,63 @@
 \chapter{Background}
 
 \section{Abstract Interpretation}
-abstract semantics, transformer join ecc
+\todo[inline]{abstract semantics, transformer join ecc}
+
+Abstract interpretation is a theoretical framework for the static analysis of programs. It provides a means to reason about the behavior of programs by approximating their semantics. This section presents an overview of the main concepts involved in abstract interpretation, including lattices, abstract domains, concrete and abstract semantics, and the key operations used in this framework.
+
+\subsection{Complete Lattice}
+
+A lattice is a partially ordered set \((L, \leq)\) in which every pair of elements has a unique least upper bound (join, \(\sqcup\)) and a unique greatest lower bound (meet, \(\sqcap\)). A lattice is said to be complete if every subset \(S \subseteq L\) has both a least upper bound and a greatest lower bound in \(L\).
+
+A complete lattice \((L, \leq, \sqcup, \sqcap, \top, \bot)\) is defined by:
+- \(\top\) (top element): The least element in the lattice.
+- \(\bot\) (bottom element): The greatest element in the lattice.
+- Join (\(\sqcup\)): The least upper bound of a set of elements.
+- Meet (\(\sqcap\)): The greatest lower bound of a set of elements.
+- Partial order (\(\leq\)): A binary relation indicating the order between elements.
+
+Formally, for any \(a, b \in L\):
+\[ a \leq b \Leftrightarrow a \sqcup b = b \Leftrightarrow a \sqcap b = a \]
+
+\subsection{Abstract and Concrete Domains}
+
+In abstract interpretation, we work with two domains:
+- The concrete domain \((C, \leq_C)\) represents the actual values or states of the program.
+- The abstract domain \((A, \leq_A)\) is a simplification or abstraction of the concrete domain, designed to be finite and more tractable.
+
+An abstract value is an element of the abstract domain that approximates one or more elements of the concrete domain.
+
+\subsection{Concrete and Abstract Semantics}
+
+The concrete semantics defines the exact behavior of the program, while the abstract semantics provides an approximation. Given a concrete semantic function \(F: C \to C\), the corresponding abstract semantic function \(F^\sharp: A \to A\) must satisfy:
+\[ \gamma(F^\sharp(\alpha(c))) \supseteq F(c) \]
+where \(\alpha: C \to A\) is the abstraction function and \(\gamma: A \to C\) is the concretization function.
+
+\subsection{Abstract Transformers}
+
+Abstract transformers are functions that approximate the effect of program operations in the abstract domain. Common abstract transformers include:
+- Branch: Approximates conditional statements.
+- Join: Approximates the merge of different execution paths. Defined as \(a_1 \sqcup a_2\).
+- Assignment: Approximates variable assignment.
+- Function Enter: Approximates the behavior when entering a function.
+- Combine: Approximates the combination of different analysis results.
+
+\subsection{Widening and Narrowing}
+
+Widening and narrowing are techniques used to ensure the termination of the abstract interpretation process.
+
+- Widening (\(\triangledown\)): Used to accelerate the convergence of the fixpoint computation. It is applied at specific points to prevent infinite ascending chains in the abstract domain. Widening ensures that the iteration reaches a fixpoint in a finite number of steps.
+
+  Formally, widening is a function \(\triangledown: A \times A \to A\) that satisfies:
+  \[ \forall a_1, a_2 \in A: a_1 \leq_A a_1 \triangledown a_2 \quad \text{and} \quad a_2 \leq_A a_1 \triangledown a_2 \]
+
+- Narrowing (\(\triangledown\)): Used to refine the result obtained by widening, making it more precise. Narrowing is applied after the widening phase to descend and reach a more precise fixpoint.
+
+  Formally, narrowing is a function \(\triangledown: A \times A \to A\) that satisfies:
+  \[ \forall a_1, a_2 \in A: a_1 \triangledown a_2 \leq_A a_1 \quad \text{and} \quad a_1 \triangledown a_2 \leq_A a_2 \]
+
+By using widening and narrowing, abstract interpretation can provide sound and efficient approximations of the program's behavior.
+
 \subsection{Widening and Narrowing}
 
 \subsection{Interprocedural analysis}
