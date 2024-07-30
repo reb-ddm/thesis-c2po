@@ -1,9 +1,75 @@
 
 \section{Join}
 
-Given two conjunctions $\Psi_1$ and $\Psi_2$, we want to compute all the equalities and disequalities that follow both from $\Psi_1$ and from $\Psi_2$.
+Given two conjunctions $\Psi_1$ and $\Psi_2$, the least upper bound is a conjunction that is implies by both $\Psi_1$ and $\Psi_2$,
+and which is smallest with respect to the partial order.
+An exact least upper bound is $\Psi_1 \lor \Psi_2$.
+However, disjunctions are not expressible in the 2-pointer logic.
+The conjunction of all propositions that are implied by a disjunction is not always representable as a conjunction of finite size\cite{join,2pointer},
+therefore it is not possible to compute the exact least upper bound of two conjunctions.
+
+\begin{example}\label{example:infinite-join}
+    Adapting the original example by \textcite{join} to \cpo, consider the conjunctions $\Psi_1 \equiv (A = B)$ and $\Psi_2 \equiv (*A = A)\land (*B=B) \land (*(1 + A) = *(1 + B))$, represented by the automata $M_1$ and $M_2$ shown below:
+    \begin{center}
+    \begin{minipage}{0.3\textwidth}
+        \centering
+        \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+
+          \node[state] (Q1) {$\begin{array}{c}
+              A,B
+          \end{array}$};
+          \node [left=1.5cm of Q1] {$M_1$:};
+      \end{tikzpicture}
+    \end{minipage}
+    \begin{minipage}{0.65\textwidth}
+        \centering
+        \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+
+          \node[state] (Q1) {$\begin{array}{c}
+              A,*A,..
+          \end{array}$};
+
+          \node[state, right=3cm of Q1] (Q2) {$\begin{array}{c}
+             B,*B,..
+          \end{array}$};
+
+          \node[state, below right=2cm and 1.5cm of Q1] (Q3) {$\begin{array}{c}
+              *(1+A), *(1 + B),...
+          \end{array}$};
+
+          \path[->]
+          (Q1) edge[loop below] node[left] {$0,0$} (Q1)
+          (Q2) edge[loop below] node[right] {$0,0$} (Q2)
+          (Q1) edge[] node[right] {$1,0$} (Q3)
+          (Q2) edge[] node[above left] {$1,0$} (Q3);
+
+          \node [below left=1cm and 1.5cm of Q1] {$M_2$:};
+
+      \end{tikzpicture}
+      \end{minipage}
+    \end{center}
+
+    Then for each $n \geq 0$, the equality $*(1+*^n A) = *(1 + *^n B)$ is implied both by $\Psi_1$ and $\Psi_2$, where $*^m$ denotes $m$-fold dereference.
+    It can be shown that the set of quantitative equalitities implied both by $\Psi_1$ and $\Psi_2$ cannot be represented by a finite conjunction~\cite{join, 2pointer}.
+\end{example}
+
+This example shows that it is not possible to compute the exact least upper bound of two domain elements,
+because of the limitations in the expressiveness of the congruence closure representation.
+However, it is possible to define a sound overapproximation of the join operation.
+
 Given that equalities only depend on the automaton and cannot follow from the disequalities, we first consider how to construct an automaton that represents the conjunction of two automata.
-Later, we will add all disequalities that follow from $\Psi_1$ and $\Psi_2$.
+Later, we will consider the (block-)disequalities that follow from $\Psi_1$ and $\Psi_2$.
+
+As we only compute an approximated join operation, there are multiple possibilities to define the join.
+A compromise must be made between the precision of the join and the computational complexity.
+Two different approaches will be presented in the following sections.
+The first one computes the join based on the automata representation of the equalities,
+while the second one only considers the partition of the terms $\T$.
+This first approach is less efficient, but more precise,
+as all terms of the set $\L(M_P)$ are considered, while in the second approach only the terms of the set $\T$ are considered.
+In particular, circular dependencies between terms are lost in the second approach.
+However, these circular dependencies don't often occur in practice, therefore it is
+considered as a possible option for the join operation.
 
 \subsection{Join Using the Automaton}
 
