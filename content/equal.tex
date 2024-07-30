@@ -121,6 +121,19 @@ Thus, there is a unique normal form for each semantic equivalence class of kerne
 even though there exists multiple different kernel representations of the same conjunction.
 Therefore, in order to decide the equivalence of two kernels $k_1$ and $k_2$, it suffices to compare the normal forms $\F_{normal}[k_1]$ and $\F_{normal}[k_2]$ syntactically.
 
+\begin{example}
+    Consider the conjunction $\Psi$ from \cref{ex:min-repr}.
+    The normal form of the kernel $k$ representing $\Psi$ is
+    \[
+    (B = -1+\&x) \land (*(-1 + \&x) = 2 + A) \land (*A = 3 + x)
+    \]
+    where $B = -1 + \&x$ originates from $\eta\,B = (-1,s_0)$.
+    The equalities originating from $\eta\,\&x = (0,s_0)$ and $\eta\,A = (0, s_1)$ are removed, because they are trivial.
+    The edge $\delta\,(-1,s_0) = (0,s_0)$ gives the equality $*(-1 + \&x) = 2 + A$ and
+    $\delta\,(-2,s_1) = (3,s_2)$ gives the equality $*A = 3 + x$.
+    The last edge $\delta\,(0,s_0) = (0,s_2)$ gives the trivial equality $x = 0 + x$.
+\end{example}
+
 \todo[inline]{Correctness proof}
 
 \todo[inline]{Proof that they are equivalent}
