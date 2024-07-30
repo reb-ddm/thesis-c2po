@@ -12,6 +12,24 @@ Let $k = \angl{P,M_P,B,D}$ and $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \e
 We define the conjunction $p \meet k$ of $k$ and a proposition $p$ as follows,
 assuming that all the terms occurring in $p$ have already been added to $\T$ by extending the partition $P$:
 \begin{itemize}
+    \item Let $p \equiv (t_1 = z + t_2)$. Again, let $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
+    \begin{itemize}
+        \item If $t_1' \equiv t_2'$ and $\omega\,t_1 = z + \omega\,t_2$,
+        then the equality is already implied by $P$ and we set $p \meet k = k$.
+        \item If $t_1' \equiv t_2'$, but $\omega\,t_1 \neq z + \omega\,t_2$,
+        or if $\{t_1',t_2'\}\in B$, or if $t_1' \neq (z + \omega\,t_2 - \omega\,t_1) + t_2'$ is in $D$,
+        then there is a contradiction and we set $p \meet k = \bot$.
+        \item We compute the $\closure{t_1}{z}{t_2}$.
+        Let $P' = (\T, \tau', \omega')$ and $M_P'$ be the partition and QFA resulting from the closure operation.
+        Now, we need to update the block disequalities and the disequalities to be about the representatives of $P'$.
+        For each block disequality $bl(t_1) \neq bl(t_2)$ in $B$, we convert it to the disequality $bl(\tau'\,t_1) \neq bl(\tau'\,t_2)$:
+        $B' = \{bl(\tau'\,t_1) \neq bl(\tau'\,t_2) \mid bl(t_1) \neq bl(t_2) \in B\}$.
+        There could be additional disequalities implied by the equality $t_1' = z + t_2'$, that need to be stored and
+        possibly could lead to a contradiction.
+        Therefore we set $D' = closure_\neq(D)$. \todo{what this ``closure'' doesn't exists}
+        If a contradiction occurs, we set $p \meet k = \bot$.
+        We set $p \meet k = \angl{P',M_P',B',D'}$.
+    \end{itemize}
     \item Let $p \equiv (bl(t_1) \neq bl(t_2))$, $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
     \begin{itemize}
         \item If $t_1' \equiv t_2'$, then $p \meet k = \bot$.
@@ -35,15 +53,6 @@ assuming that all the terms occurring in $p$ have already been added to $\T$ by 
          \item We set $p \meet k = \angl{P,M_P,B,D'}$, where $D' = closure(D \cup \{t_1' \neq z' + t_2'\})$
          and $z' = z - \omega\,t_1 + \omega\,t_2$.
     \end{itemize}
-    \item Let $p \equiv (t_1 = z + t_2)$. Again, let $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
-    \begin{itemize}
-        \item If $t_1' \equiv t_2'$ and $\omega\,t_1 = z + \omega\,t_2$,
-        then the equality is already implied by $P$ and we set $p \meet k = k$.
-        \item If $t_1' \equiv t_2'$, but $\omega\,t_1 \neq z + \omega\,t_2$,
-        or if $\{t_1',t_2'\}\in B$, or if $t_1' \neq (z + \omega\,t_2 - \omega\,t_1) + t_2'$ is in $D$,
-        then there is a contradiction and we set $p \meet k = \bot$.
-        \item We compute the $\closure{t_1}{z}{t_2}$.
-        Let $P'$ and $M_P'$ be the partition and QFA resulting from the closure operation.
-        Now, we need to update the block disequalities and the disequalities to be about the representatives of $P'$.
-    \end{itemize}
 \end{itemize}
+
+\todo[inline]{some kind of proof?}
