@@ -57,7 +57,7 @@ For each such edge, we do:
 The algorithm is correct because longer paths always result in larger terms than shorter paths.
 Thus, we do not need to update a pair once it was computed.
 
-\begin{example}
+\begin{example}\label{ex:min-repr}
     Let $\Psi \equiv B = -1 + \&x \land *B = 2 + A \land *A = 3 + x$.
     The automaton $M_P[\Psi]$ has can be visualized with the following graph:
     \begin{center}

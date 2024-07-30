@@ -41,6 +41,7 @@ We define the binary relation $\nequivp$ which represents all disequalities that
 
 As for the block disequalities, we store a list $D$ of disequalities between representative terms.
 The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we don't need to explicitly store them, as they implicitly derive from the relation $\equivp$ or respectively from the block disequalities in the list $B$.
+\todo{define closure of disequalities with also as a parameter the partition and the block diseqs}
 
 The list $D$ consists of all disequalities and block disequalities deriving from
 \labelcref{item:neq-quantitative-equalities,item:neq-quantitative-symmetry,item:inverse-deref,item:eq-neq,item:block-neq},
