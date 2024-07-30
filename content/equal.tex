@@ -17,6 +17,15 @@ Then we compare the equivalence classes of the resulting partitions $P_1' = (\T,
 For this, we need to check for each element $t \in \T$, if $t = \omega_1'\,t + \tau_1'\,t$ also holds in $P_2$, i.e.,
 if $\omega_2'\,t + \tau_2'\,t = \omega_1'\,t + \omega_2'\,(\tau_1'\,t) + \tau_2'\,(\tau_1'\,t)$.
 
+Afterwards, the disequalities and block disequalities are compared.
+For two kernels $k_1 = \angl{P_1, M_{P_1}, B_1, D_1}$ and $k_2 = \angl{P_2, M_{P_2}, B_2, D_2}$,
+we rewrite the disequalities $B_2$ and $D_2$ to be about the representatives of $P_1$.
+I.e., for each disequality $t_1 \neq z + t_2$ in $D_2$, we convert it to the disequality $\tau_1'\,t_1 \neq (z + \omega_1'\,t_2 - \omega_1'\,t_1) + \tau_1'\,t_2$
+and for each block disequality $bl(t_1) \neq bl(t_2)$ in $B_2$, we convert it to the disequality $bl(\tau_1'\,t_1) \neq bl(\tau_1'\,t_2)$.
+This is possible, because we previously extended the partitions to the same set $\T$,
+i.e., $\tau_1'\,t$ is defined for each term $t$ occurring in $B_2$ and $D_2$.
+Then we check if the resulting set of block disequalities is equal to $B_1$ and if the resulting set of disequalities is equal to $D_1$.
+
 \subsection{Compute Normal Form}
 
 In~\cite{2pointer} a different approach is presented to decide the equivalence of two partitions.
@@ -45,9 +54,85 @@ For each such edge, we do:
     \item If $(m_{s'},z_{s'})$ is not defined yet, set $(m_{s'},z_{s'}) = (*((z-z_s)+m_s),z')$.
     \item Add $s'$ to $P$.
 \end{enumerate}
-The algorithm is correct because longer pathss always result in lrger terms than shorter paths.
+The algorithm is correct because longer paths always result in larger terms than shorter paths.
 Thus, we do not need to update a pair once it was computed.
 
 \begin{example}
-\todo[inline]{TODO}
+    Let $\Psi \equiv B = -1 + \&x \land *B = 2 + A \land *A = 3 + x$.
+    The automaton $M_P[\Psi]$ has can be visualized with the following graph:
+    \begin{center}
+        \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+
+            \node[state] (Q1) {$\begin{array}{c}
+                        \boldsymbol{\&x}, \\
+                        1 + B
+                    \end{array}$};
+
+            \node[state, right=4.5cm of Q1] (Q2) {$\begin{array}{c}
+                        \boldsymbol{*B}, 2 + A, \\
+                        *(-1+\&x )
+                    \end{array}$};
+
+            \node[state, right=5.6cm of Q2] (Q3) {$\begin{array}{c}
+                        \boldsymbol{x}, *(1 + B), -3 + *A, \\
+                        -3 + *(-2+*B),...
+                    \end{array}$};
+
+            \path[->]
+            (Q1) edge[] node {$-1,0$} (Q2)
+            (Q2) edge[] node {$-2,3$} (Q3)
+            (Q1) edge[bend right] node {$0,0$} (Q3);
+
+            \node [above left=1cm and 0.3cm of Q1] {$s_0$};
+            \node [above left=1cm and 0.5cm of Q2] {$s_1$};
+            \node [above left=1cm and 0.7cm of Q3] {$s_2$};
+
+        \end{tikzpicture}
+    \end{center}
+    The minimal representatives are computed by first considering the atoms in ascending order.
+    Assuming that the linear order on atoms is $\&x < A < B$,
+    we define first $m_{s_0} = \&x$ and $z_{s_0} = 0$.
+    Then we define $m_{s_1} = A$ and $z_{s_1} = -2$.
+    There is nothing to do for $B$, because we already defined $m_{s_0}$.
+    The queue $P$ is now $\{s_0, s_1\}$.
+    We consider the outgoing edge of $s_0$ with $z = -1$.
+    There is nothing to do for $s_1$, as $m_{s_1}$ is already defined.
+    Then we consider the outgoing edge of $s_0$ with $z = 0$
+    and set $m_{s_2} = x$ and $z_{s_2} = 0$.
+    Then we are done.
 \end{example}
+Using the minimal representatives, we can now transform the kernel $k = \angl{P,M_P,B,D} \neq \bot$ with $M_P = (S, \otau, \eta, \delta)$ to a normal formula $\F_{normal}[k]$,
+defined as follows:
+
+\[
+    \begin{array}{lll}
+        \F_{normal}[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = (z - z_s) + m_s) \land                                                           \\
+                         &        & \bigwedge_{\delta\,z\,s=(z',s')} (*((z-z_s) + m_s) = (z'-z_{s'} + m_{s'}) \land                                 \\
+                         &        & \bigwedge_{s,s' \in S \land \{\otau\,s, \otau\,s'\} \in B} (bl(m_{s}) \neq bl(m_{s'})) \land           \\
+                         &        & \bigwedge_{s,s' \in S \land (\otau\,s, z,\otau\,s') \in D} (m_{s} \neq (z+ z_{s} -z_{s'}) + m_{s'})
+    \end{array}
+\]
+
+The trivial propositions of the form $t = 0 + t$ are removed from the formula, as well as the repeated equalities.
+
+This corresponds to the formula representation $\F[k]$, but it expresses the proposition using the minimal representatives instead of the representatives of the union-find.
+The advantage of this normal form is that the formula representation does not depend on the chosen representatives and also not of the chosen set $\T$.
+Thus, there is a unique normal form for each semantic equivalence class of kernels,
+even though there exists multiple different kernel representations of the same conjunction.
+Therefore, in order to decide the equivalence of two kernels $k_1$ and $k_2$, it suffices to compare the normal forms $\F_{normal}[k_1]$ and $\F_{normal}[k_2]$ syntactically.
+
+\todo[inline]{Correctness proof}
+
+\todo[inline]{Proof that they are equivalent}
+
+\subsection{Partial Order}
+
+The natural partial ordering between conjunctions is semantic implication, i.e.,
+$\Psi_1 \rightarrow \Psi_2$
+iff $(\rho, \nu, \mu) \models \Psi_1$ whenever $(\rho, \nu, \mu) \models \Psi_2$.
+This is the case iff $\Psi_1 \land \Psi_2$ is semantically equal to $\Psi_1$.
+Therefore it is possible to reduce the \emph{less equal} operation to a \emph{meet} and an \emph{equal} operation.
+A kernel $k_1$ that represents a conjunction $\Psi_1$ is \emph{less or equal} to a kernel $k_2$ representing $\Psi_2$ iff
+$k_1 \meet k_2$ is semantically equal to $k_1$.
+We already described how to decide semantic equality between two kernels.
+In the next section, the \emph{meet} operation ($\meet$) is presented.

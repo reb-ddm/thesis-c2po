@@ -19,7 +19,6 @@ The terms $t$ are defined by the following grammar:
 where $A\in \A$ is an auxiliary, $x \in \X$ is a variable with address $\&x$ and $z \in \Z$ is an integer.
 We call terms $\&x$ or $A$ \emph{atoms}.
 Given a linear order $<$ on atoms, it can be extended to an order on terms by defining:
-\todo{do i need this?}
 \begin{itemize}
     \item $a < *(z+t)$ whenever $a$ is an atom and
     \item $*(z_1 + t_1) < *(z_2 + t_2)$ whenever either $t_1 < t_2$ or $t_1 \equiv t_2$ and $z_1 < z_2$.

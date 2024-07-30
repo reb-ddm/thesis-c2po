@@ -23,13 +23,15 @@ For an unsatisfiable formula $\Psi$, the kernel representation is $\bot$.
 It is posible to convert a kernel representation $k = \angl{P,M_P,B,D} \neq \bot$ with $M_P = (S, \otau, \eta, \delta)$ to a formula $\F[k]$, that is given by
 
 \[
-\begin{array}{lll}
-    \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s_1)} (a = z + \otau\,s_1) \land \\
-    & & \bigwedge_{\delta\,(z_1,s_1)=(z_2,s_2)} (*(z_1 + \otau\,s_1) = z_2 + \otau\,s_2) \land \\
-    & & \bigwedge_{\{t_1, t_2\} \in B} (bl(t_1) \neq bl(t_2)) \land \\
-    & & \bigwedge_{(t_1, z, t_2) \in D} (t_1 \neq z + t_2)
-\end{array}
+    \begin{array}{lll}
+        \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = z + \otau\,s) \land                        \\
+              &        & \bigwedge_{\delta\,z\,s=(z',s')} (*(z + \otau\,s) = z' + \otau\,s') \land \\
+              &        & \bigwedge_{\{t, t'\} \in B} (bl(t) \neq bl(t')) \land                     \\
+              &        & \bigwedge_{(t, z, t') \in D} (t \neq z + t')
+    \end{array}
 \]
+
+The trivial propositions of the form $t = 0 + t$ are removed from the formula, as well as the repeated equalities.
 
 If $k$ is the kernel of a conjunction $\Psi$, then $\F[k]$ is equivalent to $\Psi$,
 even though it may not be syntactically identical.
