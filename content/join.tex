@@ -75,35 +75,31 @@ considered as a possible option for the join operation.
 
 We propose an implementation of the join algorithm of two quantitative finite automata.
 It is based on the work of Gulwani et al.~\cite{join}, where they discuss join algorithms for congruence closure data structures.
-They also prove that the join of two congruences is not necessarily representable by a finite conjunction of equalities, therefore it is not possible with our representation to compute the exact least upper bound of two congruences.
 
-\begin{example}\label{example:infinite-join}
-    Let $\Psi_1 \equiv (a = b)$ and $\Psi_2 \equiv (*a = a)\land (*b=b) \land (*(1 + a) = *(1 + b))$. Then for each $n \geq 0$, the equality $*(1+*^n a) = *(1 + *^n b)$ is implied both by $\Psi_1$ and $\Psi_2$, where $*^m$ denotes $m$-fold dereference.
-    It can be shown that the set of quantitative equalitites implied both by $\Psi_1$ and $\Psi_2$ cannot be represented by a finite conjunction\cite{join, 2pointer}.
-\end{example}
+Given two partitions $P_1 = (\T_1, \tau_1, \omega_1)$ and $P_2 = (\T_2, \tau_2, \omega_2)$ and the corresponding automata $M_{P_1}$ and $M_{P_2}$, we want to compute the partition $P_3$ and the automaton $M_{P_3}$ that represent the conjunction of the two automata.
+The first step is to extend the set of terms of $P_1$ and $P_2$ to $\T = \T_1 \cup \T_2$.
+From now on we assume that both partitions are defined over the same set of terms $\T$,
+i.e., $P_1 = (\T, \tau_1, \omega_1)$ and $P_2 = (\T, \tau_2, \omega_2)$.
+Let $M_{P_1}$ and $M_{P_2}$ be the corresponding automata.
 
-This shows that it is not possible to compute the exact join between two conjunctions of quantitative equalities, because of the limitations in the expressiveness of the congruence closure representation.
-However, it is possible to define a join that is complete on  a specific set of pre-chosen terms $\T'$.
-This can be computed by adding all the terms $\T'$ to both automata that correspond to the conjunctions and then constructing the product automaton.
+The join is defined as the product automaton of $M_1$ and $M_2$.
 
 \begin{definition}
-    Let $M_1 = (S_1,\eta_1,\delta_1)$ and $M_2 = (S_2, \eta_2,\delta_2)$ be two quantitative finite automata. The \emph{quantitative product automaton} $M_3 = (S_3, \eta_3, \delta_3)$ is defined as:
+    Let $M_1 = (S_1, \otau_1, \eta_1, \delta_1)$ and $M_2 = (S_2, \otau_2, \eta_2, \delta_2)$ be two quantitative finite automata. The \emph{quantitative product automaton} $M_3 = (S_3, \otau_3, \eta_3, \delta_3)$ is defined as:
     \begin{itemize}
-        \item $S_3 \subseteq S_1 \times S_2 \times \Z$.
         \item If $\eta_1(a) = (z_1, s_1)$ and $\eta_2(a) = (z_2, s_2)$, then
               $\eta_3(a) = (z_1, \angl{s_1, s_2, z_2-z_1})$.
-        \item If $\delta_1(z_1, s_1) = (z'_1, s'_1)$ and $\delta_2(z_2, s_2) = (z'_2, s'_2)$, then $\delta_3(z_1, \angl{s_1, s_2, z_2 - z_1}) =  (z'_1, \angl{s'_1, s'_2, z'_2 -z'_1})$
+        \item If $\delta_1(z_1, s_1) = (z'_1, s'_1)$ and $\delta_2(z_2, s_2) = (z'_2, s'_2)$, then $\delta_3(z_1, \angl{s_1, s_2, z_2 - z_1}) =  (z'_1, \angl{s'_1, s'_2, z'_2 -z'_1})$.
+        \item $S_3 \subseteq S_1 \times S_2 \times \Z$. $S_3$ contains all states that are reachable in $M_3$.
+        \item For each $s \in S_3$, $\otau_3(s)$ is any term in $\L_{M_3}(s)$.
     \end{itemize}
 \end{definition}
 
 The product automaton is a finite automaton, as there is only a finite amount of states in $S_1 \times S_2 \times \Z$ which are reachable.
 All the remaining states are unreachable, i.e.\ they neither occur in a return value of $\eta_3$, nor of $\delta_3$.
-This follows from the fact that $\eta_i$ and $\delta_i$ for $i = 1,2$ are defined only for a finite amount of values, as discussed in Section~\ref{qcc}.
+This follows from the fact that $\eta_i$ and $\delta_i$ for $i = 1,2$ are defined only for a finite amount of values, as discussed in \cref{subsection:qfa}.
 
 The product can be computed in polynomial time, as we need to add an initial state for all pairs of initial states of $M_1$ and $M_2$ and then add a transition for each pair of transitions of $M_1$ and $M_2$. Therefore the runtime is equal to the size of $M_1$ times the size of $M_2$.
-
-For two automata $M_1$ over the terms $\T_1$ and $M_2$ over the terms $\T_2$, we choose $\T' = \T_1 \cup \T_2$.
-We define the join of $M_1$ and $M_2$ as the automaton $M_3$ that is obtained by computing the product automaton of $M_1$ and $M_2$ after having added all terms of $\T'$ to both automata.
 
 \begin{lemma}\label{lemma:join-automata}
     Let $M_3$ be the product automaton of two quantitative automata $M_1$ and $M_2$.
@@ -125,14 +121,14 @@ Additionally, the proposition shows that our definition of join is sound.
     This proposition follows from Lemma~\ref{lemma:join-automata}.
 \end{proof}
 
-As we mentioned before, we added all terms of $\T'$ to both automata before computing the product automaton, and after having added these terms, it holds that $\T' \subseteq \L(M_1) \cap \L(M_2)$.
-Therefore, the join of two automata is complete at least over the terms of $\T'$.
+As we mentioned before, we added all terms of $\T_1 \cup \T_2$ to both automata before computing the product automaton, and after having added these terms, it holds that $\T \subseteq \L(M_1) \cap \L(M_2)$.
+Therefore, the join of two automata is complete at least over the terms in $\T$.
 
-From the automata $M_3$ we can compute the corresponding partition $\Pi_3$ by finding for each state of $\Pi_3$ the set of terms $\L_{M_3}(s)$.
-Thus the join automaton could contain new terms that were not present in the partition of the original input automata.
-However, in the case that $M_3$ contains a cycle, some of these sets could contain an infinite number of terms.
-Therefore, for each cycle in the automaton, we only keep the terms that are reachable in the first iteration of the cycle, and we remove all the terms that are reachable by traversing the cycle multiple times.
-As before when we computed the restriction of an automaton, we choose for each equivalence class $Q\in \Pi_3$ a new representative term $\tau Q$ and for each term $t \in Q$ we adjust the weights $\omega t$ accordingly.
+From the automata $M_3$ we can compute the corresponding partition $P_3$.
+Let $\T' = \{t \mid \exists s \in S_3 . \otau_3(S_3) = t\}$ be the set of terms that were chosen
+as representatives for the states of $M_3$.
+Then the partition $P_3$ is defined as $P_3 = (\T' \cup \T, \tau_3, \omega_3)$,
+where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t = z$ if $M_3[t] = (z,s)$.
 
 \begin{example}
     We consider two automatas $M_1$ and $M_2$, where $M_1$ represents the conjunction $A = B + 2 \land A = C + 3$ and $M_2$ represents the conjunction $A = B + 1 \land A = C + 2$.
@@ -153,9 +149,14 @@ As before when we computed the restriction of an automaton, we choose for each e
     Therefore the product automaton is isomorphic to the second automaton and it represents the same equality $*x = \&x$.
 \end{example}
 
-\subsubsection{Disequalities of Join}
-Given two conjunctions $\Psi_1$ and $\Psi_2$, we want to compute all the disequalities that follow from both conjunctions.
-In Lemma~\ref{lemma:diseq_types} we defined the two types of disequalities that follow from a conjunction: the set of disequalities that follow from the explicitly stored disequalities, and the set of implicit disequalities that follow from the equalities or the block disequalities.
+\subsubsection{Disequalities}
+Given two kernels $k_1 = (P_1, M_{P_1},B_1, D_1)$ and $k_2 = (P_2, M_{P_2},B_2, D_2)$, we want to compute the kernel $k_3 = (P_3, M_{P_3},B_3, D_3)$ that represents the join of the two kernels.
+We already discussed two different methods of how to compute the partition $P_3$ and the automaton $M_{P_3}$ that represents the join of the two automata.
+Now we consider the (block-)disequalities that follow from both kernels.
+
+In \cref{section:disequalities} we defined the two types of disequalities that follow from a conjunction:
+the set of disequalities that follow from the explicitly stored disequalities,
+and the set of implicit disequalities that follow from the equalities or the block disequalities.
 As before with the equalities, it is also not possible to define a join operation that computes all disequalities that follow from two conjunctions, as is shown in the following example.
 
 \begin{example}
