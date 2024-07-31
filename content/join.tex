@@ -11,42 +11,42 @@ therefore it is not possible to compute the exact least upper bound of two conju
 \begin{example}\label{example:infinite-join}
     Adapting the original example by \textcite{join} to \cpo, consider the conjunctions $\Psi_1 \equiv (A = B)$ and $\Psi_2 \equiv (*A = A)\land (*B=B) \land (*(1 + A) = *(1 + B))$, represented by the automata $M_1$ and $M_2$ shown below:
     \begin{center}
-    \begin{minipage}{0.3\textwidth}
-        \centering
-        \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+        \begin{minipage}{0.3\textwidth}
+            \centering
+            \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
 
-          \node[state] (Q1) {$\begin{array}{c}
-              A,B
-          \end{array}$};
-          \node [left=1.5cm of Q1] {$M_1$:};
-      \end{tikzpicture}
-    \end{minipage}
-    \begin{minipage}{0.65\textwidth}
-        \centering
-        \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+                \node[state] (Q1) {$\begin{array}{c}
+                            A,B
+                        \end{array}$};
+                \node [left=1.5cm of Q1] {$M_1$:};
+            \end{tikzpicture}
+        \end{minipage}
+        \begin{minipage}{0.65\textwidth}
+            \centering
+            \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
 
-          \node[state] (Q1) {$\begin{array}{c}
-              A,*A,..
-          \end{array}$};
+                \node[state] (Q1) {$\begin{array}{c}
+                            A,*A,..
+                        \end{array}$};
 
-          \node[state, right=3cm of Q1] (Q2) {$\begin{array}{c}
-             B,*B,..
-          \end{array}$};
+                \node[state, right=3cm of Q1] (Q2) {$\begin{array}{c}
+                            B,*B,..
+                        \end{array}$};
 
-          \node[state, below right=2cm and 1.5cm of Q1] (Q3) {$\begin{array}{c}
-              *(1+A), *(1 + B),...
-          \end{array}$};
+                \node[state, below right=2cm and 1.5cm of Q1] (Q3) {$\begin{array}{c}
+                            *(1+A), *(1 + B),...
+                        \end{array}$};
 
-          \path[->]
-          (Q1) edge[loop below] node[left] {$0,0$} (Q1)
-          (Q2) edge[loop below] node[right] {$0,0$} (Q2)
-          (Q1) edge[] node[right] {$1,0$} (Q3)
-          (Q2) edge[] node[above left] {$1,0$} (Q3);
+                \path[->]
+                (Q1) edge[loop below] node[left] {$0,0$} (Q1)
+                (Q2) edge[loop below] node[right] {$0,0$} (Q2)
+                (Q1) edge[] node[right] {$1,0$} (Q3)
+                (Q2) edge[] node[above left] {$1,0$} (Q3);
 
-          \node [below left=1cm and 1.5cm of Q1] {$M_2$:};
+                \node [below left=1cm and 1.5cm of Q1] {$M_2$:};
 
-      \end{tikzpicture}
-      \end{minipage}
+            \end{tikzpicture}
+        \end{minipage}
     \end{center}
 
     Then for each $n \geq 0$, the equality $*(1+*^n A) = *(1 + *^n B)$ is implied both by $\Psi_1$ and $\Psi_2$, where $*^m$ denotes $m$-fold dereference.
@@ -121,17 +121,19 @@ Additionally, the proposition shows that our definition of join is sound.
     This proposition follows from Lemma~\ref{lemma:join-automata}.
 \end{proof}
 
-As we mentioned before, we added all terms of $\T_1 \cup \T_2$ to both automata before computing the product automaton, and after having added these terms, it holds that $\T \subseteq \L(M_1) \cap \L(M_2)$.
+As we mentioned before, we added all terms of $\T = \T_1 \cup \T_2$ to both automata before computing the product automaton, and after having added these terms, it holds that $\T \subseteq \L(M_1) \cap \L(M_2)$.
 Therefore, the join of two automata is complete at least over the terms in $\T$.
 
 From the automata $M_3$ we can compute the corresponding partition $P_3$.
-Let $\T' = \{t \mid \exists s \in S_3 . \otau_3(S_3) = t\}$ be the set of terms that were chosen
+Let $\T' = \{t \mid \exists s \in S_3 . \otau_3(s) = t\}$ be the set of terms that were chosen
 as representatives for the states of $M_3$.
 Then the partition $P_3$ is defined as $P_3 = (\T' \cup \T, \tau_3, \omega_3)$,
 where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t = z$ if $M_3[t] = (z,s)$.
 
+\todo[inline]{examples}
+
 \begin{example}
-    We consider two automatas $M_1$ and $M_2$, where $M_1$ represents the conjunction $A = B + 2 \land A = C + 3$ and $M_2$ represents the conjunction $A = B + 1 \land A = C + 2$.
+    We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $A = B + 2 \land A = C + 3$ and $M_2$ represents the conjunction $A = B + 1 \land A = C + 2$.
     The automaton $M_1$ has one single state $s_0$ that represents the equivalence class $\{A, B+2, C+3\}$
     and $M_2$ has one single state $s_1$ that represents the equivalence class $s_1 = \{A, B+1, C+2\}$.
     The product automaton $M_3$ is made of no transitions and two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_1, 1}$, where the first one represents the set $\{A\}$ and the second one the set $\{B, C+1\}$.
@@ -149,10 +151,16 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
     Therefore the product automaton is isomorphic to the second automaton and it represents the same equality $*x = \&x$.
 \end{example}
 
-\subsubsection{Disequalities}
+\subsection{Join Without The Automaton}
+
+\todo[inline]{TODO}
+
+\subsection{Join of Disequalities}
 Given two kernels $k_1 = (P_1, M_{P_1},B_1, D_1)$ and $k_2 = (P_2, M_{P_2},B_2, D_2)$, we want to compute the kernel $k_3 = (P_3, M_{P_3},B_3, D_3)$ that represents the join of the two kernels.
 We already discussed two different methods of how to compute the partition $P_3$ and the automaton $M_{P_3}$ that represents the join of the two automata.
-Now we consider the (block-)disequalities that follow from both kernels.
+Now we consider the (block-)disequalities that follow from both kernels,
+assuming that $P_3$ and $M_{P_3}$ are the join of $P_1$ and $P_2$ and $M_{P_1}$ and $M_{P_2}$, respectively,
+using either of the two methods described above.
 
 In \cref{section:disequalities} we defined the two types of disequalities that follow from a conjunction:
 the set of disequalities that follow from the explicitly stored disequalities,
@@ -161,51 +169,75 @@ As before with the equalities, it is also not possible to define a join operatio
 
 \begin{example}
     Let $\Psi_1 \equiv A = B + 1$ and $\Psi_2 \equiv A = B + 2$. There are infinitely many equalities that are implied by $\Psi_1$ and $\Psi_2$ i.e. $A \neq B + z$ for all $z \in \Z \backslash \{1,2\}$.
-    There is no way to represent these equalities implicitly via equalities or block disequalities, and we can only store a finite amount of explicit disequalities. Therefore, it is not always possible to compute the exact set of disequalities for the join.
+    There is no way to represent these equalities implicitly via equalities or block disequalities,
+    and we can only store a finite amount of explicit disequalities.
+    Therefore, it is not always possible to compute the exact set of disequalities that are implied by two conjunctions.
 \end{example}
 
 We have seen that the intersection between the set of implicit disequalities that follow from two conjunctions $\Psi_1$ and $\Psi_2$ could be infinite.
 Therefore, we define the join to keep only those disequalities that follow from an explicit disequality in $\Psi_1$ and from an explicit or implicit disequality in $\Psi_2$ or vice versa.
 
-\begin{definition}
-    Let $\Psi_1$ and $\Psi_2$ be two conjunctions of 2-pointer propositions. We define $\Psi_1 \join_\neq \Psi_2 = \{t_1 \neq t_2 + z | t_1 \neq t_2 + z \text{ is an explicit disequality of } \Psi_1 \text{ or of } \Psi_2 \text{ and } t_1 \nequiv_{\Psi_1} t_2 + z \text{ and } t_1 \nequiv_{\Psi_2} t_2 + z\}$.
-\end{definition}
+Let $P_3 = (\T, \tau_3, \omega_3)$.
+We define
+\[
+    \begin{array}{ll}
+        D_3 & = \{(\tau_3\,t_1, \tau_3\,t_2, z + \omega_3\,t_2 - \omega_3\,t_1) \mid                                                                             \\
+            & ((\tau_1\,t_1, \tau_1\,t_2, z + \omega_1\,t_2 - \omega_1\,t_1) \in D_1 \lor (\tau_2\,t_1, \tau_2\,t_2, z + \omega_2\,t_2 - \omega_2\,t_1) \in D_2) \\
+            & \land t_1 \nequiv_{k_1} t_2 + z \land t_1 \nequiv_{k_2} t_2 + z\}.
+    \end{array}
+\]\todo{this notation $\nequiv_{k_2}$ is not defined}
+\todo{check if the offsets are correct}
 
-This join can be computed in polynomial time in the number of explicitly stored disequalities by first constructing the set containing all equalities of $closure_\neq(\Psi_1)$.
-For each equality $t \neq t' + z$ in this set, we need to rewrite it to use the new representatives of the equivalence classes in $\Pi_3$.
-However, each equivalence class of $\Pi_1$ and $\Pi_2$ might now be divided into multiple equivalence classes in $\Pi_3$.
-Therefore for each term in each explicit disequality of $\Psi_1$ and $\Psi_2$, we need to consider all new representatives for each derived sub-equivalence class.
+This join can be computed in polynomial time in the number of explicitly stored disequalities by first constructing the set containing all equalities of $D_1$ and $D_2$
+and computing their closure with respect to the closure under quantitative equalities rule \labelcref{item:closure-under-quantitative-equalities}.T
+his is necessary, because each equivalence class of $P_1$ and $P_2$ might now be divided into multiple equivalence classes in $P_3$.
+Therefore, for each disequality $(t, t', z) \in D_1$,
+we need to rewrite it to use the new representatives of the equivalence classes in $P_3$,
+so we consider the disequality $(\tau_3\,t_1, \tau_3\,t_2, z')$
+for each terms $\tau_3\,t_1$ and $\tau_3\,t_2$ that are representatives in $P_3$ and for
+which $t_1$ is in the same equivalence class of $t$ and $t_2$ is in the same equivalence class of $t'$.
+Then we the offset $z'$ needs to be updated to the new offsets in $P_3$ and the new terms in the disequality.
+It holds that $z' = z + \omega_3\,t_2 - \omega_3\,t_1 + \omega_1\,t - \omega_1\,t'$.
+\todo{check offsets}
 
-Let $M_3$ be the join automaton of the automata $M_1 = M_P[\Psi_1]$ and $M_2 = M_P[\Psi_2]$.
-For a state $s_1$ in $M_1$, there could be multiple states of the form $s_3 = \angl{s_1, s_2', z'} \in S_3$ for some $s_2' \in S_2$ and some $z' \in \Z$.
-For each of these states, it holds that $\L_{M_3}(s_3) \subseteq \L_{M_1}(s_1)$.
-Therefore, for each disequality of the form $t_1 \neq z + t_2 \in closure_\neq(\Psi_1)$, such that $M_1[t_1] = (z_1, s_1)$ and $M_1[t_2] = (z_2, s_2)$ for some $z_1,z_2\in \Z$, we need to consider
-each of the states $s_1', s_2' \in S_3$ such that the first component of $s_1'$ is $s_1$ and the first component of $s_2'$ is $s_2$. Let $Q_1', Q_2' \in \Pi_3$ be the corresponding equivalence classes of $s1'$ and $s2'$, respectively.
-Then the equality $\tau_3 Q_1' \neq (z + \omega_1 (\tau_3 Q_2') - \omega_1 (\tau_3 Q_1')) +\tau_3 Q_2'$ is one of the equalities that follow from the explicitly stored disequalities of $\Psi_1$.
-For each of these disequalities that we found, we need to check if it is implied by $\Psi_1$ and $\Psi_2$.
-
-We do the same thing for each disequality of the form $t_1 \neq z + t_2 \in closure_\neq(\Psi_2)$:
-let $M_2[t_1] = (z_1, s_1)$ and $M_2[t_2] = (z_2, s_2)$ for some $z_1,z_2\in \Z$.
-We need to consider the equalities $\tau_3 Q_1' \neq (z + \omega_2 (\tau_3 Q_2') - \omega_2 (\tau_3 Q_1')) +\tau_3 Q_2'$ for each of the states $s_1', s_2' \in S_3$ such that the second component of $s_1'$ is $s_1$ and the second component of $s_2'$ is $s_2$ and $Q_1', Q_2' \in \Pi_3$ being the corresponding equivalence classes.
+Then the same is done for $D_2$.
+For each equality constructed in this way, we need to check if it is implied both by $k_1$ and $k_2$.
+If this is the case, then we add the equality to $D_3$.
 
 The only disequalities that are lost by this definition of join are those that are implied only by the implicit disequalities of $\Psi_1$ and the implicit disequalities of $\Psi_2$.
 
-\begin{proposition}
-    Let $\Psi_1$ and $\Psi_2$ be conjunctions of 2-pointer propositions.
-    Then $\Psi_1 \Longrightarrow \Psi_1 \join_\neq \Psi_2$ and $\Psi_2 \Longrightarrow \Psi_1 \join_\neq \Psi_2$.
+\subsection{Join of Block Disequalities}
+\todo{change order of diseqs and block diseqs and write for diseqs "same thing but we need to adjust the offsets" and also that there are implicit disequalities}
+We have shown how to compute all equalities and disequalities that follow from two conjunctions $k_1$ and $k_2$.
+The only missing propositions are the block equalities.
+Exactly as with the disequalities, we need to rewrite them such that they use the new representatives of the new equivalence classes of $P_3 = (\T, \tau_3, \omega_3)$.
+
+We define
+\[
+    \begin{array}{ll}
+        B_3 & = \{\{\tau_3\,t_1, \tau_3\,t_2\}  \mid                                                \\
+            & (\{\tau_1\,t_1, \tau_1\,t_2\} \in B_1 \land \{\tau_2\,t_1, \tau_2\,t_2\} \in D_2) \}.
+    \end{array}
+\]\todo{this notation $\nequiv_{k_2}$ is not defined}
+
+For each equality $\{t, t'\} \in B_1$,
+we need to rewrite it to use the new representatives of the equivalence classes in $P_3$,
+so we consider the disequality $\{t_1, t_2\}$
+for each terms $t_1$ and $t_2$ that are representatives in $P_3$ and for
+which $t_1$ is in the same equivalence class of $t$ and $t_2$ is in the same equivalence class of $t'$.
+We add this disequality to $B_3$ if $\{\tau_2\,t_1, \tau_2\,t_2\} \in B_2$.
+
+\subsection{Join of the Whole Kernel}
+
+Given two kernels $k_1 = (P_1, M_{P_1},B_1, D_1)$ and $k_2 = (P_2, M_{P_2},B_2, D_2)$, we define the join $k_1 \join k_2 \equiv (P_3, M_{P_3},B_3, D_3)$ that are all defined as above.
+
+\todo[inline]{proof that all parts of the join are correct}
+
+\begin{proposition}{Correctness of the join}
+    Let $k_1$ and $k_2$ be conjunctions of 2-pointer propositions.
+    Then $k_1 \leq k_1 \join k_2$ and $k_2 \leq k_1 \join k_2$.
 \end{proposition}
 
 \begin{proof}
-    By definition of $\join_\neq$, we add only equalities that follow both from $\Psi_1$ and from $\Psi_2$.
+    \todo[inline]{use all the proofs that you will have written before}
 \end{proof}
-
-\subsubsection{Join of block disequalites}
-We have shown how to compute all equalities and disequalities that follow from two conjunctions $\Psi_1$ and $\Psi_2$.
-The only missing propositions are the block equalities.
-Exactly as with the disequalities, we need to rewrite them such that they use the new representatives of the new equivalence classes.
-
-As before, for each disequality $bl(t_1) \neq bl(t_2) \in \Psi_1$, let $M_1[t_1] = (z_1, s_1)$ and $M_1[t_2] = (z_2, s_2)$ for some $z_1,z_2\in \Z$.
-For each pair of states $s_1', s_2'$, where the first component of $s_1'$ is $s_1$ and the first component of $s_2'$ is $s_2$ and their corresponding equivalence classes $Q_1', Q_2' \in \Pi_3$, we add the disequality $bl(\tau Q_1') \neq bl(\tau Q_2')$.
-We do the same thing for $\Psi_2$ and then intersect the set of block disequalities that derive from the two conjunctions.
-
-\subsection{Join Without The Automaton}
