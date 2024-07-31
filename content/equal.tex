@@ -31,8 +31,8 @@ Then we check if the resulting set of block disequalities is equal to $B_1$ and 
 In~\cite{2pointer} a different approach is presented to decide the equivalence of two partitions.
 This is done by computing a normal form $\nf(\Psi)$ of a conjunction $\Psi$, such that $\Psi$ is semantically equivalent to $\nf(\Psi)$ and such that two conjunctions $\Psi_1$ and $\Psi_2$ are semantically equivalent iff $\nf(\Psi_1)$ and $\nf(\Psi_2)$ are syntactically equivalent.
 
-The main idea is to find \emph{minimal representatives} for each state $s$ in the QFA $P_M$,
-which corresponds to the smallest term in $\L(s)$, according to the order defined in \cref{chapter:2pointer}.
+The main idea is to find \emph{minimal representatives} for each state $s$ in the QFA $M_P$,
+which corresponds to the smallest term in $\L_{M_P}(s)$, according to the order defined in \cref{chapter:2pointer}.
 Then the automaton is transformed to a formula that utilizes only the minimal representatives, thus obtaining a normal form
 that is independent on the chosen set $\T$ and on the chosen representatives.
 

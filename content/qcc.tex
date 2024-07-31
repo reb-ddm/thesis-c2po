@@ -131,13 +131,16 @@ It is defined as follows:
   Let $t$ be the term between $t_1$ and $t_2$ that has a new representative,
   and let $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \eta, \delta)$ be the partition and qutomaton before the union operation
   and $P' = (\T, \tau', \omega')$ and $M_{P'} = (S', \otau', \eta', \delta')$ be the partition after the union operation.
-  For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L(s_1)$,
+  For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L_{M_P}(s_1)$,
   we set $\delta'(z_1 - \omega\,(\tau\,t), s_1) = \delta'(z_2, s_2)$.
   \todo[inline]{Then use merge for the successors.}
   \todo{change $z_2$ in incoming transitions? how deep should I go in the details?}
 \end{enumerate}
 
 \todo[inline]{This is the same as congruence closure (cite) but restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets as in (cite Oliveras Nieuwenhuis).}
+
+\todo[inline]{Define visualization, each equivalence class has one state and
+terms represetned are only those in $\T$, while there are more terms in $\L_{M_P}(s)$}
 
 \begin{theorem}
   % This is Theorem 3 in the other paper
