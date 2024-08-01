@@ -194,7 +194,7 @@ and the set of implicit disequalities that follow from the equalities or the blo
 As before with the equalities, it is also not possible to define a join operation that computes all disequalities that follow from two conjunctions, as is shown in the following example.
 
 \begin{example}
-    Let $\Psi_1 \equiv A = B + 1$ and $\Psi_2 \equiv A = B + 2$. There are infinitely many equalities that are implied by $\Psi_1$ and $\Psi_2$ i.e. $A \neq B + z$ for all $z \in \Z \backslash \{1,2\}$.
+    Let $\Psi_1 \equiv A = B + 1$ and $\Psi_2 \equiv A = B + 2$. There are infinitely many equalities that are implied by $\Psi_1$ and $\Psi_2$ i.e. $A \neq B + z$ for all $z \in \Z \setminus \{1,2\}$.
     There is no way to represent these equalities implicitly via equalities or block disequalities,
     and we can only store a finite amount of explicit disequalities.
     Therefore, it is not always possible to compute the exact set of disequalities that are implied by two conjunctions.
