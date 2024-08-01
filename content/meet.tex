@@ -1,12 +1,12 @@
-\section{Meet}
+\section{Meet}\label{section:meet}
 
 Semantically, the meet of two conjunctions consists in taking the conjunction of the conjunctions:
 $\Psi_1 \meet \Psi_2 \equiv \Psi_1 \land \Psi_2$.
 
 Given two kernels $k_1$ for $\Psi_1$ and $k_2$ for $\Psi_2$,
-we want to compute the kernel $k_1 \meet k_2$ that represents the conjunction $\Psi_1 \meet \Psi_2$.
+we want to compute the kernel $k_1 \meet k_2$ that represents the conjunction $\Psi_1 \land \Psi_2$.
 If either $k_1 = \bot$ or $k_2 = \bot$, then $k_1 \meet k_2 = \bot$.
-Otherwise, we consider the formula representations $\F[k_1]$ and add each proposition of $\F[k_1]$ to the kernel $k_2$.
+Otherwise, we consider the formula representations $\F[k_2]$ and add each proposition of $\F[k_2]$ to the kernel $k_1$.
 First all quantitative equalities are added, then all block disequalities and finally all disequalities.
 Let $k = \angl{P,M_P,B,D}$ and $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \eta, \delta)$.
 We define the conjunction $p \meet k$ of $k$ and a proposition $p$ as follows,

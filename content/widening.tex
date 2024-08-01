@@ -61,14 +61,39 @@ As shown in~\cite{2pointer}, the domain of 2-pointer propositions also has infin
 	Thus, the $\Phi_n,n\geq 0$, constitute an infinite strictly descending chain in \cpo.
 \end{example}
 
-Similarly to the widening operation, we define the narrowing as the meet operation where we only consider the propositions that contain terms of the first input conjunction.
-This way, it is guaranteed that the set of terms does not grow in each iteration, and that a fixpoint is always reached.
-Let $\Psi_1$ and $\Psi_2$ be two conjunctions and $M_1$ and $M_2$ be the corresponding automata.
-Let $\Psi_2'$ be the set of equalities that can be derived from $\Psi_2$ and that contain only terms of $\L(M_1)$.
-These terms can be derived by computing the quantitative congruence closure of $\Psi_2$.
-We define the narrowing operation $\Psi_1 \narrow \Psi_2 = \Psi_1 \land \Psi_2'$.
+Similarly to the widening operation, we define the narrowing as the meet operation with a limited set of terms.
+However, it is not sufficient to limit the terms of the result, we also need to limit the possible offsets
+appearing in disequalities.
 
-\begin{example}
+\begin{example}\label{e:narrow1}\todo{rephrase, this is copied from the paper}
+	Consider the sequence of kernels corresponding to the propositions
+	\[
+	\Psi_n \equiv (y\neq n+\&x)\qquad(n\geq 0)
+	\]
+	Let $k_n$ denote the kernel of $\Psi_n$. Then all kernels consider the set $\T=\{\&x,\&y,y\}$ of terms
+	and have a trivial congruence closure with $\Pi=\{\{\&x\},\{\&y\},\{y\}\}$ and offsets 0 only.
+	The sets $D_n$ of disequalities, though, are given by $D_n=\{(y,n,\&x)\}$. Consider
+	the sequence $a_n, n\geq 0,$ defined by $a_0 = k_0$ and $a_n = a_{n-1}\narrow k_n$ for $n>0$. Each element $a_m$, is
+	a kernel with set $D'_m$ of quantitative disequalities given by
+	\[
+	D'_m = \{(y,j,\&x)\mid 0\leq j\leq m\}.
+	\]
+\end{example}
+
+To guarantee that the kernel does not grow in each iteration
+and that a fixpoint is always reached, we only consider the propositions that contain terms of the first input conjunction
+and disequalities that contain offsets that are in the range of offsets of the first input conjunction.
+
+\todo[inline]{find smallest and biggest offset in the disequalities and only consider offsets in this range}
+
+Let $k_1$ and $k_2$ be the kernels.
+As for the meet, if either $k_1 = \bot$ or $k_2 = \bot$, then $k_1 \meet k_2 = \bot$.
+Otherwise, we consider the formula representations $\F[k_1]$ and we keep only the propositions that contain terms of $\T_1$.
+We also filter out the disequalities that contain offsets that are not in the range of offsets of the first input conjunction.\todo{explain more in detail}
+Then we add each remaining proposition of $\F[k_1]$ to the kernel $k_2$,
+the same way as we did for the meet operation in \cref{section:meet}.
+
+\begin{example}\todo{this is not a good example and it' wrong}
     If we consider the result of widen of \cref{ex:widen}, we assume that the result automaton $M$
     is, for example, a simple path from the equivalence class of $\&x$ to the equivalence class of $*x$.
     If we apply the narrowing operation to this automaton and the equality $\&x = *x$, this equality will
