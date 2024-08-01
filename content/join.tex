@@ -151,9 +151,23 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
     Therefore the product automaton is isomorphic to the second automaton and it represents the same equality $*x = \&x$.
 \end{example}
 
-\subsection{Join Without The Automaton}
+\subsection{Join Using the Partition}
 
-\todo[inline]{TODO}
+We propose a second approach to compute the join of two quantitative automata.
+This approach is less precise than the previous one, as it only considers the partition of the terms $\T$ and not the automaton.
+
+As before, we first extend the two partitions to the same set of terms $\T$ that contains all terms from both partitions.
+
+Let $P_1 = (\T, \tau_1, \omega_1)$ and $P_2 = (\T, \tau_2, \omega_2)$ be two partitions.
+We define the partition $P_3 = (\T, \tau_3, \omega_3)$ that represents the join of $P_1$ and $P_2$ as follows.
+We partition the terms of $\T$ in sets $Q_i$ such that for two terms $t_1$ and $t_2$ in the same set,
+it holds that $\tau_1\,t_1 = \tau_1\,t_2$, $\tau_2\,t_1 = \tau_2\,t_2$ and $\omega_2\,t_1 -\omega_1\,t_1 = \omega_2\,t_2 - \omega_1\,t_2$.
+Then for each equivalence class $Q_i$ we choose a representative term $t_i\in Q_i$ and
+for each $t \in Q_i$ we define $\tau_3\,t = t_i$.
+Then, for each $t \in Q_i$ we define $\omega_3\,t = \omega_1\,t - \omega_1\,t_i$.
+
+The corresponding automaton $M_{P_3}$ can be computed starting from the partition $P_3$,
+as described in \cref{subsection:qfa}.
 
 \subsection{Join of Two Kernels}
 
