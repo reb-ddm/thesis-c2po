@@ -180,15 +180,15 @@ using either of the two methods described above.
 \subsubsection{Block Disequalities}
 
 \todo{change order of diseqs and block diseqs and write for diseqs "same thing but we need to adjust the offsets" and also that there are implicit disequalities}
-We have shown how to compute all equalities and disequalities that follow from two conjunctions $k_1$ and $k_2$.
-The only missing propositions are the block equalities.
-Exactly as with the disequalities, we need to rewrite them such that they use the new representatives of the new equivalence classes of $P_3 = (\T, \tau_3, \omega_3)$.
+In order to infer the block disequalities that follow from the conjunction of two kernels $k_1$ and $k_2$,
+we rewrite the block disequalities of $k_1$ and $k_2$ to use the new representatives of the new equivalence classes of $P_3 = (\T, \tau_3, \omega_3)$.
+Then we take the intersection of these two sets of block disequalities.
 
 We define
 \[
     \begin{array}{ll}
         B_3 & = \{\{\tau_3\,t_1, \tau_3\,t_2\}  \mid                                                \\
-            & (\{\tau_1\,t_1, \tau_1\,t_2\} \in B_1 \land \{\tau_2\,t_1, \tau_2\,t_2\} \in D_2) \}.
+            & (\{\tau_1\,t_1, \tau_1\,t_2\} \in B_1 \land \{\tau_2\,t_1, \tau_2\,t_2\} \in B_2) \}.
     \end{array}
 \]\todo{this notation $\nequiv_{k_2}$ is not defined}
 
@@ -197,8 +197,9 @@ we need to rewrite it to use the new representatives of the equivalence classes 
 so we consider the disequality $\{t_1, t_2\}$
 for each terms $t_1$ and $t_2$ that are representatives in $P_3$ and for
 which $t_1$ is in the same equivalence class of $t$ and $t_2$ is in the same equivalence class of $t'$.
-We add this disequality to $B_3$ if $\{\tau_2\,t_1, \tau_2\,t_2\} \in B_2$.
-
+There could be multiple such sets $\{t_1, t_2\}$,
+as the equivalence classes of $P_1$ and $P_2$ might be divided into multiple equivalence classes in $P_3$.
+We add each of these disequalities to $B_3$ if $\{\tau_2\,t_1, \tau_2\,t_2\} \in B_2$.
 
 \subsubsection{Disequalities}
 
@@ -229,8 +230,8 @@ We define
 \todo{check if the offsets are correct}
 
 This join can be computed in polynomial time in the number of explicitly stored disequalities by first constructing the set containing all equalities of $D_1$ and $D_2$
-and computing their closure with respect to the closure under quantitative equalities rule \labelcref{item:closure-under-quantitative-equalities}.T
-his is necessary, because each equivalence class of $P_1$ and $P_2$ might now be divided into multiple equivalence classes in $P_3$.
+and computing their closure with respect to the closure under quantitative equalities rule \labelcref{item:closure-under-quantitative-equalities}.
+This is necessary, because each equivalence class of $P_1$ and $P_2$ might now be divided into multiple equivalence classes in $P_3$.
 Therefore, for each disequality $(t, t', z) \in D_1$,
 we need to rewrite it to use the new representatives of the equivalence classes in $P_3$,
 so we consider the disequality $(\tau_3\,t_1, \tau_3\,t_2, z')$
