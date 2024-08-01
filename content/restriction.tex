@@ -78,10 +78,10 @@ The algorithm is as follows, where $\V$ is the set of visited states and $Q$ is 
               \item If we haven't already visited $s$, then we need to choose a new representative for $s$. We simply define $\otau'\,s = a$ and $\eta'(a) = (0, s)$.
                     We also add $s$ to $\V$ and to $Q$.
               \item Otherwise, if we have already visited $s$, then there is a $t$ such that $\otau'\,s = t$.
-              Let $M[t] = (z', s)$.
-              We define $\eta'(a) = (z - z', s)$.
+                    Let $M[t] = (z', s)$.
+                    We define $\eta'(a) = (z - z', s)$.
           \end{itemize}
-    \item\label{item:next-from-queue} Then we remove a state $s_1$ from the queue $Q$.
+          \item\label{item:next-from-queue} Then we remove a state $s_1$ from the queue $Q$.
           We consider all outgoing transitions $\delta(z_1, s_1) = (z_2, s_2)$.
     \item If we manage to find a term $*(z+t)\in \L(M)\backslash \Set$ such that $M_P[t] = (z_1', s_1)$ and $z = z_1 - z_1'$, then the transition is still valid.
           \begin{itemize}
@@ -107,9 +107,9 @@ The new partition $\restr{P}{-\Set} = (\T', \tau', \omega')$ is defined as:
     Let $M_P = (S, \otau, \eta, \delta)$ be a QFA and let $\restr{M_P}{-\Set} = (S', \otau', \eta', \delta')$ be the automaton that is obtained by restricting $M_P$ as described above.
     Then,
     \begin{enumerate}
-    \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t] = (z, s)$ and $M[\otau'\,s] = (z', s')$ iff $\restr{M_P}{-\Set}[t] = (z - z', s)$ and $s = s'$,
-    \item $\L(\restr{M_P}{-\Set}) = \L(M_P) \backslash \Set$ and
-    \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t_1] = z + M_P[t_2]$ iff $\restr{M_P}{-\Set}[t_1] = z + \restr{M_P}{-\Set}[t_2]$.
+        \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t] = (z, s)$ and $M[\otau'\,s] = (z', s')$ iff $\restr{M_P}{-\Set}[t] = (z - z', s)$ and $s = s'$,
+        \item $\L(\restr{M_P}{-\Set}) = \L(M_P) \backslash \Set$ and
+              \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t_1] = z + M_P[t_2]$ iff $\restr{M_P}{-\Set}[t_1] = z + \restr{M_P}{-\Set}[t_2]$.
     \end{enumerate}
 \end{theorem}
 \begin{proof}
