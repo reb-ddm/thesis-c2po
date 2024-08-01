@@ -1,72 +1,78 @@
 \section{Widening}
 
-\subsection{Widening with automaton}
-
-
-The partial order on $\mathcal{P}_2[=]$ has infinite strictly descending chains, as well as
-infinite strictly ascending chains. Therefore we need to define a widening operator.
+The join operation that we defined does not compute the exact least upper bound of two automata, but only an approximation.
+However, the loss of information is not enough to guarantee that the join operation always reaches a fixpoint after a finite number of iterations.
 
 \begin{example}
-    Consider the sequence of conjunctions
-    \[
-        \Psi_n \equiv (*^{2^n} \&x = \&x)\hspace{6pt} (n\geq 0).
-    \]
-   This could for example occur in a list structure, where each list element points to the next element of the list, and the last element points again to the first element of the list.
-   Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M_P[\Psi_n]$ and $M_P[\Psi_{n+1}]$ is $M_P[\Psi_{n+1}]$.
-   The computation of this product automaton for $n = 0$ and $n = 1$ can be found in Example~\ref{example:join-subset}. This is an example of an infinite strictly ascending chain in $\mathcal{P}_2[=]$.
+  Consider the sequence of kernels corresponding to the conjunctions
+  \[
+    \Psi_n \equiv (*^{2^n} \&x = \&x)\hspace{6pt} (n\geq 0).
+  \]
+  This could for example occur in a list structure, where each element points to its successor, and the last element points again to the first element of the list.
+  Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M_P[\Psi_n]$ and $M_P[\Psi_{n+1}]$ is $M_P[\Psi_{n+1}]$.
+  If we compute the join of the partitions corresponding to $\Psi_n$ and $\Psi_{n+1}$, we get the partition corresponding to $\Psi_{n+1}$.\cite{2pointer}
 \end{example}
 
-We decide to define the widening operator in such a way that the added result can't contain terms of arbitrary size, such that there can't be ascending chains of arbitrary size. Therefore we define the widening operator as first computing the join and then restricting the set of terms of the result to the set of terms that occur in the first input conjunction.
+Therefore, we need to define a widening operator~\cite{widening} that finds an even less precise upper bound of two automata than the join, such that it reaches a fixpoint after a finite number of iterations.
+
+We decide to define the widening operator in such a way that the result can't contain terms of arbitrary size, such that there can't be ascending chains of arbitrary size. Therefore we define the widening operator as first computing the join and then restricting the set of terms of the result to the set of terms that occur in the first input conjunction.
 
 \begin{definition}
-    For two conjunctions $\Psi_1$ and $\Psi_2$ over the sets of terms $\T_1$ and $\T_2$, respectively, we define the widening operation
-     $\Psi_1 \widen \Psi_2 = \restr{(\Psi_1 \join \Psi_2)}{\T_1}$.
+  For two conjunctions $\Psi_1$ and $\Psi_2$ over the sets of terms $\T_1$ and $\T_2$, respectively, we define the widening operation
+  $\Psi_1 \widen \Psi_2 = \restr{(\Psi_1 \join \Psi_2)}{\T_1}$.
+  \todo{define this notation that restricts to a set and not to a -set}
 \end{definition}
+
+The widening operator depends on which join operator was chosen, and it
+works for both possibilities.
+However, if we choose to use the join operator that uses the partition, the one described in \cref{subsection:join-partition},
+then it can be implemented in a more efficient way.
+Instead of adding all the terms of the two kernels to both kernels at the beginning of the join,
+we simply add the terms of the first kernel to the second kernel,
+and we build the resulting partition starting from the set of terms of the first kernel.
+This computes the same result as the above defined widening operator,
+but it avoids the need to compute a restriction.
 
 For a given set $\T$ of terms, there is only a finite number of possible automata and sets of disequations that contain only terms of $\T$.
 The set of terms doesn't change after having applied the widening operation, therefore the widening operator will always reach a fixpoint after a finite amount of iterations.
-\ignore{
-\begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
 
-    \node[state] (Q0) {$\&x$};
-
-    \path[->]
-      (Q0) edge [loop above] node {$0$} ();
-
-  \end{tikzpicture}
-
-  \begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
-
-    \node[state] (Q1) {$\&x$};
-    \node[state, right=of Q1] (Q2) {$x$};
-
-    \path[->]
-      (Q1) edge[bend left, above] node {$0$} (Q2)
-      (Q2) edge[bend left, below] node {$0$} (Q1);
-
-  \end{tikzpicture}
-
-% Automaton M1
-\begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
-
-    \node[state] (Q0) {$A; B+1; D+2$};
-  \end{tikzpicture}
-
-  % Automaton M2
-  \begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
-
-    \node[state] (Q1) {$A; B+1,D+2$};
-  \end{tikzpicture}
-
-  % Automaton M3
-  \begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
-
-    \node[state] (Q0Q1_0) {$A$};
-    \node[state, right=of Q0Q1_0] (Q0Q1_1) {$B; C-1$};
-  \end{tikzpicture}
-}
-
-\subsection{Widening without automaton}
-
+\begin{example}\label{ex:widen}\todo{fix and add graph}
+  If we consider the sequence of conjunctions $\Psi_n$ from \cref{ex:widen-ascending-chain}, the automaton representation $M[\Psi_n]$ is a cycle of length $2^n$.
+  If we apply widening to $\Psi_n$ and $\Psi_{n+1}$, the resulting automaton will contain a simple path from the equivalence class of $\&x$ to the equivalence class of $*^{2^{n}-1}\&x$,
+  and no cycles.
+  This means that each term is in its own equivalence class, we have lost all information about equalities.
+  Therefore, the widening terminates in the next iteration,
+  as we already reached the top element of our domain.
+  % For two cycle-free automata $M_1$ and $M_2$, if $\L(M_2) \subseteq \L(M_1)$,
+  % then the widen is equivalent to the join operation.
+\end{example}
 
 \section{Narrowing}
+
+As shown in~\cite{2pointer}, the domain of 2-pointer propositions also has infinite strictly descending chains.
+
+\begin{example}
+	Consider the sequence of conjunctions
+	\[
+	\Phi_n \equiv\bigwedge_{i=1}^n (\&y = *(i+\&x))\qquad(n\geq 0)
+	\]
+	Then $\Phi_{n+1}\implies\Phi_n$ for all $n\geq 0$ and all are inequivalent.
+	%
+	Thus, the $\Phi_n,n\geq 0$, constitute an infinite strictly descending chain in \cpo.
+\end{example}
+
+Similarly to the widening operation, we define the narrowing as the meet operation where we only consider the propositions that contain terms of the first input conjunction.
+This way, it is guaranteed that the set of terms does not grow in each iteration, and that a fixpoint is always reached.
+Let $\Psi_1$ and $\Psi_2$ be two conjunctions and $M_1$ and $M_2$ be the corresponding automata.
+Let $\Psi_2'$ be the set of equalities that can be derived from $\Psi_2$ and that contain only terms of $\L(M_1)$.
+These terms can be derived by computing the quantitative congruence closure of $\Psi_2$.
+We define the narrowing operation $\Psi_1 \narrow \Psi_2 = \Psi_1 \land \Psi_2'$.
+
+\begin{example}
+    If we consider the result of widen of \cref{ex:widen}, we assume that the result automaton $M$
+    is, for example, a simple path from the equivalence class of $\&x$ to the equivalence class of $*x$.
+    If we apply the narrowing operation to this automaton and the equality $\&x = *x$, this equality will
+    be added to the automaton, as the terms $\&x$ and $*x$ are in the set of reachable terms of $M$.
+    If on the other hand we apply the narrowing operation to the automaton and the equality $\&x = *(*x)$,
+    this equality is ignored, as the term $*(*x)$ is not in the set of reachable terms of $M$.
+\end{example}
