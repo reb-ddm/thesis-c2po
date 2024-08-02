@@ -21,21 +21,21 @@ $\sem{s_1\,{:=}\,s_2}\,H$, where:
 		\\
 		\quad \{(\rho,\nu\oplus\{B\mapsto a\},\mu)\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                    \\
 		\sem{*(z+t)\,{:=}\,?}\,H =                                                                     \\
-		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto a\})                           \\
-		\quad\quad\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                                                    \\
+		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto a\})
+		\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                                                    \\
 		\sem{B\,{:=}\,z_1+s}\,H =                                                                      \\
-		\quad \{(\rho,\nu\oplus\{B\mapsto z_1+\sem{s}\,(\rho,\nu,\mu)\},\mu)\mid(\rho,\nu,\mu)\in H\}  \\
+		\quad \{(\rho,\nu\oplus\{B\mapsto z_1+\sem{s}\,(\rho,\nu,\mu)\},\mu)\mid(\rho,\nu,\mu)\in H\} \\
 		\sem{*(z+t)\,{:=}\,z_1+s}\,H =                                                                 \\
-		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto z_1+\sem{s}\,(\rho,\nu,\mu))\} \\
-		\quad\quad\mid(\rho,\nu,\mu)\in H\}                                                            \\
+		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto z_1+\sem{s}\,(\rho,\nu,\mu))\}
+		\mid(\rho,\nu,\mu)\in H\}                                                            \\
 		\sem{B\,{:=}\,\malloc}\,H =                                                                    \\
 		\quad \{(\rho,\nu\oplus\{B\mapsto (a,0)\},\mu)\mid
-		(\rho,\nu,\mu)\in H, a\in \Z,                                                                  \\
-		\quad\quad  fresh(a, (\rho,\nu,\mu))\}\}                                                       \\
-		\sem{*(z+t)\,{:=}\,\malloc}\,H =                                                               \\
-		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}\mid
-		(\rho,\nu,\mu)\in H,                                                                           \\
-		\quad\quad a\in \Z, fresh(a, (\rho, \nu, \mu))\}.
+		(\rho,\nu,\mu)\in H, a\in \Z,
+	  fresh(a, (\rho,\nu,\mu))\}\}                                                       \\
+		\sem{*(z+t)\,{:=}\,\malloc}\,H =
+		\\
+		\quad\{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}\mid
+		(\rho,\nu,\mu)\in H, a\in \Z, fresh(a, (\rho, \nu, \mu))\}.
 	\end{array}
 \]
 Here,
@@ -43,7 +43,7 @@ $f\oplus\{m\mapsto z\}$ is the mapping obtained
 from $f$ by
 setting the value of $f$ for $m$ to $z$.
 
-In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp\,k$ of the assignment $s_1\,{:=}\,s_2$ over the kernel $k$, for the three different types of assignments.
+In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp\,k$ of the assignment $s_1\,{:=}\,s_2$ over the kernel $k$, for the each of the three possibilities of $s_2$.
 
 \subsection{Indefinite Assignment}
 
