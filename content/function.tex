@@ -1,1 +1,163 @@
 \section{Interprocedural Analysis}
+
+At the beginning (enter) we add for each parameter $p$ of the function a
+shadow variable $p'$ that represents during the whole analysis of the function
+the initial value of $p$ at the beginning of the function.
+This way, if we have an example code:
+
+\begin{minted}{C}
+void f(int** p, int** q) {
+    *p = *q;
+    p = NULL;
+    q = NULL;
+}
+int main(){
+    int** a;
+    int** b;
+    f(a,b);
+}
+\end{minted}
+
+call $f(a)$, we can assign $a$ to $a'$ at the
+
+\subsection{Concrete Semantics}
+
+A function is represented by a separate CFG.
+For each function call, a new CFG is created, because in each function call the concrete states
+depend on the value of the global variables and of the state of the memory and of the function parameters,
+therefore each function call is modeled as a separate CFG with separate concrete states.
+During the function call, an edge is added from the caller CFG to the entry point of the function, and one from the entry point
+of the function to the caller CFG.
+
+The semantics of function call is described by the functions $\enter$ and $\combine$, which are called at the beginning and end of the function, respectively.
+When traversing the edge from the function call of the caller to the entry point of the function, the $\enter$ function is called.
+It has as parameter the state of the caller and it returns an initial state for the analysis of the function.
+The concrete state returned by $\enter$ contains only global variables, the parameters and the local variables of the function.
+The local variables of the caller are removed.
+Then, each node in the CFG of the function is analyzed as usual,
+starting from the initial state returned by $\enter$.
+Formally, the $\enter$ function is defined as:
+\todo[inline]{TODO}
+\[
+    \enter \sem{(\rho, \nu, \mu)} = (\rho|_{local}+assign,\nu|_{local}+assign, \mu)
+\]
+
+At the end of the function, the $\combine$ function is called when traversing the edge from the returning point of the function to the caller.
+It takes as an argument the concrete state of the caller before having invoked the function,
+and the final state of the function.
+It keeps the information about the local variables of the caller and forgets about the local variables of the function.
+The values of the global variables and the content of the memory are equal to the state after the function call.
+
+\todo[inline]{TODO example}
+
+\begin{tikzpicture}[
+        node distance=1cm and 4cm,
+        every node/.style={font=\small},
+        call/.style={->, >=Stealth, thick, dashed, blue},
+        combine/.style={->, >=Stealth, thick, dashed, red},
+        block/.style={draw, rectangle, rounded corners, align=center}
+    ]
+
+    % Nodes for main function
+    \node[block] (start) {start};
+    \node[below=of start] (usw1) {...};
+    \node[block, below=of usw1] (beforecall) {};
+    \node[block, below=of beforecall] (aftercall) {};
+    \node[below=of aftercall] (usw2) {...};
+    \node[block, below=of usw2] (end) {end};
+
+    % Nodes for function f
+    \node[block, right=of usw1] (fstart) {f start};
+    \node[below=of fstart] (usw3) {...};
+    \node[block, below=of usw3] (fend) {f return};
+
+    % Edges for main function
+    \draw[->] (start) -- node[right] {...} (usw1);
+    \draw[->] (usw1) -- node[right] {...} (beforecall);
+    \draw[->] (beforecall) -- node[right] {f(...)} (aftercall);
+    \draw[->] (aftercall) -- node[right] {y = 10} (usw2);
+    \draw[->] (usw2) -- node[right] {y = 10} (end);
+
+    % Edges for function f
+    \draw[->] (fstart) -- node[right] {a = x} (usw3);
+    \draw[->] (usw3) -- node[right] {return} (fend);
+
+    % Enter and combine edges
+    \draw[call] (beforecall.east) to node[above] {enter} (fstart.west);
+    \draw[combine] (fend.west) to node[below] {combine} (aftercall.east);
+
+\end{tikzpicture}
+
+
+
+\subsection{Abstract Semantics}
+
+When entering a function we need to forget local variables of the caller, but keep the information about
+global variables and the content of the memory.
+However, if we simply perform the analysis of a function and then return to the caller,
+it is necessary to restore the propositions between the return value or global vars and
+the parameters given to the function in the beginning.
+While the parameters may have been overwritten during the function execution,
+when we return to the caller, only the values that were handed over as parameters to the
+function are still unchanged.
+Therefore it is necessary to keep track of the initial value of the parameters in a function.
+This will be illustrated in the following example.
+
+\begin{minted}[linenos=true, escapeinside=||]{C}
+    int* f(int* a, int* b) { |\label{testlabel3}|
+        int *g = a; |\label{testlabel}|
+        a = NULL; |\label{testlabel4}|
+        return g;
+    }
+    int main(){
+        int* c;
+        int* d;
+        int* e = f(c,d);
+        assert(e == c);
+    }
+\end{minted}
+
+\begin{example}
+If we simply remove all local variables of the caller from the abtract state, then
+after the abtract enter function ($\enter^\sharp$), the abstact state is an empty conjunction
+at the beginning of the function in line~\ref{testlabel}.
+After line~\ref{testlabel3}, the abstract state is $g = a$.
+We lose all information after line~\ref{testlabel4}.
+When returning to \textsf{main}, we cannot retrieve any information from the function,
+and we lose the information that $e = c$.
+
+To solve this problem, we add additional shadow variables for each parameter of the function,
+that represent the initial values of the parameter at the beginning of the function.
+This way, in line~\ref{testlabel3}, we add the variables $a'$ and $b'$ and the equalities $a = a'$ and $b = b'$
+to the abstract state.
+After line~\ref{testlabel}, we add the equality $a = g$.
+After line~\ref{testlabel4}, we lose information about $a$, but we still know that $g = a'$.
+When returning to \textsf{main},
+we know that the parameters with ehich we called $f$ were $c$ and $d$,
+so we can add the equalities $c = a'$ and $d = b'$.
+Then we still need to remove the local variables of $f$ from the abstract state,
+as well as the shadow variables $a'$ and $b'$.
+But the  equality $e = c$ is still preserved.
+\end{example}
+
+The abstract enter function $\enter^\sharp$ performs the following steps:
+\begin{enumerate}
+    \item Remove all local variables of the caller from the abstract state.
+    \item For each parameter $p$ of the function, add a shadow variable $p'$ to the abstract state,
+as well as the equality $p = p'$.
+\end{enumerate}
+
+The abstract combine function $\combine^\sharp$ performs the following steps:
+\begin{enumerate}
+    \item Remove all tainted \todo{explain tainted} variables from the caller state
+    \item Meet the caller state with the state of the function.
+    \item For each parameter $p$, if the function was called with the
+    expression $e$ as a value for the parameter $p$, and if this expression is expressible in 2-pointer logic,
+     add the equality $p' = e$ to the resulting state.
+    \item If the return value is assigned to the variable $x$ in the caller,
+    and the function returns an expression $e'$ and this expression is expressible in 2-pointer logic,
+    then add the assignment $\sem{x = e'}^\sharp$ is performed.
+    \item Remove all local variables of the function from the abstract state,
+    as well as the shadow variables.
+\end{enumerate}
+TODO soundness?
