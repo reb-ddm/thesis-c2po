@@ -16,12 +16,12 @@ Additionally, arrays and structs are treated the same way as pointers in C.
 For example, the expression \textsf{a[1]} for an array $a$ is equivalent to the expression \textsf{*(a + 1)}.
 Hence, the analysis treats arrays as pointers to their first element.
 A two-dimensional array in C with dimensions $n$ and $m$ can be viewed as a one-dimensional array with $n \cdot m$ elements.
-The expression \textsf{a[i][j]} is treated as \textsf{*(a + $(i \cdot m + j) \cdot s$)}, where $s$ is the size in bits of the array elements.
+The expression \textsf{a[i][j]} is treated as $*(a + (i \cdot m + j) \cdot s)$, where $s$ is the size in bits of the array elements.
 This method can be extended to calculate offsets for arrays with more dimension.
 
 For a struct $s$, the analysis treats $\&s$ as a pointer to the first field of the struct.
 For a field $f$ of the struct $s$ with an offset of $z$ bits,
-the expression \textsf{s.f} is treated as \textsf{*(\&s + z)}.
+the expression \textsf{s.f} is treated as $*(\&s + z)$.
 In C, the offset of a struct element may not always be a multiple of 8 bits.
 Thus, offsets are represented in bits rather than bytes.
 \todo{how do you calculate the offset of a struct element in goblint?}
@@ -40,7 +40,7 @@ If the value remains indeterminable, the expression is treated as unknown.
         };
     \end{minted}
     and the following C variable declaration: \textsf{struct S x[3][2];}.
-    The expression \textsf{x[2][1].arr[4]} is treated as \textsf{*(\&x + 1120)}.
+    The expression \textsf{x[2][1].arr[4]} is treated as $*(\&x + 1120)$.
 \end{example}
 %struct S x[3][2];
 %struct S {

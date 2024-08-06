@@ -104,7 +104,7 @@ because the term $z_1 + s$ may also be modified by the assignment. For example, 
 Therefore we introduce a fesh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $s_1$ to $A$.
 This way we can remember the original value of $z_1 + s$ trough the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
 
-We define the transformer as follows:
+We define the abstract effect of the definite assignment as follows:
 
 \[
 	\sem{s_1\,{:=}\,z_1+s}^\sharp\,k\;\equiv\;
