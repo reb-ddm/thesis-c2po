@@ -1,46 +1,120 @@
 \chapter{Background}
 
+The \cpo\ analysis described in this master's thesis is a static analysis that is based on abstract interprestation.
+Before going into the details of the structure of the \cpo\ analysis,
+it is useful to explain the key concepts of abstract interpretation and how it can be used
+to design static program analyses.
+This chapter also presents the \goblint\ abstract analyzer, where the \cpo\ analysis was implemented, and some of its analyzes that will later be
+used by the \cpo\ analysis.
+
 \section{Abstract Interpretation}
 \todo[inline]{abstract semantics, transformer join ecc}
 
-Abstract interpretation is a theoretical framework for the static analysis of programs. It provides a means to reason about the behavior of programs by approximating their semantics. This section presents an overview of the main concepts involved in abstract interpretation, including lattices, abstract domains, concrete and abstract semantics, and the key operations used in this framework.
 
-\subsection{Complete Lattice}
+Abstract interpretation is a theoretical framework that is used to infer properties about programs
+that are proven to be correct for all possible executions of the program.
+It was first introduced by Patrick and Radhia Cousot in 1977 \cite{TODO} and is since then widely used
+for program analysis and also other things. (TODO)
+The analysis is done at compile-time (=statically), without having to execute the program.
+This way it is also possible, for example, to prove the non-termination of a program.
+The \cpo\ analysis described in this thesis, however, focuses on analyzing
+relationships between pairs of pointer variables at each program point.
 
-A lattice is a partially ordered set \((L, \leq)\) in which every pair of elements has a unique least upper bound (join, \(\sqcup\)) and a unique greatest lower bound (meet, \(\sqcap\)). A lattice is said to be complete if every subset \(S \subseteq L\) has both a least upper bound and a greatest lower bound in \(L\).
+The analysis by abstract interpretation is constructed by replacing the concrete
+semantics of a program with an abstract over-approximation of the program's behavior.
+This abstract semantics is a simplified version of the concrete semantics
+and can thus be computed in an efficient way.
+Each step of the analysis needs to be proven proven to be a correct over-approximation of the concrete behaviour,
+therefore the analysis is correct by construction.
 
-A complete lattice \((L, \leq, \sqcup, \sqcap, \top, \bot)\) is defined by:
-- \(\top\) (top element): The least element in the lattice.
-- \(\bot\) (bottom element): The greatest element in the lattice.
-- Join (\(\sqcup\)): The least upper bound of a set of elements.
-- Meet (\(\sqcap\)): The greatest lower bound of a set of elements.
-- Partial order (\(\leq\)): A binary relation indicating the order between elements.
+\subsection{Concrete Semantics}
 
-Formally, for any \(a, b \in L\):
-\[ a \leq b \Leftrightarrow a \sqcup b = b \Leftrightarrow a \sqcap b = a \]
+The program is represented by a control flow graph (CFG), where each node represents a program point and each edge represents a statement of the program, such as assignments, conditional branches and function calls.
+A concrete state of the program is defined by functions that describe the values for each variable and each memory address.
+\cref{fig:example-C-program} shows an example C program and \cref{ex:cfg} shows its corresponding CFG.
 
-\subsection{Abstract and Concrete Domains}
+\begin{figure}
+\begin{minted}{C}
+main(){
+  int x = 1;
+  x = x + 1;
+}
+\end{minted}
+\caption{An example of a C program.}
+\label{fig:example-C-program}
+\end{figure}
+\begin{figure}
+  \todo[inline]{CFG}
+  \caption{The CFG of the program in \cref{fig:example-C-program}.}
+  \label{ex:cfg}
+\end{figure}
 
-In abstract interpretation, we work with two domains:
-- The concrete domain \((C, \leq_C)\) represents the actual values or states of the program.
-- The abstract domain \((A, \leq_A)\) is a simplification or abstraction of the concrete domain, designed to be finite and more tractable.
+The concrete edge effect $\sem{l}$ describes the effect that an edge with label $l$ has on the concrete state.
+For example in \cref{ex:cfg}, the concrete state at node $todo$ is $s_{todo} = \angl{x \rightarrow 1}$.
+The state of node $todo2$ is equal to $\sem{x = x+1}\,s_{todo} = \angl{x \rightarrow 2}$.
 
-An abstract value is an element of the abstract domain that approximates one or more elements of the concrete domain.
+\subsection{Abstract Semantics}
 
-\subsection{Concrete and Abstract Semantics}
+The goal of abstract interpretation is to over-approximate the concrete semantics at each node in the CFG.
+This is done by choosing an abstract domain that can characterize specific properties of interest of the program.
+For a node $p$ in the CFG; the abstract state is denoted as $X[p]$.
+For example, the abstract domain of the \cpo\ analysis is a conjunction of equalities between pointers.
+At each program point one such conjunction is computed, that over-approximates all possible concrete states at that point.
+Another simpler example would be an abstract domain that remembers for each variable if it is even or odd.
+An abstract state that only contains the variable $x$ is represented as $\angl{x \rightarrow \text{even}}$, $\angl{x \rightarrow \text{odd}}$ or $\angl{x \rightarrow \text{unknown}}$ if the parity of $x$ is not known.
 
-The concrete semantics defines the exact behavior of the program, while the abstract semantics provides an approximation. Given a concrete semantic function \(F: C \to C\), the corresponding abstract semantic function \(F^\sharp: A \to A\) must satisfy:
-\[ \gamma(F^\sharp(\alpha(c))) \supseteq F(c) \]
-where \(\alpha: C \to A\) is the abstraction function and \(\gamma: A \to C\) is the concretization function.
+The abstract edge effect $\sem{l}^\sharp$ describes the effect that an edge with label $l$ has on the abstract state.
+For example, in the CFG in \cref{ex:cfg}, the abstract state at node $todo$ is $X[todo] = \angl{x \rightarrow \text{odd}}$.
+After the edge with label $x = x+1$, the abstract state at node $todo2$ is $\sem{x = x+1}^\sharp\,X[todo] = \angl{x \rightarrow \text{even}}$.
 
-\subsection{Abstract Transformers}
+The elements of the abstract domain must form a complete lattice, i.e., there is a partial order $\sqsubseteq$ between the elements and for each subset of elements there is a least upper bound (join, $\join$) and a greatest lower bound (meet, $\meet$).
+Alternatively, if it is not possible to find the exact least upper bound, a sound over-approximation
+can be used instead, without losing the correctness of the analysis.
+A complete lattice also has a top element $\top$ and a bottom element $\bot$, which represent the least and greatest elements of the lattice, respectively.
+During the analysis, the value $\top$ represents an abstract state that hold no information
+about any variable, while $\bot$ represents a program point that is unreachable.
 
-Abstract transformers are functions that approximate the effect of program operations in the abstract domain. Common abstract transformers include:
-- Branch: Approximates conditional statements.
-- Join: Approximates the merge of different execution paths. Defined as \(a_1 \sqcup a_2\).
-- Assignment: Approximates variable assignment.
-- Function Enter: Approximates the behavior when entering a function.
-- Combine: Approximates the combination of different analysis results.
+The concrete and the abstract semantics are related by the concretization function $\gamma$ and the abstraction function $\alpha$.
+The concretization function maps an abstract element to the set of all concrete elements that are represented by the abstract element.
+For example, the concretization of $\angl{x \rightarrow \text{even}}$ is the set of all concrete states where $x$ is an even number:
+\[
+\gamma(\angl{x \rightarrow \text{even}}) = \{\angl{x \rightarrow 0}, \angl{x \rightarrow 2}, \angl{x \rightarrow 4},\ldots\}
+\]
+The abstraction function maps a concrete element to the most precise abstract element that represent the concrete element. For example, $\alpha(\angl{x \rightarrow 0}) = \angl{x \rightarrow \text{even}}$.
+
+The functions $\gamma$ and $\alpha$ form a Galois connection, that ensures the following property for each abstract state $a$ and each edge label $l$:
+\[
+\sem{l}\,\gamma(a) \subseteq \gamma(\sem{l}^\sharp\,a).
+\]
+This equality guarantees that the abstract edge effect of $l$ is an over-approximation
+of the concrete edge effect.
+Given that it holds for each $l$, we know that computing the semantics of a program in the abstract domain is a sound
+over-approximation of the concrete semantics.
+
+\subsection{Static Analysis by Abstract Interpretion}
+
+This section describes more in detail the effects of each program statement on the abstract state.
+\subsubsection{Assignment}
+The abstract effect of an assignment $\sem{x = e}^\sharp$ computes the change in the abstract state when assigning the expression $e$ to the variable $x$.
+For example, if $x$ and $e$ are pointers, the \cpo\ analysis removes all old equalities that were talking about $x$, as the vaue of $x$ might have changed.
+Then it adds the equality $x = e$ to the abstract state.
+\subsubsection{Conditionals}
+When there is an if statement with the condition $c$, the CFG is split into two branches, one for the true branch ($Pos(c)$) and one for the false branch ($Neg(c)$).
+The analysis can compute the abstract state $a_c$ corresponding to the condition and
+then meet the current abstract state $a$ with $a_c$, resulting in the state $a \meet a_c$.
+The same can be done for the false branch with the abstract state corresponding to $\neg c$.
+For example, if the condition is $x = y$, the \cpo\ analysis adds the equality $x = y$
+in the positive branch and the disequality $x \neq y$ in the negative branch.
+\subsubsection{Loops}
+For-loops and while-loops add backwards edges in the CFG.
+The abstract value of a program point that has multiple incoming edges is
+the least upper bound of the set of all abstract states of the incoming edges.
+Formally, the abstract state $X[p]$ of a node $p$ is defined as
+\[
+X[p] \sqsupseteq \bigsqcup \{\sem{l}^\sharp\,X[p'] \mid (p,l,p') \text{ is an edge from $p$ to $p'$ in the CFG labeled with $l$}\}.
+\]
+
+\todo[inline]{fixpoint calculation,... therefore we need widening and narrowing}
 
 \subsection{Widening and Narrowing}
 
@@ -58,12 +132,20 @@ Widening and narrowing are techniques used to ensure the termination of the abst
 
 By using widening and narrowing, abstract interpretation can provide sound and efficient approximations of the program's behavior.
 
-\subsection{Widening and Narrowing}
-
 \subsection{Interprocedural analysis}
 
-context sensitive
-enter/combine
+
+Function calls are handled by the abstract enter function $\enter^\sharp$ and the abstract combine function $\combine^\sharp$.
+The CFG adds an edge from the node before the function call to the entry point of the function and an edge from the exit point of the function to the node after the function call.
+Let $s$ be the state before the function call.
+The start state of the function is $\enter^\sharp\,s$.
+Then the analysis is done on the function CFG.
+Let the final state of the function be $s'$.
+The state after the function call is $\combine^\sharp\,(s,s')$.
+
+\todo[inline]{context sensitive
+
+enter/combine}
 
 
 \input{content/goblint}
