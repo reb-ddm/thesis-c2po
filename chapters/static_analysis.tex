@@ -91,7 +91,7 @@ of the concrete edge effect.
 Given that it holds for each $l$, we know that computing the semantics of a program in the abstract domain is a sound
 over-approximation of the concrete semantics.
 
-\subsection{Static Analysis by Abstract Interpretion}
+\subsection{Intraprocedural Analysis}
 
 This section describes more in detail the effects of each program statement on the abstract state.
 \subsubsection{Assignment}
@@ -114,38 +114,49 @@ Formally, the abstract state $X[p]$ of a node $p$ is defined as
 X[p] \sqsupseteq \bigsqcup \{\sem{l}^\sharp\,X[p'] \mid (p,l,p') \text{ is an edge from $p$ to $p'$ in the CFG labeled with $l$}\}.
 \]
 
-\todo[inline]{fixpoint calculation,... therefore we need widening and narrowing}
+This generates an inequality for each program point.
+According to the Knaster-Tarski theorem, each monotonic function $f$ on a complete lattice has a least fixpoint, which is equal to the least solution of the inequality $x \sqsubseteq f(x)$.
+Therefore, the system of disequalities can be solved by starting with the bottom element $\bot$ for
+each program point and iteratively applying the abstract semantics until a fixpoint is reached.
+However, in some cases this approach does not converge.
+This happens when the abstract domain has infinite ascending chains and the analysis
+computes a sequence of states where each element is strictly greater than the previous one,
+without reaching a fixpoint.
 
-\subsection{Widening and Narrowing}
+\subsubsection{Widening and Narrowing}
 
-Widening and narrowing are techniques used to ensure the termination of the abstract interpretation process.
+In order to ensure the termination of the analysis, a widening operator is used instead of the
+join operator. It is applied during the iterations to compute the fixpoint of an inequality
+in order to accelerate the computation and to ensure its termination, at the cost of losing a bit of the precision.
+The widening operator $\widen$ over-approximates the join operator and it is designed in order to avoid infinite ascending chains.
 
-- Widening (\(\triangledown\)): Used to accelerate the convergence of the fixpoint computation. It is applied at specific points to prevent infinite ascending chains in the abstract domain. Widening ensures that the iteration reaches a fixpoint in a finite number of steps.
+Complementary to the widening, there is the narrowing operation, which is designed to
+refine the result obtained by widening, thus restoring some of the precision that was lost by applying the widening.
+The narrowing operation $\narrow$ over-approximates the meet operation in order to ensure that the fixpoint computation terminates.
 
-  Formally, widening is a function \(\triangledown: A \times A \to A\) that satisfies:
-  \[ \forall a_1, a_2 \in A: a_1 \leq_A a_1 \triangledown a_2 \quad \text{and} \quad a_2 \leq_A a_1 \triangledown a_2 \]
+\subsection{Interprocedural Analysis}
 
-- Narrowing (\(\triangledown\)): Used to refine the result obtained by widening, making it more precise. Narrowing is applied after the widening phase to descend and reach a more precise fixpoint.
+A function is represented by a separate CFG.
+For each function call, a new CFG is created, because in each function call the concrete states
+depend on the value of the global variables and of the state of the memory and of the function parameters,
+therefore each function call is modeled as a separate CFG with separate concrete states.
+During the function call, an edge is added from the caller CFG to the entry point of the function, and one from the entry point
+of the function to the caller CFG.
 
-  Formally, narrowing is a function \(\triangledown: A \times A \to A\) that satisfies:
-  \[ \forall a_1, a_2 \in A: a_1 \triangledown a_2 \leq_A a_1 \quad \text{and} \quad a_1 \triangledown a_2 \leq_A a_2 \]
+The semantics of function call is described by the functions $\enter$ and $\combine$, which are called at the beginning and end of the function, respectively.
+When traversing the edge from the function call of the caller to the entry point of the function, the $\enter$ function is called.
+It has as parameter the state of the caller and it returns an initial state for the analysis of the function.
+The concrete state returned by $\enter$ contains only global variables, the parameters and the local variables of the function.
+The local variables of the caller are removed.
+Then, each node in the CFG of the function is analyzed as usual,
+starting from the initial state returned by $\enter$.
 
-By using widening and narrowing, abstract interpretation can provide sound and efficient approximations of the program's behavior.
-
-\subsection{Interprocedural analysis}
-
-
-Function calls are handled by the abstract enter function $\enter^\sharp$ and the abstract combine function $\combine^\sharp$.
+The abstract analysis of function calls are handled by the abstract enter function $\enter^\sharp$ and the abstract combine function $\combine^\sharp$.
 The CFG adds an edge from the node before the function call to the entry point of the function and an edge from the exit point of the function to the node after the function call.
 Let $s$ be the state before the function call.
 The start state of the function is $\enter^\sharp\,s$.
 Then the analysis is done on the function CFG.
 Let the final state of the function be $s'$.
 The state after the function call is $\combine^\sharp\,(s,s')$.
-
-\todo[inline]{context sensitive
-
-enter/combine}
-
 
 \input{content/goblint}

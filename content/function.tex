@@ -21,21 +21,6 @@ int main(){
 call $f(a)$, we can assign $a$ to $a'$ at the
 
 \subsection{Concrete Semantics}
-
-A function is represented by a separate CFG.
-For each function call, a new CFG is created, because in each function call the concrete states
-depend on the value of the global variables and of the state of the memory and of the function parameters,
-therefore each function call is modeled as a separate CFG with separate concrete states.
-During the function call, an edge is added from the caller CFG to the entry point of the function, and one from the entry point
-of the function to the caller CFG.
-
-The semantics of function call is described by the functions $\enter$ and $\combine$, which are called at the beginning and end of the function, respectively.
-When traversing the edge from the function call of the caller to the entry point of the function, the $\enter$ function is called.
-It has as parameter the state of the caller and it returns an initial state for the analysis of the function.
-The concrete state returned by $\enter$ contains only global variables, the parameters and the local variables of the function.
-The local variables of the caller are removed.
-Then, each node in the CFG of the function is analyzed as usual,
-starting from the initial state returned by $\enter$.
 Formally, the $\enter$ function is defined as:
 \todo[inline]{TODO}
 \[
