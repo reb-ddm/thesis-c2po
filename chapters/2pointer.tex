@@ -1,10 +1,12 @@
-\chapter{2-Pointer Logic}\label{chapter:2pointer}
-
+\chapter{2-Pointer Logic as an Abstract Domain}\label{chapter:2pointer}
 
 The abstract domain of the \cpo\ analysis consists of finite conjunctions of propositions from the 2-Pointer Logic.
 In the following section, we describe this logic and how to represent the propositions in order to
 infer also all deriving propositions.
-It was first introduced by Seidl et al.\ in~\cite{2pointer} and was later extended with an additional type of proposition.
+Then we discuss the extension of the domain to include additional terms and the restriction of the domain to a subset of terms,
+which will be needed later for the analysis.
+
+The 2-Pointer Logic was first introduced by Seidl et al.\ in~\cite{2pointer} and was later extended with an additional type of proposition.
 The propositions are made up of terms, formed from address constants and auxiliaries using the addition of constant offsets and dereferencing.
 The address constants represent addresses of program variables.
 The auxiliaries are variables whose address is never taken, therefore
@@ -36,6 +38,42 @@ We use $*t$ as an abbreviation for $*(0+t)$ and $x$ as an abbreviation for $*(0+
 For a conjunction $\Psi$ of propositions, we denote the conjunctions of all the equalities in $\Psi$ by $\Psi_{=}$, the conjunction of disequalities between terms by $\Psi_{\neq}$ and the set of block disequalities of the type $bl(t_1) \neq bl(t_2)$ by $\Psi_{bl}$.
 
 
+
 \input{content/representation}
 \input{content/qcc}
 \input{content/diseqs}
+
+\section{Kernel Representation of 2-Pointer Logic Conjunctions}
+The abstract values of the \cpo\ analysis consist of a representation
+of 2-Pointer Logic conjunctions, as detailed in the previous chapter.
+This ensures that whenever propositions are added to or removed from the domain,
+the closure of all implied propositions is computed.
+
+The representation consists of a tuple $k = \angl{P,M_P,B,D}$,
+where $P = (\T, \tau, \omega)$ is a quantitative partition, as described in \cref{subsection:quantitative-union-find}.
+Each state of the QFA $M$ represents an equivalence class of $P$, as outlined in \cref{subsection:qfa}.
+$B$ and $D$ are lists of explicit block disequalities and disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
+
+The tuple $k$ is called the \emph{kernel} representation of $\Psi$.
+For an unsatisfiable formula $\Psi$, the kernel representation is $\bot$.
+
+It is posible to convert a kernel representation $k = \angl{P,M_P,B,D} \neq \bot$ with $M_P = (S, \otau, \eta, \delta)$ to a formula $\F[k]$, that is given by
+
+\[
+    \begin{array}{lll}
+        \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = z + \otau\,s) \land                        \\
+              &        & \bigwedge_{\delta\,z\,s=(z',s')} (*(z + \otau\,s) = z' + \otau\,s') \land \\
+              &        & \bigwedge_{\{t, t'\} \in B} (bl(t) \neq bl(t')) \land                     \\
+              &        & \bigwedge_{(t, z, t') \in D} (t \neq z + t')
+    \end{array}
+\]
+
+The trivial propositions of the form $t = 0 + t$ are removed from the formula, as well as the repeated equalities.
+
+If $k$ is the kernel of a conjunction $\Psi$, then $\F[k]$ is equivalent to $\Psi$,
+even though it may not be syntactically identical.
+They could be syntactically different because of a different choice of representative terms.
+\todo[inline]{say something about abstraction and concretization}
+
+\input{content/insert_terms}
+\input{content/restriction}

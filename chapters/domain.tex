@@ -1,45 +1,11 @@
-\chapter{Operations on the Abstract Domain}
+\chapter{The \cpo\ Analysis}
 
 In this chapter we present the representation of the abstract domain used for the \cpo\ analysis, alongside the operations that are fundamental for implementing an analysis based on abstract interpretation.
 This includes a partial order and the operations \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing}.
 Two different versions of the \emph{join} and of the \emph{equal} operation are introduced,
 differing in precision and efficiency.
-Prior to defining these operations, we discuss the extension of the domain to include additional terms and the restriction of the domain to a subset of terms,
-both crucial for the subsequent operations.
+Finally, the abstract effect of the assignment and the interprocedural analysis of the \cpo\ analysis are discussed.
 
-\section{Abstract Domain}
-The abstract values of the \cpo\ analysis consist of a representation
-of 2-Pointer Logic conjunctions, as detailed in the previous chapter.
-This ensures that whenever propositions are added to or removed from the domain,
-the closure of all implied propositions is computed.
-
-The representation consists of a tuple $k = \angl{P,M_P,B,D}$,
-where $P = (\T, \tau, \omega)$ is a quantitative partition, as described in \cref{subsection:quantitative-union-find}.
-Each state of the QFA $M$ represents an equivalence class of $P$, as outlined in \cref{subsection:qfa}.
-$B$ and $D$ are lists of explicit block disequalities and disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
-
-The tuple $k$ is called the \emph{kernel} representation of $\Psi$.
-For an unsatisfiable formula $\Psi$, the kernel representation is $\bot$.
-
-It is posible to convert a kernel representation $k = \angl{P,M_P,B,D} \neq \bot$ with $M_P = (S, \otau, \eta, \delta)$ to a formula $\F[k]$, that is given by
-
-\[
-    \begin{array}{lll}
-        \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = z + \otau\,s) \land                        \\
-              &        & \bigwedge_{\delta\,z\,s=(z',s')} (*(z + \otau\,s) = z' + \otau\,s') \land \\
-              &        & \bigwedge_{\{t, t'\} \in B} (bl(t) \neq bl(t')) \land                     \\
-              &        & \bigwedge_{(t, z, t') \in D} (t \neq z + t')
-    \end{array}
-\]
-
-The trivial propositions of the form $t = 0 + t$ are removed from the formula, as well as the repeated equalities.
-
-If $k$ is the kernel of a conjunction $\Psi$, then $\F[k]$ is equivalent to $\Psi$,
-even though it may not be syntactically identical.
-They could be syntactically different because of a different choice of representative terms.
-
-\input{content/insert_terms}
-\input{content/restriction}
 \input{content/equal}
 \input{content/meet}
 \input{content/join}
