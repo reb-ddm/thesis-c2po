@@ -7,53 +7,6 @@ differing in precision and efficiency.
 Prior to defining these operations, we discuss the extension of the domain to include additional terms and the restriction of the domain to a subset of terms,
 both crucial for the subsequent operations.
 
-
-\section{Concrete Semantics}
-
-We model the memory as a two-dimensional address space $\ZZ$,
-where the first element of the address is the \emph{block identifier} and the second element is the \emph{offset} within the block.
-Each call to \malloc\ returns an address with a fresh block identifier, and each variable is written in memory in a unique memory block,
-which is distinct from the block of any other variable.
-
-The semantics can be described by the following three functions:
-\begin{itemize}
-\item $\rho : \X \rightarrow \ZZ$ assigns an address to each variable,
-\item $\nu : \mathcal{A} \rightarrow \ZZ$ assigns an address to each auxiliary, and
-\item $\mu : \ZZ \rightarrow \ZZ$ assigns a value to each address.
-\end{itemize}
-We are only interested in analyzing the values of pointers and addresses, therefore we interpret each value stored in the memory and in the auxiliaries as an address.
-
-We also define the operator $(+) : \Z \rightarrow \ZZ \rightarrow \ZZ$ on addresses, where $z + (a,b) = (a, z+b)$.
-Here, $z$ is added to the address offset, thus modeling the fact that it's not possible to leave a memory block using address arithmetic.
-Moreover, we define the function $bl : \ZZ \rightarrow \Z$ that returns the address block identifier of an address, where $bl(a,b) = a$.
-
-A term $t$ is interpreted as the value $\sem{t}(\rho, \nu, \mu)$ defined by:
-\[
-  \begin{array}{lll}
-    \sem{\& x}\,(\rho,\nu,\mu)   & = & \rho\,x                          \\
-    \sem{A}\,(\rho,\nu,\mu)      & = & \nu\,A                           \\
-    \sem{*(z+t)}\,(\rho,\nu,\mu) & = & \mu\,(z+\sem{t}\,(\rho,\nu,\mu)) \\
-  \end{array}
-\]
-
-The validity is defined as:
-\[
-  \begin{array}{ll}
-    (\rho,\nu,\mu)\models t_1 = z+t_2          & \textbf{iff}
-    \\ \multicolumn{2}{c}{\quad\quad\quad\quad\sem{t_1}\,(\rho,\nu,\mu) = z+\sem{t_2}\,(\rho,\nu,\mu)}	\\
-    (\rho,\nu,\mu)\models t_1 \neq z+t_2       & \textbf{iff}
-    \\ \multicolumn{2}{c}{\quad\quad\quad\quad\sem{t_1}\,(\rho,\nu,\mu) \neq z+\sem{t_2}\,(\rho,\nu,\mu)}	\\
-    (\rho,\nu,\mu)\models bl(t_1) \neq bl(t_2) & \textbf{iff}
-    \\ \multicolumn{2}{c}{\quad\quad\quad\quad bl(\sem{t_1}\,(\rho, \nu, \mu)) \neq bl(\sem{t_2}\,(\rho, \nu, \mu))}
-  \end{array}
-\]
-
-If $(\rho, \nu, \mu)\models p$ for each proposition $p$ in $\Psi$, then we say that $(\rho, \nu, \mu) \models \Psi$.
-\todo[inline]{The domain is not this any more, it's the kernels.}
-The domain of 2-Pointer Logic $\mathcal{P}_2[=]$ consists of all finite conjunctions
-of propositions over terms up to semantic equivalence.
-The concretization $\gamma(\Psi)$ of $\Psi$ is the set of all $(\rho, \nu, \mu)$ with $(\rho, \nu, \mu) \models \Psi$.
-
 \section{Abstract Domain}
 The abstract values of the \cpo\ analysis consist of a representation
 of 2-Pointer Logic conjunctions, as detailed in the previous chapter.
