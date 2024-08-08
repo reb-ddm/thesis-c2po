@@ -7,41 +7,78 @@ which is distinct from the block of any other variable.
 
 The semantics can be described by the following three functions:
 \begin{itemize}
-\item $\rho : \X \rightarrow \ZZ$ assigns an address to each variable,
-\item $\nu : \mathcal{A} \rightarrow \ZZ$ assigns an address to each auxiliary, and
-\item $\mu : \ZZ \rightarrow \ZZ$ assigns a value to each address.
+    \item $\rho : \X \rightarrow \ZZ$ assigns an address to each variable,
+    \item $\nu : \mathcal{A} \rightarrow \ZZ$ assigns an address to each auxiliary, and
+    \item $\mu : \ZZ \rightarrow \ZZ$ assigns a value to each address.
 \end{itemize}
 We are only interested in analyzing the values of pointers and addresses, therefore we interpret each value stored in the memory and in the auxiliaries as an address.
 
-We also define the operator $(+) : \Z \rightarrow \ZZ \rightarrow \ZZ$ on addresses, where $z + (a,b) = (a, z+b)$.
-Here, $z$ is added to the address offset, thus modeling the fact that it's not possible to leave a memory block using address arithmetic.
-Moreover, we define the function $bl : \ZZ \rightarrow \Z$ that returns the address block identifier of an address, where $bl(a,b) = a$.
+\section{Assignment}
 
-A term $t$ is interpreted as the value $\sem{t}(\rho, \nu, \mu)$ defined by:
-\[
-  \begin{array}{lll}
-    \sem{\& x}\,(\rho,\nu,\mu)   & = & \rho\,x                          \\
-    \sem{A}\,(\rho,\nu,\mu)      & = & \nu\,A                           \\
-    \sem{*(z+t)}\,(\rho,\nu,\mu) & = & \mu\,(z+\sem{t}\,(\rho,\nu,\mu)) \\
-  \end{array}
+We consider assignments of the form $s_1\,{:=}\,s_2$ where $s_1$ is either an auxiliary $B \in \mathcal{A}$ or a pointer term $*(z+t)$, while $s_2$ is either the symbol $?$, which represents an unknown value, or is of the form $z_1 + t$ for some term $t$, or \malloc, which assigns an address from a fresh block to $s_1$.
+A fresh address block is an address block identifier that does not occur as a mapping in any of the functions $\rho$, $\nu$ or $\mu$.
+More precisely we define the property $fresh$ as:
+
+\[ \begin{array}{c}
+        fresh(a, (\rho,\nu,\mu)) \equiv
+        (\nexists A\in \A . bl(\nu(A)) = a      \\
+        \land \nexists x\in \X. bl(\rho(x)) = a \\
+        \land \nexists a'\in \ZZ . bl(\mu(a')) = a)
+    \end{array}
 \]
 
-The validity is defined as:
+For a set $H$ of models $(\rho,\nu,\mu)$, we define the concrete semantics of the assignment
+$s_1\,{:=}\,s_2$ as the transformation
+$\sem{s_1\,{:=}\,s_2}\,H$, where:
 \[
-  \begin{array}{ll}
-    (\rho,\nu,\mu)\models t_1 = z+t_2          & \textbf{iff}
-    \\ \multicolumn{2}{c}{\quad\quad\quad\quad\sem{t_1}\,(\rho,\nu,\mu) = z+\sem{t_2}\,(\rho,\nu,\mu)}	\\
-    (\rho,\nu,\mu)\models t_1 \neq z+t_2       & \textbf{iff}
-    \\ \multicolumn{2}{c}{\quad\quad\quad\quad\sem{t_1}\,(\rho,\nu,\mu) \neq z+\sem{t_2}\,(\rho,\nu,\mu)}	\\
-    (\rho,\nu,\mu)\models bl(t_1) \neq bl(t_2) & \textbf{iff}
-    \\ \multicolumn{2}{c}{\quad\quad\quad\quad bl(\sem{t_1}\,(\rho, \nu, \mu)) \neq bl(\sem{t_2}\,(\rho, \nu, \mu))}
-  \end{array}
+    \begin{array}{l}
+        \sem{B\,{:=}\,?}\,H =
+        \\
+        \quad \{(\rho,\nu\oplus\{B\mapsto a\},\mu)\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                   \\
+        \sem{*(z+t)\,{:=}\,?}\,H =                                                                    \\
+        \quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto a\})
+        \mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                                                             \\
+        \sem{B\,{:=}\,z_1+s}\,H =                                                                     \\
+        \quad \{(\rho,\nu\oplus\{B\mapsto z_1+\sem{s}\,(\rho,\nu,\mu)\},\mu)\mid(\rho,\nu,\mu)\in H\} \\
+        \sem{*(z+t)\,{:=}\,z_1+s}\,H =                                                                \\
+        \quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto z_1+\sem{s}\,(\rho,\nu,\mu))\}
+        \mid(\rho,\nu,\mu)\in H\}                                                                     \\
+        \sem{B\,{:=}\,\malloc}\,H =                                                                   \\
+        \quad \{(\rho,\nu\oplus\{B\mapsto (a,0)\},\mu)\mid
+        (\rho,\nu,\mu)\in H, a\in \Z,
+        fresh(a, (\rho,\nu,\mu))\}\}                                                                  \\
+        \sem{*(z+t)\,{:=}\,\malloc}\,H =
+        \\
+        \quad\{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}\mid
+        (\rho,\nu,\mu)\in H, a\in \Z, fresh(a, (\rho, \nu, \mu))\}.
+    \end{array}
 \]
-
-If $(\rho, \nu, \mu)\models p$ for each proposition $p$ in $\Psi$, then we say that $(\rho, \nu, \mu) \models \Psi$.
-\todo[inline]{The domain is not this any more, it's the kernels.}
-The domain of 2-Pointer Logic $\mathcal{P}_2[=]$ consists of all finite conjunctions
-of propositions over terms up to semantic equivalence.
-The concretization $\gamma(\Psi)$ of $\Psi$ is the set of all $(\rho, \nu, \mu)$ with $(\rho, \nu, \mu) \models \Psi$.
+Here,
+$f\oplus\{m\mapsto z\}$ is the mapping obtained
+from $f$ by
+setting the value of $f$ for $m$ to $z$.
 
 \section{Interprocedural Semantics}
+
+Let $f$ be a function with parameters $p_1, \ldots, p_n$.
+Assume that there is an edge of the CFG is labeled with $f(e_1, \ldots, e_n)$,
+and the concrete state at the node where the edge starts is $(\rho, \nu, \mu)$.
+The concrete semantics of the
+function call is defined by the function $\enter\,(\rho, \nu, \mu)$, which returns the state $(\rho', \nu', \mu')$, defined as follows:
+\begin{enumerate}
+    \item $\rho'\,x = \rho\,x$ for all global variables $x \in \X$.
+    For the local variables of the caller, $\rho'$ does not contain mappings.
+          Additionally, for each parameter $p_i$ of the function which is not an auxiliary, $\rho'\,p_i = \sem{e_i}$, where $\sem{e_i}$ is the concrete value of the expression $e_i$ in the state $(\rho, \nu, \mu)$.
+    \item $\nu'$ is defined correspondigly: it contains the entries of $\nu'\,A = \nu\,A$ for all global variables $A \in \A$ and $\nu'$ does not contain a mapping for the local variables of the caller.
+    For each parameter $p_i$ of the function, $\nu'\,p_i=\sem{e_i}$, if $p_i$ is an auxiliary.
+    \item $\mu'\,(a,b)=\mu\,(a,b)$ for each address $(a,b)$.
+\end{enumerate}
+
+At the end of the function, let the resulting state of the function be $(\rho', \nu', \mu')$.
+The concrete semantics of the edge form the return of the function to the caller is defined by the function $\combine\,(\rho, \nu, \mu)\,(\rho', \nu', \mu')$, which returns the state $(\rho'', \nu'', \mu'')$, defined as follows:
+\begin{enumerate}
+    \item $\rho''\,x = \rho'\,x$ for all global variables $x \in \X$ and $\rho''\,x = \rho\,x$ for the local variables of the caller.
+    The local variables of the function are not present in $\rho''$.
+    \item Correspondingly, $\nu''\,A = \nu'\,A$ for all global auxiliary variables $A \in \X$ and $\nu''\,A = \nu\,A$ for the local variables of the caller.
+    \item $\mu''\,(a,b)=\mu'\,(a,b)$ for each address $(a,b)$.
+\end{enumerate}
