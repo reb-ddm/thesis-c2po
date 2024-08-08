@@ -73,6 +73,7 @@ Therefore, $\restr{\T}{\neg t}$ is the set of all terms that do not contain $t$ 
 
 If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms of $\T$ where for each subterm of the form $*(z' + v)$ it holds that $t' \nequivp (z' - z) + v$.
 \todo{add definition of $\nequiv_k$}
+\todo[inline]{If it only was that easy. What about overlapping terms? What about MayPointTo?}
 As defined in \cref{section:disequalities}, we can derive the diesqualities from the disequalities in $D$, from the equalities
 implied by $P$ and from the set of block disequalities $B$.
 
