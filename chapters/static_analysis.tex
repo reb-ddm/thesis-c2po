@@ -18,6 +18,8 @@ This way it is also possible, for example, to prove the non-termination of a pro
 The \cpo\ analysis described in this thesis, however, focuses on analyzing
 relationships between pairs of pointer variables at each program point.
 
+\subsection{Abstraction of the Concrete Semantics}
+
 The analysis by abstract interpretation is constructed by replacing the concrete
 semantics of a program with an abstract over-approximation of the program's behavior.
 This abstract semantics is a simplified version of the concrete semantics
@@ -42,20 +44,16 @@ main(){
 \begin{minipage}{0.45\textwidth}
 
   \begin{tikzpicture}[
-    node distance=2cm, % Adjust the distance between nodes
+    node distance=2cm,
     on grid,
-    auto, % Automatically place edge labels
+    auto,
     state/.style={circle, draw, minimum size=2em, font=\small}
   ]
 
-  % Initial state p1
   \node[state, initial, initial text=main] (p1) {$p_1$};
-
-  % Next states p2 and p3
   \node[state, below=of p1] (p2) {$p_2$};
   \node[state, accepting, below=of p2] (p3) {$p_3$};
 
-  % Edges between states
   \path[->] (p1) edge node[right] {$x = 1$} (p2)
             (p2) edge node[right] {$x = x + 1$} (p3);
 
@@ -69,8 +67,8 @@ main(){
 \todo{make it a) and b) figure}
 
 The concrete edge effect $\sem{l}$ describes the effect that an edge with label $l$ has on the concrete state.
-For example in \cref{ex:cfg}, the concrete state at node $todo$ is $s_{todo} = \angl{x \rightarrow 1}$.
-The state of node $todo2$ is equal to $\sem{x = x+1}\,s_{todo} = \angl{x \rightarrow 2}$.
+For example in \cref{fig:example-C-program}, the concrete state at node $p_2$ is $s_{p_2} = \angl{x \rightarrow 1}$.
+The state of node $p_3$ is equal to $\sem{x = x+1}\,s_{p_3} = \angl{x \rightarrow 2}$.
 
 The abstract interpretation method consists in over-approximating the concrete semantics at each node in the CFG with an abstract description of the state.
 Each analysis chooses an abstract domain that can characterize specific properties of interest of the program.
@@ -81,8 +79,8 @@ Another simpler example would be an abstract domain that remembers for each vari
 An abstract state that only contains the variable $x$ is represented as $\angl{x \rightarrow \text{even}}$, $\angl{x \rightarrow \text{odd}}$ or $\angl{x \rightarrow \text{unknown}}$ if the parity of $x$ is not known.
 
 The abstract edge effect $\sem{l}^\sharp$ describes the effect that an edge with label $l$ has on the abstract state.
-For example, in the CFG in \cref{ex:cfg}, the abstract state at node $todo$ is $X[todo] = \angl{x \rightarrow \text{odd}}$.
-After the edge with label $x = x+1$, the abstract state at node $todo2$ is $\sem{x = x+1}^\sharp\,X[todo] = \angl{x \rightarrow \text{even}}$.
+For example, in the CFG in \cref{fig:example-C-program}, the abstract state at node $p_2$ is $X[p_2] = \angl{x \rightarrow \text{odd}}$.
+After the edge with label $x = x+1$, the abstract state at node $p_3$ is $\sem{x = x+1}^\sharp\,X[p_3] = \angl{x \rightarrow \text{even}}$.
 
 The elements of the abstract domain must form a complete lattice, i.e., there is a partial order $\sqsubseteq$ between the elements and for each subset of elements there is a least upper bound (join, $\join$) and a greatest lower bound (meet, $\meet$).
 Alternatively, if it is not possible to find the exact least upper bound, a sound over-approximation
@@ -108,7 +106,7 @@ of the concrete edge effect.
 Given that it holds for each $l$, we know that computing the semantics of a program in the abstract domain is a sound
 over-approximation of the concrete semantics.
 
-\subsection{Program Analysis via Abstract Interpretation}
+\subsection{Program Analysis}
 
 The analysis of a program via abstract interpretation is done by traversing the CFG and computing the abstract state at each node.
 We begin from the entry point of the \textsf{main} function in the CFG, which has the initial abstract state $\top$.
@@ -156,7 +154,7 @@ Complementary to the widening, there is the narrowing operation, which is design
 refine the result obtained by widening, thus restoring some of the precision that was lost by applying the widening.
 The narrowing operation $\narrow$ over-approximates the meet operation in order to ensure that the fixpoint computation terminates.
 
-\subsection{Interprocedural Analysis}
+\subsubsection{Interprocedural Analysis}
 
 Abstract interpretation is also used to model function calls.
 The concrete semantics of a function depends not only from the function definition, but also on the values of the parameters, global variables and the state of the memory at the time when the function is called.

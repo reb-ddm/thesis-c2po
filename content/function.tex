@@ -20,16 +20,6 @@ int main(){
 
 call $f(a)$, we can assign $a$ to $a'$ at the
 
-\subsection{Concrete Semantics}
-Formally, the $\enter$ function is defined as:
-\todo[inline]{TODO}
-\[
-    \enter \sem{(\rho, \nu, \mu)} = (\rho|_{local}+assign,\nu|_{local}+assign, \mu)
-\]
-
-
-\todo[inline]{TODO example}
-
 \subsection{Abstract Semantics}
 
 When entering a function we need to forget local variables of the caller, but keep the information about

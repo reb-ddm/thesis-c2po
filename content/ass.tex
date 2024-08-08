@@ -1,48 +1,5 @@
 \section{Assignment}
 
-We consider assignments of the form $s_1\,{:=}\,s_2$ where $s_1$ is either an auxiliary $B \in \mathcal{A}$ or a pointer term $*(z+t)$, while $s_2$ is either the symbol $?$, which represents an unknown value, or is of the form $z_1 + t$ for some term $t$, or \malloc, which assigns an address from a fresh block to $s_1$.
-A fresh address block is an address block identifier that does not occur as a mapping in any of the functions $\rho$, $\nu$ or $\mu$.
-More precisely we define the property $fresh$ as:
-
-\[ \begin{array}{c}
-		fresh(a, (\rho,\nu,\mu)) \equiv
-		(\nexists A\in \A . bl(\nu(A)) = a      \\
-		\land \nexists x\in \X. bl(\rho(x)) = a \\
-		\land \nexists a'\in \ZZ . bl(\mu(a')) = a)
-	\end{array}
-\]
-
-For a set $H$ of models $(\rho,\nu,\mu)$, we define the concrete semantics of the assignment
-$s_1\,{:=}\,s_2$ as the transformation
-$\sem{s_1\,{:=}\,s_2}\,H$, where:
-\[
-	\begin{array}{l}
-		\sem{B\,{:=}\,?}\,H =
-		\\
-		\quad \{(\rho,\nu\oplus\{B\mapsto a\},\mu)\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                    \\
-		\sem{*(z+t)\,{:=}\,?}\,H =                                                                     \\
-		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto a\})
-		\mid(\rho,\nu,\mu)\in H,a\in\ZZ\}                                                    \\
-		\sem{B\,{:=}\,z_1+s}\,H =                                                                      \\
-		\quad \{(\rho,\nu\oplus\{B\mapsto z_1+\sem{s}\,(\rho,\nu,\mu)\},\mu)\mid(\rho,\nu,\mu)\in H\} \\
-		\sem{*(z+t)\,{:=}\,z_1+s}\,H =                                                                 \\
-		\quad \{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto z_1+\sem{s}\,(\rho,\nu,\mu))\}
-		\mid(\rho,\nu,\mu)\in H\}                                                            \\
-		\sem{B\,{:=}\,\malloc}\,H =                                                                    \\
-		\quad \{(\rho,\nu\oplus\{B\mapsto (a,0)\},\mu)\mid
-		(\rho,\nu,\mu)\in H, a\in \Z,
-	  fresh(a, (\rho,\nu,\mu))\}\}                                                       \\
-		\sem{*(z+t)\,{:=}\,\malloc}\,H =
-		\\
-		\quad\{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}\mid
-		(\rho,\nu,\mu)\in H, a\in \Z, fresh(a, (\rho, \nu, \mu))\}.
-	\end{array}
-\]
-Here,
-$f\oplus\{m\mapsto z\}$ is the mapping obtained
-from $f$ by
-setting the value of $f$ for $m$ to $z$.
-
 In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp\,k$ of the assignment $s_1\,{:=}\,s_2$ over the kernel $k$, for the each of the three possibilities of $s_2$.
 If $k \equiv \bot$, then $\sem{s_1\,{:=}\,s_2}^\sharp\,k \equiv \bot$.
 In the following, we assume that $k \neq \bot$.
