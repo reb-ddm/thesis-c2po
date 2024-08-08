@@ -27,53 +27,8 @@ Formally, the $\enter$ function is defined as:
     \enter \sem{(\rho, \nu, \mu)} = (\rho|_{local}+assign,\nu|_{local}+assign, \mu)
 \]
 
-At the end of the function, the $\combine$ function is called when traversing the edge from the returning point of the function to the caller.
-It takes as an argument the concrete state of the caller before having invoked the function,
-and the final state of the function.
-It keeps the information about the local variables of the caller and forgets about the local variables of the function.
-The values of the global variables and the content of the memory are equal to the state after the function call.
 
 \todo[inline]{TODO example}
-
-\begin{tikzpicture}[
-        node distance=1cm and 4cm,
-        every node/.style={font=\small},
-        call/.style={->, >=Stealth, thick, dashed, blue},
-        combine/.style={->, >=Stealth, thick, dashed, red},
-        block/.style={draw, rectangle, rounded corners, align=center}
-    ]
-
-    % Nodes for main function
-    \node[block] (start) {start};
-    \node[below=of start] (usw1) {...};
-    \node[block, below=of usw1] (beforecall) {};
-    \node[block, below=of beforecall] (aftercall) {};
-    \node[below=of aftercall] (usw2) {...};
-    \node[block, below=of usw2] (end) {end};
-
-    % Nodes for function f
-    \node[block, right=of usw1] (fstart) {f start};
-    \node[below=of fstart] (usw3) {...};
-    \node[block, below=of usw3] (fend) {f return};
-
-    % Edges for main function
-    \draw[->] (start) -- node[right] {...} (usw1);
-    \draw[->] (usw1) -- node[right] {...} (beforecall);
-    \draw[->] (beforecall) -- node[right] {f(...)} (aftercall);
-    \draw[->] (aftercall) -- node[right] {y = 10} (usw2);
-    \draw[->] (usw2) -- node[right] {y = 10} (end);
-
-    % Edges for function f
-    \draw[->] (fstart) -- node[right] {a = x} (usw3);
-    \draw[->] (usw3) -- node[right] {return} (fend);
-
-    % Enter and combine edges
-    \draw[call] (beforecall.east) to node[above] {enter} (fstart.west);
-    \draw[combine] (fend.west) to node[below] {combine} (aftercall.east);
-
-\end{tikzpicture}
-
-
 
 \subsection{Abstract Semantics}
 

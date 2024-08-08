@@ -8,8 +8,6 @@ This chapter also presents the \goblint\ abstract analyzer, where the \cpo\ anal
 used by the \cpo\ analysis.
 
 \section{Abstract Interpretation}
-\todo[inline]{abstract semantics, transformer join ecc}
-
 
 Abstract interpretation is a theoretical framework that is used to infer properties about programs
 that are proven to be correct for all possible executions of the program.
@@ -27,36 +25,55 @@ and can thus be computed in an efficient way.
 Each step of the analysis needs to be proven proven to be a correct over-approximation of the concrete behaviour,
 therefore the analysis is correct by construction.
 
-\subsection{Concrete Semantics}
-
 The program is represented by a control flow graph (CFG), where each node represents a program point and each edge represents a statement of the program, such as assignments, conditional branches and function calls.
 A concrete state of the program is defined by functions that describe the values for each variable and each memory address.
 \cref{fig:example-C-program} shows an example C program and \cref{ex:cfg} shows its corresponding CFG.
 
-\begin{figure}
+\begin{figure}\begin{minipage}{0.45\textwidth}
+
 \begin{minted}{C}
 main(){
   int x = 1;
   x = x + 1;
 }
 \end{minted}
-\caption{An example of a C program.}
+
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+
+  \begin{tikzpicture}[
+    node distance=2cm, % Adjust the distance between nodes
+    on grid,
+    auto, % Automatically place edge labels
+    state/.style={circle, draw, minimum size=2em, font=\small}
+  ]
+
+  % Initial state p1
+  \node[state, initial, initial text=main] (p1) {$p_1$};
+
+  % Next states p2 and p3
+  \node[state, below=of p1] (p2) {$p_2$};
+  \node[state, accepting, below=of p2] (p3) {$p_3$};
+
+  % Edges between states
+  \path[->] (p1) edge node[right] {$x = 1$} (p2)
+            (p2) edge node[right] {$x = x + 1$} (p3);
+
+  \end{tikzpicture}
+\end{minipage}
+
+  \caption{An example of a C program and its corresponding CFG.}
 \label{fig:example-C-program}
+
 \end{figure}
-\begin{figure}
-  \todo[inline]{CFG}
-  \caption{The CFG of the program in \cref{fig:example-C-program}.}
-  \label{ex:cfg}
-\end{figure}
+\todo{make it a) and b) figure}
 
 The concrete edge effect $\sem{l}$ describes the effect that an edge with label $l$ has on the concrete state.
 For example in \cref{ex:cfg}, the concrete state at node $todo$ is $s_{todo} = \angl{x \rightarrow 1}$.
 The state of node $todo2$ is equal to $\sem{x = x+1}\,s_{todo} = \angl{x \rightarrow 2}$.
 
-\subsection{Abstract Semantics}
-
-The goal of abstract interpretation is to over-approximate the concrete semantics at each node in the CFG.
-This is done by choosing an abstract domain that can characterize specific properties of interest of the program.
+The abstract interpretation method consists in over-approximating the concrete semantics at each node in the CFG with an abstract description of the state.
+Each analysis chooses an abstract domain that can characterize specific properties of interest of the program.
 For a node $p$ in the CFG; the abstract state is denoted as $X[p]$.
 For example, the abstract domain of the \cpo\ analysis is a conjunction of equalities between pointers.
 At each program point one such conjunction is computed, that over-approximates all possible concrete states at that point.
@@ -91,9 +108,14 @@ of the concrete edge effect.
 Given that it holds for each $l$, we know that computing the semantics of a program in the abstract domain is a sound
 over-approximation of the concrete semantics.
 
-\subsection{Intraprocedural Analysis}
+\subsection{Program Analysis via Abstract Interpretation}
 
-This section describes more in detail the effects of each program statement on the abstract state.
+The analysis of a program via abstract interpretation is done by traversing the CFG and computing the abstract state at each node.
+We begin from the entry point of the \textsf{main} function in the CFG, which has the initial abstract state $\top$.
+Then each edge is traversed and the abtract effects of the edges are applied to the abstract state.
+If the abstract state at a node changes, the analysis must sometimes re-visit nodes multiple times.
+The abtract effects of each type of edge is described in the following.
+
 \subsubsection{Assignment}
 The abstract effect of an assignment $\sem{x = e}^\sharp$ computes the change in the abstract state when assigning the expression $e$ to the variable $x$.
 For example, if $x$ and $e$ are pointers, the \cpo\ analysis removes all old equalities that were talking about $x$, as the vaue of $x$ might have changed.
@@ -136,14 +158,60 @@ The narrowing operation $\narrow$ over-approximates the meet operation in order 
 
 \subsection{Interprocedural Analysis}
 
-A function is represented by a separate CFG.
-For each function call, a new CFG is created, because in each function call the concrete states
-depend on the value of the global variables and of the state of the memory and of the function parameters,
-therefore each function call is modeled as a separate CFG with separate concrete states.
-During the function call, an edge is added from the caller CFG to the entry point of the function, and one from the entry point
-of the function to the caller CFG.
+Abstract interpretation is also used to model function calls.
+The concrete semantics of a function depends not only from the function definition, but also on the values of the parameters, global variables and the state of the memory at the time when the function is called.
+Therefore, for each possible values that the parameters can have, a separate CFG is created.
+An edge is added from the caller CFG to the entry point of the function, labeled with the $\enter$ function, and one from the entry point
+of the function to the caller CFG, labeled with the $\combine$ function.
+This is visualized in \cref{fig:function-cfg}.
 
-The semantics of function call is described by the functions $\enter$ and $\combine$, which are called at the beginning and end of the function, respectively.
+\begin{figure}
+  \begin{center}
+
+\begin{tikzpicture}[
+  node distance=1cm and 4cm,
+  every node/.style={font=\small},
+  call/.style={->, >=Stealth, thick, dashed, blue},
+  combine/.style={->, >=Stealth, thick, dashed, red},
+  block/.style={draw, circle,align=center}
+]
+
+% Nodes for main function
+\node[block, initial, initial text=main] (start) {$p_0$};
+\node[below=of start] (usw1) {...};
+\node[block, below=of usw1] (beforecall) {$p_1$};
+\node[block, below=of beforecall] (aftercall) {$p_2$};
+\node[below=of aftercall] (usw2) {...};
+\node[block, below=of usw2] (end) {$p_3$};
+
+% Nodes for function f
+\node[block, right=of usw1, initial right, initial text=f] (fstart) {$p_4$};
+\node[below=of fstart] (usw3) {...};
+\node[block, below=of usw3] (fend) {$p_5$};
+
+% Edges for main function
+\draw[->] (start) -- (usw1);
+\draw[->] (usw1) -- (beforecall);
+\draw[->] (beforecall) -- node[right] {f(...)} (aftercall);
+\draw[->] (aftercall) -- (usw2);
+\draw[->] (usw2) -- (end);
+
+% Edges for function f
+\draw[->] (fstart) -- (usw3);
+\draw[->] (usw3) -- node[right] {return} (fend);
+
+% Enter and combine edges
+\draw[call] (beforecall.east) to node[above] {$\enter(s_{p_1})$} (fstart.west);
+\draw[combine] (fend.west) to node[below] {$\combine(s_{p_1},s_{p_5})$} (aftercall.east);
+
+\end{tikzpicture}
+
+
+\end{center}
+\caption{Visualization of the CFG of a program during a function call.}\label{fig:function-cfg}
+\end{figure}
+
+
 When traversing the edge from the function call of the caller to the entry point of the function, the $\enter$ function is called.
 It has as parameter the state of the caller and it returns an initial state for the analysis of the function.
 The concrete state returned by $\enter$ contains only global variables, the parameters and the local variables of the function.
@@ -151,11 +219,17 @@ The local variables of the caller are removed.
 Then, each node in the CFG of the function is analyzed as usual,
 starting from the initial state returned by $\enter$.
 
+At the end of the function, the $\combine$ function is called when traversing the edge from the returning point of the function to the caller.
+It takes as an argument the concrete state of the caller before having invoked the function,
+and the final state of the function.
+It keeps the information about the local variables of the caller and forgets the local variables of the function.
+The values of the global variables and the content of the memory are equal to the state after the function call.
+
 The abstract analysis of function calls are handled by the abstract enter function $\enter^\sharp$ and the abstract combine function $\combine^\sharp$.
-The CFG adds an edge from the node before the function call to the entry point of the function and an edge from the exit point of the function to the node after the function call.
-Let $s$ be the state before the function call.
+As for the concrete semantics, the abstract CFG has an edge from the node before the function call to the entry point of the function and an edge from the exit point of the function to the node after the function call.
+Let $s$ be the abstract state before the function call.
 The start state of the function is $\enter^\sharp\,s$.
-Then the analysis is done on the function CFG.
+Each possible initial abstract value has a separate copy of the CFG of the function.
 Let the final state of the function be $s'$.
 The state after the function call is $\combine^\sharp\,(s,s')$.
 
