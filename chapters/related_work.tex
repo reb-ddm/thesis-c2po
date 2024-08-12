@@ -35,7 +35,6 @@ It is less precise, but in practical examples it finds mostly the same results a
 
 \section{Pointer Analysis}
 
-
 There are numerous pointer analyses for C programs that are used in static analysis tools.
 As C is widely used in crucial code bases, such as operating systems, device drivers, and embedded systems,
 it is important to beable to prove correctness properties about the pointers used in these programs.
@@ -61,12 +60,30 @@ In this master's thesis, the non-relational pointer analysis by \textcite{goblin
 with the newly implemented relational analysis in order to augment the precision of the analysis.
 
 Shape analyses are a third category of pointer analyses, which are very precise and can infer complex properties about pointers and about the shape and content of data structures.
-Some examples are~\cite{shapeanalysis,kreiker,separationlogic,rivalpapers,predator,Lemerre2024}.
+Some examples are methods that use separation logic \cite{separationlogic,rivalpapers},
+or graph-based representations \cite{predator} to precisely abstract the shapes of data structures in the heap.
+\textcite{kreiker} introduced a shape analysis that considers overlapping data structures.
 These analyses are very precise, but also very expensive in terms of time and memory consumption.
 The analysis of this master's thesis is a compromise between the precision of shape analysis and
 the efficiency of less precises analysis, by only considering relations between pairs of pointers.
 
-\section{Relational analysis/weakly relational}
-
 The idea of restricting the number of variables in relational analysis has been precedently used
 for other domains than pointers, such as numerical domains and strings.
+They are so-called \emph{weakly relational} analyses, as they only consider relations between pairs of variables.
+For example, for numerical analyses, the octagon domain~\cite{octagon} is a well-known weakly relational domain,
+which tracks relationships between pairs of variables and a constant.
+It is a simplified version of the polyhedra domain~\cite{polyhedra}, which tracks relationships between arbitrary sets of variables.
+The same idea has been applied to non-numerical domains by \textcite{SeidlETS2023}.
+Here, we use this concept for pointer analysis, and we track equalities and disequalities between pairs of pointer expressions.
+The advantage of weakly relational analyses is their simplicity:
+by focusing on simple propositions, we have been able to provide polynomial-time algorithms for the implementation of our analysis in an abstract interpreter.
+Therefore our analysis complements the computationally expensive full-fledged shape analyses.
+
+Moreover, the \cpo\ domain is comparable to the domain introduced by~\textcite{Mine06}, which, similarly to \cpo, considers dereferencing and pointer arithmetic, and pointer values are interpreted as a tuple of a variable and an offset.
+However, in~\cite{Mine06}, the abstraction tracks
+a set of possible pointer cells that the variables may point to and a set of possible values for the offset.
+In contrast, we track must-equalities and disequalities, without considering concrete values,
+which makes it possible to express different properties than the domain in~\cite{Mine06}.
+The domain in~\cite{Mine06} assumes that \malloc\ is not used in the program,
+while we explicitly handle the \malloc\ operator in our analysis.
+It also explicitly handles union types, which are not explicitly considered in our analysis.
