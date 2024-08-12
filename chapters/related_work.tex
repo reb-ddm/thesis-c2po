@@ -7,5 +7,31 @@
 
 \section{Congruence Closure}
 
+The congruence cloure algorithm is widely used in the field of formal verifcation,
+when reasoning about the equivalence of terms. It was introduced in the early 1980s
+in different variations. \textcite{cc-tarjan} described a congruence closure algorithm
+where each element is directly mapped to its representative, thus not requiring the
+use of a union-find data structure.
+The methods of \textcite{cc-nelson,cc-shostak} are based on a union-find data structure~\cite{uf-tarjan}, as
+is done in this master's thesis. They doesn't directly use a finite automata to represent
+the congruence closure, but define the procedure directly on graphs,
+allowing to define the congruence closure of terms that contain arbitrary uninterpreted function symbols
+of any arity.
+Our quantitative congruence closure is similar, but restricted to a single uniterpreted function $*$
+and extended to handle simple arithmetic operations.
+This quantitative congruence closure for 2-Pointer Logic was introduced by \textcite{2pointer}.
 
-todo cite quantitative congruence closure from oliveras and n.
+The congruence closure algorithm can also be viewed as a rewrite system,
+for rewriting canonical normal forms of terms by replacing subterms with their representatives,
+as in \cite{cc-kapur,abstract-cc}.
+There exists an extension with integer offsets for this approach, as described by \textcite{cc-offsets}.
+This is done in a similar way to our approach, but it doesn't use union-find and it considers a
+binary function $\cdot$, where the offset is added to the second argument.
+
+Join algorithms for congruence closure are described by \textcite{join},
+where the join operation is defined over the congruence closure described
+as a rewrite system.
+This join was adapted here to the desciption of the congruence closure that uses a quantitative finite automata.
+An alternative join is also introduced here, that does not take into account the information of the
+quantitative automata, but only the partition of the union-find data structure.
+It is less precise, but in practical examples it finds mostly the same results as the more precise join.
