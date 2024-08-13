@@ -1,6 +1,6 @@
 \section{Assignment}
 
-In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp\,k$ of the assignment $s_1\,{:=}\,s_2$ over the kernel $k$, for the each of the three possibilities of $s_2$.
+In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp\,k$ of the assignment $s_1\,{:=}\,s_2$ over the kernel $k$, for each of the three possibilities of $s_2$.
 If $k \equiv \bot$, then $\sem{s_1\,{:=}\,s_2}^\sharp\,k \equiv \bot$.
 In the following, we assume that $k \neq \bot$.
 
@@ -31,12 +31,12 @@ Therefore, $\restr{\T}{\neg t}$ is the set of all terms that do not contain $t$ 
 If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms of $\T$ where for each subterm of the form $*(z' + v)$ it holds that $t' \nequivp (z' - z) + v$.
 \todo{add definition of $\nequiv_k$}
 \todo[inline]{If it only was that easy. What about overlapping terms? What about MayPointTo?}
-As defined in \cref{section:disequalities}, we can derive the diesqualities from the disequalities in $D$, from the equalities
+As defined in \cref{section:disequalities}, we can derive the disequalities from the disequalities in $D$, from the equalities
 implied by $P$ and from the set of block disequalities $B$.
 
 To simplify the notation, the kernel that is restricted to the terms in $\restr{\T}{\neg t}$ is denoted $\restr{k}{\neg t}$.
 It represents all propositions that follow from $M$ and that are still valid after overwriting the value of $t$.
-Therefore we can define the assignment as follows:
+Therefore, we can define the assignment as follows:
 
 \[
 	\sem{s_1\,{:=}\;?}^\sharp\,k \equiv \restr{k}{\neg s_1}.
@@ -59,7 +59,7 @@ We consider an assignment of the form $s_1\,{:=}\,z_1+s$.
 As before, we need to forget all the equalities and disequalities about terms that may be modified by overwriting $s_1$.
 After this, is not sufficient to simply add the equality $s_1 = z_1+s$ to the set of equalities,
 because the term $z_1 + s$ may also be modified by the assignment. For example, when we assign $B\,{:=}\,1+B$, the equality $B = 1 + B$ would incorrectly lead to an unsatisfiable conjunction.
-Therefore we introduce a fesh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $s_1$ to $A$.
+Therefore, we introduce a fresh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $s_1$ to $A$.
 This way we can remember the original value of $z_1 + s$ trough the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
 
 We define the abstract effect of the definite assignment as follows:

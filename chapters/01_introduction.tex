@@ -42,8 +42,8 @@ Memory objects are for example distinct variables or distinct memory blocks allo
 For two variables $x$ and $y$, we know that their addresses $\&x$ and $\&y$ belong to different memory block, thus we can infer that $bl(\&x) \neq bl(\&y)$, where $bl(\cdot)$ represents the memory block of a pointer.
 For two variables $x$ and $z$ that are initialized with different calls to \malloc, we can infer that $bl(\&x) \neq bl(\&z)$.
 
-Analyzing diseuqualities in addition to equalities is crucial in order to have a precise
-analysis during an assigment.
+Analyzing disequalities in addition to equalities is crucial in order to have a precise
+analysis during an assignment.
 Given that assigning to a dereferenced pointer $*p$ overwrites a value in memory, after the assignment
 all values that are written at the same address as $p$ have changed.
 Therefore, all propositions that contain any value that may be equal to $p$ are no longer valid.

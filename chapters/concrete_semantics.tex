@@ -69,7 +69,7 @@ function call is defined by the function $\enter\,(\rho, \nu, \mu)$, which retur
     \item $\rho'\,x = \rho\,x$ for all global variables $x \in \X$.
     For the local variables of the caller, $\rho'$ does not contain mappings.
           Additionally, for each parameter $p_i$ of the function which is not an auxiliary, $\rho'\,p_i = \sem{e_i}$, where $\sem{e_i}$ is the concrete value of the expression $e_i$ in the state $(\rho, \nu, \mu)$.
-    \item $\nu'$ is defined correspondigly: it contains the entries of $\nu'\,A = \nu\,A$ for all global variables $A \in \A$ and $\nu'$ does not contain a mapping for the local variables of the caller.
+    \item $\nu'$ is defined correspondingly: it contains the entries of $\nu'\,A = \nu\,A$ for all global variables $A \in \A$ and $\nu'$ does not contain a mapping for the local variables of the caller.
     For each parameter $p_i$ of the function, $\nu'\,p_i=\sem{e_i}$, if $p_i$ is an auxiliary.
     \item $\mu'\,(a,b)=\mu\,(a,b)$ for each address $(a,b)$.
 \end{enumerate}

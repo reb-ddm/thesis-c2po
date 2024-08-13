@@ -157,7 +157,7 @@ The narrowing operation $\narrow$ over-approximates the meet operation in order 
 \subsubsection{Interprocedural Analysis}
 
 Abstract interpretation is also used to model function calls.
-The concrete semantics of a function depends not only from the function definition, but also on the values of the parameters, global variables and the state of the memory at the time when the function is called.
+The concrete semantics of a function depends not only on the function definition, but also on the values of the parameters, global variables and the state of the memory at the time when the function is called.
 Therefore, for each possible values that the parameters can have, a separate CFG is created.
 An edge is added from the caller CFG to the entry point of the function, labeled with the $\enter$ function, and one from the entry point
 of the function to the caller CFG, labeled with the $\combine$ function.
