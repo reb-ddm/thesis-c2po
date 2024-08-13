@@ -16,7 +16,7 @@ that are not modified by the assignment.
 
 \ignore{When overwriting $s_1$, all the terms whose value is written in the memory at the same address as $s_1$ are also modified.
 In the case that $s_1$ is an auxiliary $B \in \A$, then we can't reach the address of $B$ by dereferencing any other term.
-Therefore, the only terms that are modified by overwritng $B$ are the terms that contain $B$ as a subterm.
+Therefore, the only terms that are modified by overwriting $B$ are the terms that contain $B$ as a subterm.
 On the other hand, if $s_1$ is a pointer term $*(z+t)$, then we need to forget all the terms that contain any subterm that may be equal to $z+t$.
 Then we need to restrict the kernel $k$ to forget all the equalities and disequalities that contain the prohibited terms.}
 

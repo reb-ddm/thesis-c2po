@@ -51,7 +51,7 @@ value of the variable in one set of addresses for the whole program.
 This is a very efficient way to analyze programs, but it is not precise enough to prove intricate properties about prorgams.
 
 The same idea can be applied in a context- and flow-sensitive way, by providing a set of possible addresses for each pointer at each program point and call context.
-This is used in multiple practical C analyzers, such as \textsf{Mopsa}~\cite{mopsa}, \textsf{Frama-C}~\cite{framac,Bühler2024} and \textsf{Goblint}~\cite{goblint}.
+This is used in multiple practical C analyzers, such as \textsc{Mopsa}~\cite{mopsa}, \textsc{Frama-C}~\cite{framac,Bühler2024} and \goblint~\cite{goblint}.
 This non-relational analysis is more precise than the flow-insensitive analysis, but when the sets are not singletons,
 it can no longer infer relational properties about the pointers.
 Our relatioinal analysis is therefore a good complement to these analyses, as it can infer additional
