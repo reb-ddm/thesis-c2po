@@ -2,5 +2,70 @@
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \chapter{Introduction}\label{chapter:introduction}
-parts of this thesis have been submitted\dots
-bibtex -> "under review" als note
+
+The verification of software is crucial in safety-critical systems, in order to ensure the absence of bugs that could lead to catastrophic failures.
+Many safety critical programs are written in C, a language that is known for its low-level features and its lack of safety guarantees.
+Especially complex pointer manipulations could lead to bugs which are hard to detect.
+Automatic verification tools can help to find these bugs by using static analysis of programs,
+i.e, formally analyzing the behavior of the programs without executing them.
+% TODO: more concrete examples, like in the c2po paper
+
+Existing methods for static analysis of pointers handle different aspects of the analysis.
+A common approach is to infer for each variable in the program the set of possible address values it can take.
+There exist fast, but relatively imprecise methods, as the one by \textcite{Steensgaard} and the one by \textcite{Andersen}, but also more precise approaches that compute for each program point and each variable the set of possible addresses it can point to, as the ones implemented, e.g., in \textsc{Mopsa} \cite{mopsa} and \goblint \cite{goblint}.
+On the other hand, there are extremely precise analyses, which can precisely analyze the shape of dynamic data structures in the heap,
+with the drawback of being less efficient and thus not applicable to large programs
+\cite{rivalpapers,kreiker,predator}.
+
+As a compromise between precision and efficiency,
+weakly relational analyses have been considered \cite{octagon,SeidlETS2023}.
+Relational analyses track relations between variables, such as equalities and disequalities.
+They are only \emph{weakly} relation as they only considers relations between pairs of variables and not an arbitrary number of variables.
+Thus, the advantage of these analyses is its simplicity, which allows for a polynomial-time implementation.
+
+This master's thesis describes the design and implementation in \goblint\ of a weakly-relational pointer analysis for C,
+which we called \cpo.
+\cpo\ infers for each program point a set of disequalities that always hold at specific program points,
+for any possible execution of the program.
+The propositions are expressed in the 2-Pointer Logic introduced by \textcite{2pointer}, which
+are equalities or disequalities built from pairs of terms that can
+include variable names, dereferencing, and pointer arithmetic.
+An example of such a property is \todo{example program}
+\begin{equation}\label{example:introduction}
+    (x = \&y + 3) \land (*(\&z + 2) \neq \&y + 1),
+\end{equation}
+where $*$ is the dereferencing operator and $\&$ is the address-of operator.
+
+Additionally to the propositions introduced by \textcite{2pointer}, so-called \emph{block disequalities}
+are introduced, which express that two pointers point to different memory objects, that we call \emph{blocks}.
+Memory objects are for example distinct variables or distinct memory blocks allocated by \malloc.
+For two variables $x$ and $y$, we know that their addresses $\&x$ and $\&y$ belong to different memory block, thus we can infer that $bl(\&x) \neq bl(\&y)$, where $bl(\cdot)$ represents the memory block of a pointer.
+For two variables $x$ and $z$ that are initialized with different calls to \malloc, we can infer that $bl(\&x) \neq bl(\&z)$.
+
+\todo[inline]{Why do we need the disequalities}
+It is used in combination with other non-relational pointer analyses to augment their precision,
+as the two types of analyses infer different properties about the pointers.
+
+This master's thesis is structured as follows:
+\begin{itemize}
+    \item \cref{chapter:introduction} introduces the motivation for the analysis and the structure of the thesis.
+    \item \cref{chapter:background} gives an overview on the abstract interpretation method, which builds the theoretical foundation on which the \cpo\ analysis is designed.
+    It also includes a brief description of the abstract interpreter \goblint\, where the \cpo\ analysis is implemented, and other analyses that collaborate with \cpo\ to augment the precision of the analysis.
+    \item \cref{chapter:concrete_semantics} introduces a concrete semantics, which models C pointers and the content of the memory.
+    \item \cref{chapter:2pointer} recalls the 2-Pointer Logic introduced in~\cite{2pointer} and extends it with block disequalities.
+    A representation of the conjunctions is introduced, which automatically discovers the \emph{closure} of the conjunction,
+    i.e., the set of all propositions that are implied by the conjunction.
+    For example the proposition $*(\&z + 2) \neq x - 2$ is implied by the conjunction~\labelcref{example:introduction}.
+    This includes the \emph{quantitative congruence closure} of all the equalities that are present in the conjunction and
+    the closure of the disequalities, using the rule that when $*t_1 \neq *t_2$, this implies that the pointers are also different, i.e., $t_1 \neq t_2$.
+    \item \cref{chapter:analysis} describes the abstract domain used in the analysis, and the corresponding operations that are needed to implement an abstract interpretation analysis, including the \emph{equals}, \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing} operations.
+    Two possible algorithms of the \emph{equals} and the \emph{join} operation are presented, which differ in
+    their precision and efficiency.
+    Transfer functions are described, which define the behavior of the analysis during an assignment and a function call in the analyzed C code.
+    \item \cref{chapter:evaluation} evaluates the implementation of the \cpo\ analysis in \goblint\ on a set of benchmarks.,
+    comparing the analysis with the existing non-relational pointer analysis in \goblint, and also
+    evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation.
+    \item \cref{chapter:related_work} gives an overview of the related work in the field of congruence closure, pointer analysis and weakly relational analyses.
+\end{itemize}
+
+The implementation of \cpo\ is available under \todo{TODO}. Parts of this thesis have been submitted to \dots.
