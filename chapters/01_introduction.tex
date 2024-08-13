@@ -23,11 +23,11 @@ Relational analyses track relations between variables, such as equalities and di
 They are only \emph{weakly} relation as they only considers relations between pairs of variables and not an arbitrary number of variables.
 Thus, the advantage of these analyses is its simplicity, which allows for a polynomial-time implementation.
 
-This master's thesis describes the design and implementation in \goblint\ of a weakly-relational pointer analysis for C,
-which we called \cpo.
+This master's thesis describes the design and implementation in \goblint\ of a weakly-relational pointer analysis,
+which we called \cpo, as it is an analysis on C programs and it is based on 2-Pointer Logic \cite{2pointer}.
 \cpo\ infers for each program point a set of disequalities that always hold at specific program points,
 for any possible execution of the program.
-The propositions are expressed in the 2-Pointer Logic introduced by \textcite{2pointer}, which
+The inferred propositions are expressed in the 2-Pointer Logic introduced by \textcite{2pointer}, which
 are equalities or disequalities built from pairs of terms that can
 include variable names, dereferencing, and pointer arithmetic.
 An example of such a property is \todo{example program}
@@ -42,13 +42,23 @@ Memory objects are for example distinct variables or distinct memory blocks allo
 For two variables $x$ and $y$, we know that their addresses $\&x$ and $\&y$ belong to different memory block, thus we can infer that $bl(\&x) \neq bl(\&y)$, where $bl(\cdot)$ represents the memory block of a pointer.
 For two variables $x$ and $z$ that are initialized with different calls to \malloc, we can infer that $bl(\&x) \neq bl(\&z)$.
 
-\todo[inline]{Why do we need the disequalities}
-It is used in combination with other non-relational pointer analyses to augment their precision,
-as the two types of analyses infer different properties about the pointers.
+Analyzing diseuqualities in addition to equalities is crucial in order to have a precise
+analysis during an assigment.
+Given that assigning to a dereferenced pointer $*p$ overwrites a value in memory, after the assignment
+all values that are written at the same address as $p$ have changed.
+Therefore, all propositions that contain any value that may be equal to $p$ are no longer valid.
+The equalities inferred by \cpo\ are must-equalities that always hold at a specific program point,
+therefore there is no way to know if two pointers \emph{may} point to the same address.
+The disequalities allow us to know which pointer \emph{may not} point to the same address,
+thus allowing us to keep more information after an assignment.
+Additional disequalities are inferred from the block disequalities and also by
+exploiting information that derives from other non-relational pointer analyses.
+This is easily possible, as we implemented the \cpo\ analysis in \goblint, which already includes a non-relational pointer analysis.
+
+\section{Thesis Structure}
 
 This master's thesis is structured as follows:
 \begin{itemize}
-    \item \cref{chapter:introduction} introduces the motivation for the analysis and the structure of the thesis.
     \item \cref{chapter:background} gives an overview on the abstract interpretation method, which builds the theoretical foundation on which the \cpo\ analysis is designed.
     It also includes a brief description of the abstract interpreter \goblint\, where the \cpo\ analysis is implemented, and other analyses that collaborate with \cpo\ to augment the precision of the analysis.
     \item \cref{chapter:concrete_semantics} introduces a concrete semantics, which models C pointers and the content of the memory.
@@ -66,6 +76,7 @@ This master's thesis is structured as follows:
     comparing the analysis with the existing non-relational pointer analysis in \goblint, and also
     evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation.
     \item \cref{chapter:related_work} gives an overview of the related work in the field of congruence closure, pointer analysis and weakly relational analyses.
+    \item \cref{chapter:conclusion} concludes the thesis and gives an outlook on future work.
 \end{itemize}
 
 The implementation of \cpo\ is available under \todo{TODO}. Parts of this thesis have been submitted to \dots.
