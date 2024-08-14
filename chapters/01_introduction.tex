@@ -1,58 +1,57 @@
 % !TeX root = ../main.tex
-% Add the above to each chapter to make compiling the PDF easier in some editors.
 
 \chapter{Introduction}\label{chapter:introduction}
 
-The verification of software is crucial in safety-critical systems, in order to ensure the absence of bugs that could lead to catastrophic failures.
-Many safety critical programs are written in C, a language that is known for its low-level features and its lack of safety guarantees.
-Especially complex pointer manipulations could lead to bugs which are hard to detect.
-Automatic verification tools can help to find these bugs by using static analysis of programs,
-i.e, formally analyzing the behavior of the programs without executing them.
-% TODO: more concrete examples, like in the c2po paper
+Ensuring the reliability of software in safety-critical systems is essential to prevent bugs that could result in catastrophic failures.
+A significant number of safety-critical applications are developed in C, a language valued for its low-level capabilities but notorious for its lack of inherent safety features.
+In particular, complex pointer manipulations can introduce subtle bugs that are difficult to detect.
+Automatic verification tools can help to find these bugs by using static analysis,
+allowing for the formal analysis of the behavior of programs without executing them.
+% TODO: more concrete examples, like in the c2po paper?
 
-Existing methods for static analysis of pointers handle different aspects of the analysis.
-A common approach is to infer for each variable in the program the set of possible address values it can take.
-There exist fast, but relatively imprecise methods, as the one by \textcite{Steensgaard} and the one by \textcite{Andersen}, but also more precise approaches that compute for each program point and each variable the set of possible addresses it can point to, as the ones implemented, e.g., in \textsc{Mopsa} \cite{mopsa} and \goblint \cite{goblint}.
-On the other hand, there are extremely precise analyses, which can precisely analyze the shape of dynamic data structures in the heap,
-with the drawback of being less efficient and thus not applicable to large programs
-\cite{rivalpapers,kreiker,predator}.
+Current static analysis techniques for pointers address various facets of the problem.
+A common strategy involves inferring the set of possible address values that each variable in the program may hold.
+There are fast but relatively imprecise methods, such as those proposed by \textcite{Steensgaard} and \textcite{Andersen}, as well as more precise approaches that determine, for each program point and variable, the set of potential addresses it can point to.
+Examples of such methods are implemented in tools like \textsc{Mopsa} \cite{mopsa} and \goblint \cite{goblint}.
+Additionally, there are highly precise analyses capable of accurately modeling the shape of dynamic data structures in the heap.
+However, these methods are less efficient and thus not suitable for large-scale programs \cite{rivalpapers,kreiker,predator}.
 
 As a compromise between precision and efficiency,
-weakly relational analyses have been considered \cite{octagon,SeidlETS2023}.
-Relational analyses track relations between variables, such as equalities and disequalities.
-They are only \emph{weakly} relation as they only considers relations between pairs of variables and not an arbitrary number of variables.
-Thus, the advantage of these analyses is its simplicity, which allows for a polynomial-time implementation.
+weakly-relational analyses have been explored \cite{octagon,SeidlETS2023}.
+Relational analyses monitor relationships between variables, such as equalities and inequalities.
+They \emph{weakly}-relational analyses only considers relations between pairs of variables, rather than an arbitrary number of variables.
+The primary advantage of these analyses lies in their simplicity, which allows for a polynomial-time implementation.
 
-This master's thesis describes the design and implementation in \goblint\ of a weakly-relational pointer analysis,
-which we called \cpo, as it is an analysis on C programs and it is based on 2-Pointer Logic \cite{2pointer}.
-\cpo\ infers for each program point a set of disequalities that always hold at specific program points,
-for any possible execution of the program.
-The inferred propositions are expressed in the 2-Pointer Logic introduced by \textcite{2pointer}, which
-are equalities or disequalities built from pairs of terms that can
-include variable names, dereferencing, and pointer arithmetic.
-An example of such a property is \todo{example program}
+This master's thesis presents the design and implementation of a weakly relational pointer analysis in \goblint.
+The analysis focuses on C programs and is based on 2-Pointer Logic \cite{2pointer}, thus it is called \cpo.
+It infers, at each program point, a set of propositions that consistently hold across all possible executions.
+These inferred properties are expressed using the 2-Pointer Logic introduced by \textcite{2pointer},
+consisting of equalities or disequalities formed from pairs of terms,
+which may include variable names, dereferencing, and pointer arithmetic.
+An example of such a property is \todo{example program which is useful somehow}
 \begin{equation}\label{example:introduction}
     (x = \&y + 3) \land (*(\&z + 2) \neq \&y + 1),
 \end{equation}
-where $*$ is the dereferencing operator and $\&$ is the address-of operator.
+where $*$ is the dereferencing operator, $\&$ is the address-of operator and $x,y,z$ are program variables.
 
-Additionally to the propositions introduced by \textcite{2pointer}, so-called \emph{block disequalities}
-are introduced, which express that two pointers point to different memory objects, that we call \emph{blocks}.
-Memory objects are for example distinct variables or distinct memory blocks allocated by \malloc.
-For two variables $x$ and $y$, we know that their addresses $\&x$ and $\&y$ belong to different memory block, thus we can infer that $bl(\&x) \neq bl(\&y)$, where $bl(\cdot)$ represents the memory block of a pointer.
-For two variables $x$ and $z$ that are initialized with different calls to \malloc, we can infer that $bl(\&x) \neq bl(\&z)$.
+In addition to the propositions introduced by \textcite{2pointer}, this thesis introduces the concept of \emph{block disequalities},
+which express that two pointers refer to different memory objects, that we call \emph{blocks}.
+Memory objects are, for example, distinct variables or separate memory blocks allocated by \malloc.
+For two variables $x$ and $y$, we know that their addresses $\&x$ and $\&y$ belong to different memory blocks,
+allowing us to infer that $bl(\&x) \neq bl(\&y)$, where $bl(p)$ denotes the memory block of the pointer $p$.
+Moreover, for two variables $x$ and $z$ that are initialized with different \malloc calls,
+we can infer that $bl(x) \neq bl(z)$.
 
-Analyzing disequalities in addition to equalities is crucial in order to have a precise
-analysis during an assignment.
-Given that assigning to a dereferenced pointer $*p$ overwrites a value in memory, after the assignment
-all values that are written at the same address as $p$ have changed.
-Therefore, all propositions that contain any value that may be equal to $p$ are no longer valid.
-The equalities inferred by \cpo\ are must-equalities that always hold at a specific program point,
-therefore there is no way to know if two pointers \emph{may} point to the same address.
-The disequalities allow us to know which pointer \emph{may not} point to the same address,
-thus allowing us to keep more information after an assignment.
-Additional disequalities are inferred from the block disequalities and also by
-exploiting information that derives from other non-relational pointer analyses.
+Analyzing disequalities alongside equalities is essential for achieving a precise analysis during assignments.
+When assigning a value to a dereferenced pointer $*p$,
+the operation overwrites a value in memory, meaning that all values stored at the same address as
+$p$ are altered.
+As a result, any propositions involving values that may be equal to $p$ become invalid.
+The equalities inferred by \cpo\ are must-equalities, which are guaranteed to hold at a specific program point, but they do not indicate whether two pointers \emph{may} point to the same address.
+Disequalities, on the other hand, help determine which pointers \emph{may not} point to the same address,
+thus allowing us to retain more information after an assignment.
+Additional disequalities are inferred from the block disequalities and by
+leveraging information from other non-relational pointer analyses.
 This is easily possible, as we implemented the \cpo\ analysis in \goblint, which already includes a non-relational pointer analysis.
 
 \section{Thesis Structure}
@@ -75,7 +74,7 @@ This master's thesis is structured as follows:
     \item \cref{chapter:evaluation} evaluates the implementation of the \cpo\ analysis in \goblint\ on a set of benchmarks.,
     comparing the analysis with the existing non-relational pointer analysis in \goblint, and also
     evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation.
-    \item \cref{chapter:related_work} gives an overview of the related work in the field of congruence closure, pointer analysis and weakly relational analyses.
+    \item \cref{chapter:related-work} gives an overview of the related work in the field of congruence closure, pointer analysis and weakly-relational analyses.
     \item \cref{chapter:conclusion} concludes the thesis and gives an outlook on future work.
 \end{itemize}
 
