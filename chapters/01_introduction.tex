@@ -3,11 +3,11 @@
 \chapter{Introduction}\label{chapter:introduction}
 
 Ensuring the reliability of software in safety-critical systems is essential to prevent bugs that could result in catastrophic failures.
-A significant number of safety-critical applications are developed in C, a language valued for its low-level capabilities but notorious for its lack of inherent safety features.
+Many safety-critical applications are developed in C, a language valued for low-level capabilities but notorious for lacking inherent safety features.
 In particular, complex pointer manipulations can introduce subtle bugs that are difficult to detect.
 Automatic verification tools can help to find these bugs by using static analysis,
 allowing for the formal analysis of the behavior of programs without executing them.
-% TODO: more concrete examples, like in the c2po paper?
+\todo{more concrete examples, like in the c2po paper?}
 
 Current static analysis techniques for pointers address various facets of the problem.
 A common strategy involves inferring the set of possible address values that each variable in the program may hold.
@@ -19,12 +19,12 @@ However, these methods are less efficient and thus not suitable for large-scale 
 As a compromise between precision and efficiency,
 weakly-relational analyses have been explored \cite{octagon,SeidlETS2023}.
 Relational analyses monitor relationships between variables, such as equalities and inequalities.
-They \emph{weakly}-relational analyses only considers relations between pairs of variables, rather than an arbitrary number of variables.
+They \emph{weakly}-relational analyses only consider relations between pairs of variables, rather than an arbitrary number of variables.
 The primary advantage of these analyses lies in their simplicity, which allows for a polynomial-time implementation.
 
 This master's thesis presents the design and implementation of a weakly relational pointer analysis in \goblint.
 The analysis focuses on C programs and is based on 2-Pointer Logic \cite{2pointer}, thus it is called \cpo.
-It infers, at each program point, a set of propositions that consistently hold across all possible executions.
+At each program point, it infers a set of propositions that consistently hold across all possible executions.
 These inferred properties are expressed using the 2-Pointer Logic introduced by \textcite{2pointer},
 consisting of equalities or disequalities formed from pairs of terms,
 which may include variable names, dereferencing, and pointer arithmetic.
@@ -35,14 +35,14 @@ An example of such a property is \todo{example program which is useful somehow}
 where $*$ is the dereferencing operator, $\&$ is the address-of operator and $x,y,z$ are program variables.
 
 In addition to the propositions introduced by \textcite{2pointer}, this thesis introduces the concept of \emph{block disequalities},
-which express that two pointers refer to different memory objects, that we call \emph{blocks}.
+which express that two pointers refer to different memory objects that we call \emph{blocks}.
 Memory objects are, for example, distinct variables or separate memory blocks allocated by \malloc.
 For two variables $x$ and $y$, we know that their addresses $\&x$ and $\&y$ belong to different memory blocks,
 allowing us to infer that $bl(\&x) \neq bl(\&y)$, where $bl(p)$ denotes the memory block of the pointer $p$.
 Moreover, for two variables $x$ and $z$ that are initialized with different \malloc calls,
 we can infer that $bl(x) \neq bl(z)$.
 
-Analyzing disequalities alongside equalities is essential for achieving a precise analysis during assignments.
+Analyzing disequalities and blocking disequalities alongside equalities is essential for achieving a precise analysis during assignments.
 When assigning a value to a dereferenced pointer $*p$,
 the operation overwrites a value in memory, meaning that all values stored at the same address as
 $p$ are altered.
@@ -52,29 +52,29 @@ Disequalities, on the other hand, help determine which pointers \emph{may not} p
 thus allowing us to retain more information after an assignment.
 Additional disequalities are inferred from the block disequalities and by
 leveraging information from other non-relational pointer analyses.
-This is easily possible, as we implemented the \cpo\ analysis in \goblint, which already includes a non-relational pointer analysis.
+It is easily possible to implement the collaboration of the different analyses, as we implemented the \cpo\ analysis in \goblint, which already includes a non-relational pointer analysis.
 
 \section{Thesis Structure}
 
 This master's thesis is structured as follows:
 \begin{itemize}
-    \item \cref{chapter:background} gives an overview on the abstract interpretation method, which builds the theoretical foundation on which the \cpo\ analysis is designed.
-    It also includes a brief description of the abstract interpreter \goblint\, where the \cpo\ analysis is implemented, and other analyses that collaborate with \cpo\ to augment the precision of the analysis.
-    \item \cref{chapter:concrete_semantics} introduces a concrete semantics, which models C pointers and the content of the memory.
+    \item \cref{chapter:background} gives an overview of the abstract interpretation method, which builds the theoretical foundation on which the \cpo\ analysis is designed.
+    It also includes a brief description of the abstract interpreter \goblint\, where the \cpo\ analysis is implemented, and some \goblint\ analyses that collaborate with \cpo\ to augment the precision of the analysis.
+    \item \cref{chapter:concrete_semantics} introduces a concrete semantics that models C pointers, the memory content, and how program statements modify the values of pointers and the memory.
     \item \cref{chapter:2pointer} recalls the 2-Pointer Logic introduced in~\cite{2pointer} and extends it with block disequalities.
     A representation of the conjunctions is introduced, which automatically discovers the \emph{closure} of the conjunction,
     i.e., the set of all propositions that are implied by the conjunction.
     For example the proposition $*(\&z + 2) \neq x - 2$ is implied by the conjunction~\labelcref{example:introduction}.
-    This includes the \emph{quantitative congruence closure} of all the equalities that are present in the conjunction and
+    The implied conjunctions are computed using the  the \emph{quantitative congruence closure} of all the equalities that are present in the conjunction and
     the closure of the disequalities, using the rule that when $*t_1 \neq *t_2$, this implies that the pointers are also different, i.e., $t_1 \neq t_2$.
-    \item \cref{chapter:analysis} describes the abstract domain used in the analysis, and the corresponding operations that are needed to implement an abstract interpretation analysis, including the \emph{equals}, \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing} operations.
+    \item \cref{chapter:analysis} describes the abstract domain used in the analysis and the corresponding operations that are needed to implement an abstract interpretation analysis, including the \emph{equals}, \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing} operations.
     Two possible algorithms of the \emph{equals} and the \emph{join} operation are presented, which differ in
     their precision and efficiency.
-    Transfer functions are described, which define the behavior of the analysis during an assignment and a function call in the analyzed C code.
-    \item \cref{chapter:evaluation} evaluates the implementation of the \cpo\ analysis in \goblint\ on a set of benchmarks.,
+    Transfer functions are described, which define the behavior of the analysis during an assignment and a function call.
+    \item \cref{chapter:evaluation} evaluates the implementation of the \cpo\ analysis in \goblint\ on a set of benchmarks,
     comparing the analysis with the existing non-relational pointer analysis in \goblint, and also
     evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation.
-    \item \cref{chapter:related-work} gives an overview of the related work in the field of congruence closure, pointer analysis and weakly-relational analyses.
+    \item \cref{chapter:related-work} gives an overview of the related work on congruence closure, pointer analysis, and weakly-relational analyses.
     \item \cref{chapter:conclusion} concludes the thesis and gives an outlook on future work.
 \end{itemize}
 
