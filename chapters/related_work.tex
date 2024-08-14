@@ -69,13 +69,13 @@ the efficiency of less precises analysis, by only considering relations between 
 
 The idea of restricting the number of variables in relational analysis has been precedently used
 for other domains than pointers, such as numerical domains and strings.
-They are so-called \emph{weakly relational} analyses, as they only consider relations between pairs of variables.
-For example, for numerical analyses, the octagon domain~\cite{octagon} is a well-known weakly relational domain,
+They are so-called \emph{weakly-relational} analyses, as they only consider relations between pairs of variables.
+For example, for numerical analyses, the octagon domain~\cite{octagon} is a well-known weakly-relational domain,
 which tracks relationships between pairs of variables and a constant.
 It is a simplified version of the polyhedra domain~\cite{polyhedra}, which tracks relationships between arbitrary sets of variables.
 The same idea has been applied to non-numerical domains by \textcite{SeidlETS2023}.
 Here, we use this concept for pointer analysis, and we track equalities and disequalities between pairs of pointer expressions.
-The advantage of weakly relational analyses is their simplicity:
+The advantage of weakly-relational analyses is their simplicity:
 by focusing on simple propositions, we have been able to provide polynomial-time algorithms for the implementation of our analysis in an abstract interpreter.
 Therefore our analysis complements the computationally expensive full-fledged shape analyses.
 
