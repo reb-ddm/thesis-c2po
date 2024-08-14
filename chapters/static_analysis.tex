@@ -11,22 +11,22 @@ They will later be used in collaboration with the \cpo\ analysis to increase pre
 Abstract interpretation is a theoretical framework used to infer the properties of programs that are proven to be correct for all possible executions of the program.
 It was first introduced by Patrick and Radhia Cousot in 1977~\cite{ai}, and it has since been widely used in the field of static analysis.
 The analysis is performed at compile-time (i.e., statically) without requiring the program to be executed.
-This way, it is also possible, for example, to prove the non-termination of a program.
-The \cpo\ analysis described in this thesis, however, focuses on analyzing
-relationships between pairs of pointer variables at each program point.
-
-\subsection{Basic Principles}
-
-The analysis by abstract interpretation is constructed by replacing the concrete
+It consists in replacing the concrete
 semantics of a program with an abstract over-approximation of the program's behavior.
 This abstract semantics is a simplified version of the concrete semantics
 and can thus be computed efficiently.
+\ignore{This way, it is also possible, for example, to prove the non-termination of a program.
+  The \cpo\ analysis described in this thesis, however, focuses on analyzing
+  relationships between pairs of pointer variables at each program point.}
+
+\subsection{Basic Principles}
+
 \ignore{During the design of an abstract interpretation analysis,
   each step of the analysis is proven to be a correct over-approximation of the concrete behavior. Therefore, the result of the analysis is correct by construction.}
 
 During the analysis, the program is represented by a control flow graph (CFG), where each node represents a program point, and each edge represents a statement of the program,
 such as assignments, conditional branches, and function calls.
-A concrete state of the program is defined by functions that describe the values for each variable and each memory address.
+Each node $p$ in the CFG is associated with a concrete state $s_p$ that describes the values of the variables and the memory at that program point.
 \cref{fig:example-C-program} shows an example C program and \cref{fig:example-CFG} shows its corresponding CFG.
 
 \begin{figure}\begin{subfigure}{0.45\textwidth}
@@ -64,57 +64,55 @@ void main(){
 
 \end{figure}
 
-The concrete edge effect $\sem{l}$ describes the effect that an edge with label $l$ has on the concrete state.
-For example in \cref{fig:example-C-program}, the concrete state at node $p_2$ is $s_{p_2} = \angl{x \rightarrow 1}$.
-The state of node $p_3$ is equal to $\sem{x = x+1}\,s_{p_3} = \angl{x \rightarrow 2}$.
+The concrete edge effect $\sem{l}$ describes the alteration of the concrete state after an edge with label $l$.
+For example in \cref{fig:example-CFG}, the concrete state at node $p_2$ is $s_{p_2} = \angl{x \rightarrow 1}$.
+The state of node $p_3$ is equal to $s_{p_3} = \sem{x = x+1}\,s_{p_2} = \angl{x \rightarrow 2}$.\todo{$s_p$ is ugly. Find something else, like $X[p]$ for the abstract semantics}
 
-The abstract interpretation method consists in over-approximating the concrete semantics at each node in the CFG with an abstract description of the state.
+The abstract interpretation method consists of computing an abstract over-approximation of the concrete semantics at each node in the CFG with an abstract description of the state.
 Each analysis chooses an abstract domain that can characterize specific properties of interest of the program.
-For a node $p$ in the CFG; the abstract state is denoted as $X[p]$.
+For a node $p$ in the CFG, the abstract state is denoted as $X[p]$.
 For example, the abstract domain of the \cpo\ analysis is a conjunction of equalities between pointers.
-At each program point one such conjunction is computed, that over-approximates all possible concrete states at that point.
-Another simpler example would be an abstract domain that remembers for each variable if it is even or odd.
-An abstract state that only contains the variable $x$ is represented as $\angl{x \rightarrow \text{even}}$, $\angl{x \rightarrow \text{odd}}$ or $\angl{x \rightarrow \text{unknown}}$ if the parity of $x$ is not known.
+One conjunction is computed at each program point, over-approximating all possible concrete states.
+Another simpler example would be an abstract domain that tracks whether each variable is even or odd.
+An abstract state that only contains the variable $x$ is represented as $\angl{x \rightarrow \text{even}}$, $\angl{x \rightarrow \text{odd}}$,  or $\angl{x \rightarrow \text{unknown}}$ if the parity of $x$ is not known.
 
 The abstract edge effect $\sem{l}^\sharp$ describes the effect that an edge with label $l$ has on the abstract state.
-For example, in the CFG in \cref{fig:example-C-program}, the abstract state at node $p_2$ is $X[p_2] = \angl{x \rightarrow \text{odd}}$.
-After the edge with label $x = x+1$, the abstract state at node $p_3$ is $\sem{x = x+1}^\sharp\,X[p_3] = \angl{x \rightarrow \text{even}}$.
+It must be an over-approximation of the corresponding concrete effect $\sem{l}$.
+For example, in the CFG in \cref{fig:example-CFG}, the abstract state at node $p_2$ is $X[p_2] = \angl{x \rightarrow \text{odd}}$.
+After the edge with label $x = x+1$, the abstract state at node $p_3$ is $X[p_3] = \sem{x = x+1}^\sharp\,X[p_2] = \angl{x \rightarrow \text{even}}$.
 
-The elements of the abstract domain must form a complete lattice, i.e., there is a partial order $\sqsubseteq$ between the elements and for each subset of elements there is a least upper bound (join, $\join$) and a greatest lower bound (meet, $\meet$).
-Alternatively, if it is not possible to find the exact least upper bound, a sound over-approximation
-can be used instead, without losing the correctness of the analysis.
-A complete lattice also has a top element $\top$ and a bottom element $\bot$, which represent the least and greatest elements of the lattice, respectively.
-During the analysis, the value $\top$ represents an abstract state that hold no information
-about any variable, while $\bot$ represents a program point that is unreachable.
+The elements of the abstract domain must create a complete lattice, meaning that there is a partial order denoted by $\sqsubseteq$ between the components, and for every subset of elements, there must be a least upper bound (or join, denoted by $\join$) and a greatest lower bound (or meet, denoted by $\meet$).
+When it is impossible to find an exact computation of the meet or the join, a sound over-approximation can be used instead without losing the correctness of the analysis.
+Complete lattices also have a top element ($\top$) and a bottom element ($\bot$), representing the lattice's least and greatest elements, respectively.
+During the analysis, the value $\top$ represents an abstract state with no information about any variable, while $\bot$ represents an unreachable program point.
 
 The concrete and the abstract semantics are related by the concretization function $\gamma$ and the abstraction function $\alpha$.
-The concretization function maps an abstract element to the set of all concrete elements that are represented by the abstract element.
+The concretization function maps an abstract element to the set of all concrete elements represented by the abstract element.
 For example, the concretization of $\angl{x \rightarrow \text{even}}$ is the set of all concrete states where $x$ is an even number:
 \[
   \gamma(\angl{x \rightarrow \text{even}}) = \{\angl{x \rightarrow 0}, \angl{x \rightarrow 2}, \angl{x \rightarrow 4},\ldots\}
 \]
-The abstraction function maps a concrete element to the most precise abstract element that represent the concrete element. For example, $\alpha(\angl{x \rightarrow 0}) = \angl{x \rightarrow \text{even}}$.
+The abstraction function maps a concrete element to the most precise abstract element that represents the concrete element. For example, $\alpha(\angl{x \rightarrow 0}) = \angl{x \rightarrow \text{even}}$.
 
-The functions $\gamma$ and $\alpha$ form a Galois connection, that ensures the following property for each abstract state $a$ and each edge label $l$:
+The functions $\gamma$ and $\alpha$ form a Galois connection, which ensures the following property for each abstract state $a$ and each edge label $l$:
 \[
   \sem{l}\,\gamma(a) \subseteq \gamma(\sem{l}^\sharp\,a).
 \]
-This equality guarantees that the abstract edge effect of $l$ is an over-approximation
-of the concrete edge effect.
-Given that it holds for each $l$, we know that computing the semantics of a program in the abstract domain is a sound
-over-approximation of the concrete semantics.
+This property guarantees that the abstract edge effect $\sem{l}^\sharp$ is an over-approximation
+of the concrete edge effect $\sem{l}$.
+If this property can be proven for each $l$, then we know that computing the semantics of a program in the abstract domain is a sound over-approximation of the concrete semantics.
 
-\subsection{Program Analysis}
+\subsection{Abstract Effects of Program Statements}
 
 The analysis of a program via abstract interpretation is done by traversing the CFG and computing the abstract state at each node.
 We begin from the entry point of the \textsf{main} function in the CFG, which has the initial abstract state $\top$.
-Then each edge is traversed and the abtract effects of the edges are applied to the abstract state.
+Then each edge is traversed and the abstract effects of the edges are applied to the abstract state.
 If the abstract state at a node changes, the analysis must sometimes re-visit nodes multiple times.
-The abtract effects of each type of edge is described in the following.
+The abstract effects of each type of edge is described in the following.
 
 \subsubsection{Assignment}
 The abstract effect of an assignment $\sem{x = e}^\sharp$ computes the change in the abstract state when assigning the expression $e$ to the variable $x$.
-For example, if $x$ and $e$ are pointers, the \cpo\ analysis removes all old equalities that were talking about $x$, as the vaue of $x$ might have changed.
+For example, if $x$ and $e$ are pointers, the \cpo\ analysis removes all old equalities that were talking about $x$, as the value of $x$ might have changed.
 Then it adds the equality $x = e$ to the abstract state.
 \subsubsection{Conditionals}
 When there is an if statement with the condition $c$, the CFG is split into two branches, one for the true branch ($Pos(c)$) and one for the false branch ($Neg(c)$).
