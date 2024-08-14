@@ -1,70 +1,68 @@
 \chapter{Background}\label{chapter:background}
 
-The \cpo\ analysis described in this master's thesis is a static analysis that is based on abstract interprestation.
+The \cpo\ analysis described in this master's thesis is based on the abstract interpretation method.
 Before going into the details of the structure of the \cpo\ analysis,
-it is useful to explain the key concepts of abstract interpretation and how it can be used
-to design static program analyses.
-This chapter also presents the \goblint\ abstract analyzer, where the \cpo\ analysis was implemented, and some of its analyzes that will later be
-used by the \cpo\ analysis.
+it is helpful to explain the fundamental concepts of abstract interpretation and how it can be used to design static program analyses.
+This chapter also presents the \goblint\ abstract analyzer, where \cpo\ was implemented, as well as existing non-relational pointer analysis \emph{MayPointTo} and the analysis of tainted variables \emph{MayBeTainted}, which are implemented in \goblint.
+They will later be used in collaboration with the \cpo\ analysis to increase precision.
 
 \section{Abstract Interpretation}
 
-Abstract interpretation is a theoretical framework that is used to infer properties about programs
-that are proven to be correct for all possible executions of the program.
-It was first introduced by Patrick and Radhia Cousot in 1977~\cite{TODO} and is since then widely used
-for program analysis and also other things. (TODO)
-The analysis is done at compile-time (=statically), without having to execute the program.
-This way it is also possible, for example, to prove the non-termination of a program.
+Abstract interpretation is a theoretical framework used to infer the properties of programs that are proven to be correct for all possible executions of the program.
+It was first introduced by Patrick and Radhia Cousot in 1977~\cite{ai}, and it has since been widely used in the field of static analysis.
+The analysis is performed at compile-time (i.e., statically) without requiring the program to be executed.
+This way, it is also possible, for example, to prove the non-termination of a program.
 The \cpo\ analysis described in this thesis, however, focuses on analyzing
 relationships between pairs of pointer variables at each program point.
 
-\subsection{Abstraction of the Concrete Semantics}
+\subsection{Basic Principles}
 
 The analysis by abstract interpretation is constructed by replacing the concrete
 semantics of a program with an abstract over-approximation of the program's behavior.
 This abstract semantics is a simplified version of the concrete semantics
-and can thus be computed in an efficient way.
-Each step of the analysis needs to be proven proven to be a correct over-approximation of the concrete behaviour,
-therefore the analysis is correct by construction.
+and can thus be computed efficiently.
+\ignore{During the design of an abstract interpretation analysis,
+  each step of the analysis is proven to be a correct over-approximation of the concrete behavior. Therefore, the result of the analysis is correct by construction.}
 
-The program is represented by a control flow graph (CFG), where each node represents a program point and each edge represents a statement of the program, such as assignments, conditional branches and function calls.
+During the analysis, the program is represented by a control flow graph (CFG), where each node represents a program point, and each edge represents a statement of the program,
+such as assignments, conditional branches, and function calls.
 A concrete state of the program is defined by functions that describe the values for each variable and each memory address.
-\cref{fig:example-C-program} shows an example C program and \cref{ex:cfg} shows its corresponding CFG.
+\cref{fig:example-C-program} shows an example C program and \cref{fig:example-CFG} shows its corresponding CFG.
 
-\begin{figure}\begin{minipage}{0.45\textwidth}
+\begin{figure}\begin{subfigure}{0.45\textwidth}
 
-\begin{minted}{C}
-main(){
+    \begin{minted}{C}
+void main(){
   int x = 1;
   x = x + 1;
 }
 \end{minted}
+    \caption{A simple C program.}\label{fig:example-C-program}
+  \end{subfigure}
+  \begin{subfigure}{0.45\textwidth}
 
-\end{minipage}
-\begin{minipage}{0.45\textwidth}
+    \begin{tikzpicture}[
+        node distance=2cm,
+        on grid,
+        auto,
+        state/.style={circle, draw, minimum size=2em, font=\small}
+      ]
 
-  \begin{tikzpicture}[
-    node distance=2cm,
-    on grid,
-    auto,
-    state/.style={circle, draw, minimum size=2em, font=\small}
-  ]
+      \node[state, initial, initial text=main] (p1) {$p_1$};
+      \node[state, below=of p1] (p2) {$p_2$};
+      \node[state, accepting, below=of p2] (p3) {$p_3$};
 
-  \node[state, initial, initial text=main] (p1) {$p_1$};
-  \node[state, below=of p1] (p2) {$p_2$};
-  \node[state, accepting, below=of p2] (p3) {$p_3$};
+      \path[->] (p1) edge node[right] {$x = 1$} (p2)
+      (p2) edge node[right] {$x = x + 1$} (p3);
 
-  \path[->] (p1) edge node[right] {$x = 1$} (p2)
-            (p2) edge node[right] {$x = x + 1$} (p3);
-
-  \end{tikzpicture}
-\end{minipage}
+    \end{tikzpicture}
+    \caption{A simple control flow graph.}\label{fig:example-CFG}
+  \end{subfigure}
 
   \caption{An example of a C program and its corresponding CFG.}
-\label{fig:example-C-program}
+
 
 \end{figure}
-\todo{make it a) and b) figure}
 
 The concrete edge effect $\sem{l}$ describes the effect that an edge with label $l$ has on the concrete state.
 For example in \cref{fig:example-C-program}, the concrete state at node $p_2$ is $s_{p_2} = \angl{x \rightarrow 1}$.
@@ -93,13 +91,13 @@ The concrete and the abstract semantics are related by the concretization functi
 The concretization function maps an abstract element to the set of all concrete elements that are represented by the abstract element.
 For example, the concretization of $\angl{x \rightarrow \text{even}}$ is the set of all concrete states where $x$ is an even number:
 \[
-\gamma(\angl{x \rightarrow \text{even}}) = \{\angl{x \rightarrow 0}, \angl{x \rightarrow 2}, \angl{x \rightarrow 4},\ldots\}
+  \gamma(\angl{x \rightarrow \text{even}}) = \{\angl{x \rightarrow 0}, \angl{x \rightarrow 2}, \angl{x \rightarrow 4},\ldots\}
 \]
 The abstraction function maps a concrete element to the most precise abstract element that represent the concrete element. For example, $\alpha(\angl{x \rightarrow 0}) = \angl{x \rightarrow \text{even}}$.
 
 The functions $\gamma$ and $\alpha$ form a Galois connection, that ensures the following property for each abstract state $a$ and each edge label $l$:
 \[
-\sem{l}\,\gamma(a) \subseteq \gamma(\sem{l}^\sharp\,a).
+  \sem{l}\,\gamma(a) \subseteq \gamma(\sem{l}^\sharp\,a).
 \]
 This equality guarantees that the abstract edge effect of $l$ is an over-approximation
 of the concrete edge effect.
@@ -131,7 +129,7 @@ The abstract value of a program point that has multiple incoming edges is
 the least upper bound of the set of all abstract states of the incoming edges.
 Formally, the abstract state $X[p]$ of a node $p$ is defined as
 \[
-X[p] \sqsupseteq \bigsqcup \{\sem{l}^\sharp\,X[p'] \mid (p,l,p') \text{ is an edge from $p$ to $p'$ in the CFG labeled with $l$}\}.
+  X[p] \sqsupseteq \bigsqcup \{\sem{l}^\sharp\,X[p'] \mid (p,l,p') \text{ is an edge from $p$ to $p'$ in the CFG labeled with $l$}\}.
 \]
 
 This generates an inequality for each program point.
@@ -166,47 +164,47 @@ This is visualized in \cref{fig:function-cfg}.
 \begin{figure}
   \begin{center}
 
-\begin{tikzpicture}[
-  node distance=1cm and 4cm,
-  every node/.style={font=\small},
-  call/.style={->, >=Stealth, thick, dashed, blue},
-  combine/.style={->, >=Stealth, thick, dashed, red},
-  block/.style={draw, circle,align=center}
-]
+    \begin{tikzpicture}[
+        node distance=1cm and 4cm,
+        every node/.style={font=\small},
+        call/.style={->, >=Stealth, thick, dashed, blue},
+        combine/.style={->, >=Stealth, thick, dashed, red},
+        block/.style={draw, circle,align=center}
+      ]
 
-% Nodes for main function
-\node[block, initial, initial text=main] (start) {$p_0$};
-\node[below=of start] (usw1) {...};
-\node[block, below=of usw1] (beforecall) {$p_1$};
-\node[block, below=of beforecall] (aftercall) {$p_2$};
-\node[below=of aftercall] (usw2) {...};
-\node[block, below=of usw2] (end) {$p_3$};
+      % Nodes for main function
+      \node[block, initial, initial text=main] (start) {$p_0$};
+      \node[below=of start] (usw1) {...};
+      \node[block, below=of usw1] (beforecall) {$p_1$};
+      \node[block, below=of beforecall] (aftercall) {$p_2$};
+      \node[below=of aftercall] (usw2) {...};
+      \node[block, below=of usw2] (end) {$p_3$};
 
-% Nodes for function f
-\node[block, right=of usw1, initial right, initial text=f] (fstart) {$p_4$};
-\node[below=of fstart] (usw3) {...};
-\node[block, below=of usw3] (fend) {$p_5$};
+      % Nodes for function f
+      \node[block, right=of usw1, initial right, initial text=f] (fstart) {$p_4$};
+      \node[below=of fstart] (usw3) {...};
+      \node[block, below=of usw3] (fend) {$p_5$};
 
-% Edges for main function
-\draw[->] (start) -- (usw1);
-\draw[->] (usw1) -- (beforecall);
-\draw[->] (beforecall) -- node[right] {f(...)} (aftercall);
-\draw[->] (aftercall) -- (usw2);
-\draw[->] (usw2) -- (end);
+      % Edges for main function
+      \draw[->] (start) -- (usw1);
+      \draw[->] (usw1) -- (beforecall);
+      \draw[->] (beforecall) -- node[right] {f(...)} (aftercall);
+      \draw[->] (aftercall) -- (usw2);
+      \draw[->] (usw2) -- (end);
 
-% Edges for function f
-\draw[->] (fstart) -- (usw3);
-\draw[->] (usw3) -- node[right] {return} (fend);
+      % Edges for function f
+      \draw[->] (fstart) -- (usw3);
+      \draw[->] (usw3) -- node[right] {return} (fend);
 
-% Enter and combine edges
-\draw[call] (beforecall.east) to node[above] {$\enter(s_{p_1})$} (fstart.west);
-\draw[combine] (fend.west) to node[below] {$\combine(s_{p_1},s_{p_5})$} (aftercall.east);
+      % Enter and combine edges
+      \draw[call] (beforecall.east) to node[above] {$\enter(s_{p_1})$} (fstart.west);
+      \draw[combine] (fend.west) to node[below] {$\combine(s_{p_1},s_{p_5})$} (aftercall.east);
 
-\end{tikzpicture}
+    \end{tikzpicture}
 
 
-\end{center}
-\caption{Visualization of the CFG of a program during a function call.}\label{fig:function-cfg}
+  \end{center}
+  \caption{Visualization of the CFG of a program during a function call.}\label{fig:function-cfg}
 \end{figure}
 
 
