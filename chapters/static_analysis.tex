@@ -9,7 +9,7 @@ They will later be used in collaboration with the \cpo\ analysis to increase pre
 \section{Abstract Interpretation}
 
 Abstract interpretation is a theoretical framework used to infer the properties of programs that are proven to be correct for all possible executions of the program.
-It was first introduced by Patrick and Radhia Cousot in 1977~\cite{ai}, and it has since been widely used in the field of static analysis.
+It was first introduced by Patrick and Radhia Cousot in 1977~\cite{ai,aibook}, and it has since been widely used in the fields of static analysis \cite{ai-static-analysis} and compiler construction \cite{ai-compiler-design}.
 The analysis is performed at compile-time (i.e., statically) without requiring the program to be executed.
 It consists in replacing the concrete
 semantics of a program with an abstract over-approximation of the program's behavior.
@@ -157,12 +157,12 @@ These edges are visualized in \cref{fig:function-cfg}, where $p_4$ is the first 
         node distance=1cm and 4cm,
         every node/.style={font=\small},
         call/.style={->, >=Stealth, thick, dashed, blue},
-        combine/.style={->, >=Stealth, thick, dashed, red},
+        combine/.style={>=Stealth, thick, dashed, red},
         block/.style={draw, circle,align=center}
       ]
 
       % Nodes for main function
-      \node[block, initial, initial text=main] (start) {$p_0$};
+      \node[block, initial, initial text=main()] (start) {$p_0$};
       \node[below=of start] (usw1) {...};
       \node[block, below=of usw1] (beforecall) {$p_1$};
       \node[block, below=of beforecall] (aftercall) {$p_2$};
@@ -170,7 +170,7 @@ These edges are visualized in \cref{fig:function-cfg}, where $p_4$ is the first 
       \node[block, below=of usw2] (end) {$p_3$};
 
       % Nodes for function f
-      \node[block, right=of usw1, initial right, initial text=f] (fstart) {$p_4$};
+      \node[block, right=of usw1, initial right, initial text=f()] (fstart) {$p_4$};
       \node[below=of fstart] (usw3) {...};
       \node[block, below=of usw3] (fend) {$p_5$};
 
@@ -187,7 +187,8 @@ These edges are visualized in \cref{fig:function-cfg}, where $p_4$ is the first 
 
       % Enter and combine edges
       \draw[call] (beforecall.east) to node[above] {$\enter(s_{p_1})$} (fstart.west);
-      \draw[combine] (fend.west) to node[below] {$\combine(s_{p_1},s_{p_5})$} (aftercall.east);
+      \draw[combine] (beforecall) ++(0,-1.1cm) .. controls +(right:1cm) and +(down:0.5cm) .. (aftercall.east);
+      \draw[->, combine] (fend.west) to node[below] {$\combine(s_{p_1},s_{p_5})$} (aftercall.east);
 
     \end{tikzpicture}
 
