@@ -143,8 +143,8 @@ The narrowing operation over-approximates the meet operation to partially regain
 
 \subsubsection{Interprocedural Analysis}
 
-We discuss a concrete semantic for functions before diving into the abstract effects of a function call.
-The concrete semantics of a function depend not only on the function definition but also on the values of the parameters, global variables, and the state of the memory at the time when the function is called.
+Before diving into the abstract effects of a function call, we discuss a concrete semantic for functions.
+The concrete semantics of a function depends not only on the function definition but also on the values of the parameters, global variables, and the state of the memory at the time when the function is called.
 Therefore, a separate CFG is created for each possible value that the parameters and memory can have.
 An edge is added from the caller CFG to the function's entry point, labeled with the $\enter$ function, and one from the entry point
 of the function to the caller CFG, labeled with the $\combine$ function.
