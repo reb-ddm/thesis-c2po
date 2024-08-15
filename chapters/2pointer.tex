@@ -7,19 +7,7 @@ Then we discuss the extension of the domain to include additional terms and the 
 which will be needed later for the analysis.
 
 The 2-Pointer Logic was first introduced by Seidl et al.\ in~\cite{2pointer} and was later extended with an additional type of proposition.
-The propositions are made up of terms, formed from address constants and auxiliaries using the addition of constant offsets and dereferencing.
-The address constants represent addresses of program variables.
-The auxiliaries are variables whose address is never taken, therefore
-we know of these variables that their address cannot be reached from other terms using address arithmetic or dereferencing.
-Only terms whose C type is a pointer type are considered by the analysis.
-Let $\X$,$\A$ be disjoint finite sets of variables names and auxiliaries.\todo{move this to concrete semantics}
-The terms $t$ are defined by the following grammar:
-
-\[
-    t\,{::=}\,A \mid \&x \mid *(z+t)
-\]
-where $A\in \A$ is an auxiliary, $x \in \X$ is a variable with address $\&x$ and $z \in \Z$ is an integer.
-We call terms $\&x$ or $A$ \emph{atoms}.
+The propositions are made up of terms as described before....
 Given a linear order $<$ on atoms, it can be extended to an order on terms by defining:
 \begin{itemize}
     \item $a < *(z+t)$ whenever $a$ is an atom and
@@ -38,19 +26,7 @@ We use $*t$ as an abbreviation for $*(0+t)$ and $x$ as an abbreviation for $*(0+
 For a conjunction $\Psi$ of propositions, we denote the conjunctions of all the equalities in $\Psi$ by $\Psi_{=}$, the conjunction of disequalities between terms by $\Psi_{\neq}$ and the set of block disequalities of the type $bl(t_1) \neq bl(t_2)$ by $\Psi_{bl}$.
 
 
-We also define the operator $(+) : \Z \rightarrow \ZZ \rightarrow \ZZ$ on addresses, where $z + (a,b) = (a, z+b)$.
-Here, $z$ is added to the address offset, thus modeling the fact that it's not possible to leave a memory block using address arithmetic.
 Moreover, we define the function $bl : \ZZ \rightarrow \Z$ that returns the address block identifier of an address, where $bl(a,b) = a$.
-
-A term $t$ is interpreted as the value $\sem{t}(\rho, \nu, \mu)$ defined by:
-\[
-  \begin{array}{lll}
-    \sem{\& x}\,(\rho,\nu,\mu)   & = & \rho\,x                          \\
-    \sem{A}\,(\rho,\nu,\mu)      & = & \nu\,A                           \\
-    \sem{*(z+t)}\,(\rho,\nu,\mu) & = & \mu\,(z+\sem{t}\,(\rho,\nu,\mu)) \\
-  \end{array}
-\]
-
 The validity is defined as:
 \[
   \begin{array}{ll}

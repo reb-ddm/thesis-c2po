@@ -1,33 +1,49 @@
-\chapter{Concrete Semantics} \label{chapter:concrete_semantics}
+\chapter{Concrete Semantics}\label{chapter:concrete_semantics}
 
-We model the memory as a two-dimensional address space $\ZZ$,
-where the first element of the address is the \emph{block identifier} and the second element is the \emph{offset} within the block.
-Each call to \malloc\ returns an address with a fresh block identifier, and each variable is written in memory in a unique memory block,
-which is distinct from the block of any other variable.
+This chapter will describe the model of concrete program states used in this thesis and its semantics during assignments and function calls.
 
-The semantics can be described by the following three functions:
+The concrete state consists of the memory content and the values of the variables.
+The memory is modeled as a two-dimensional address space $\ZZ$, where each address is a pair of a \emph{block identifier} and an \emph{offset} within the block.
+Each call to \malloc\ returns an address with a fresh block identifier, and each variable is in a unique memory block of the memory, distinct from the block of any other variable.
+
+We call \emph{auxiliaries} the variables whose address is never taken in the current program, therefore we know of these variables that their address cannot be reached from other terms using address arithmetic or dereferencing.
+Let $\X$ and $\A$ be disjoint finite sets of non-auxiliary variables and auxiliaries.
+A concrete state is composed of the following three functions:
 \begin{itemize}
     \item $\rho : \X \rightarrow \ZZ$ assigns an address to each variable,
     \item $\nu : \mathcal{A} \rightarrow \ZZ$ assigns an address to each auxiliary, and
     \item $\mu : \ZZ \rightarrow \ZZ$ assigns a value to each address.
 \end{itemize}
-We are only interested in analyzing the values of pointers and addresses, therefore we interpret each value stored in the memory and in the auxiliaries as an address.
+We are only interested in analyzing the values of pointers and addresses. Therefore, we interpret each value stored in the memory and the auxiliaries as an address.
+
+In order to define the effects of program statements, we first need to describe the meaning of C expressions.
+\cpo\ considers only expressions whose C type is a pointer type and which are equivalent to a term used in the 2-Pointer Logic~\cite{2pointer}.
+This logic is the basis of the \cpo\ analysis and will be described in \cref{chapter:2pointer}.
+The terms we consider are formed from auxiliaries and addresses of program variables, using constant offsets and dereferencing.
+They are defined by the following grammar:
+\[
+    t\,{::=}\,A \mid \&x \mid *(z+t),
+\]
+where $A\in \A$ is an auxiliary, $x \in \X$ is a variable with address $\&x$ and $z \in \Z$ is an integer.
+We call terms $\&x$ or $A$ \emph{atoms}.
+
+A term $t$ in the C code is interpreted as the value $\sem{t}(\rho, \nu, \mu)$ defined by:
+\[
+    \begin{array}{lll}
+        \sem{\& x}\,(\rho,\nu,\mu)   & = & \rho\,x,                          \\
+        \sem{A}\,(\rho,\nu,\mu)      & = & \nu\,A,                           \\
+        \sem{*(z+t)}\,(\rho,\nu,\mu) & = & \mu\,(z+\sem{t}\,(\rho,\nu,\mu)), \\
+    \end{array}
+\]
+where the operator $(+) : \Z \rightarrow \ZZ \rightarrow \ZZ$ on addresses is defined as $z + (a,b) = (a, z+b)$.
+Here, $z$ is added to the address offset, thus modeling that it is impossible to leave a memory block using address arithmetic.
 
 \section{Assignment}
 
 We consider assignments of the form $s_1\,{:=}\,s_2$ where $s_1$ is either an auxiliary $B \in \mathcal{A}$ or a pointer term $*(z+t)$, while $s_2$ is either the symbol $?$, which represents an unknown value, or is of the form $z_1 + t$ for some term $t$, or \malloc, which assigns an address from a fresh block to $s_1$.
-A fresh address block is an address block identifier that does not occur as a mapping in any of the functions $\rho$, $\nu$ or $\mu$.
-More precisely we define the property $fresh$ as:
+A \emph{fresh} address block $a$ is an address block identifier that does not occur as a mapping in any of the functions $\rho$, $\nu$, or $\mu$, i.e., for each result $(a',b')$ of the functions $\rho$, $\nu$, or $\mu$, we have $a \neq a'$.
 
-\[ \begin{array}{c}
-        fresh(a, (\rho,\nu,\mu)) \equiv
-        (\nexists A\in \A . bl(\nu(A)) = a      \\
-        \land \nexists x\in \X. bl(\rho(x)) = a \\
-        \land \nexists a'\in \ZZ . bl(\mu(a')) = a)
-    \end{array}
-\]
-
-For a set $H$ of models $(\rho,\nu,\mu)$, we define the concrete semantics of the assignment
+For a set $H$ of states $(\rho,\nu,\mu)$, we define the concrete semantics of the assignment
 $s_1\,{:=}\,s_2$ as the transformation
 $\sem{s_1\,{:=}\,s_2}\,H$, where:
 \[
@@ -46,11 +62,11 @@ $\sem{s_1\,{:=}\,s_2}\,H$, where:
         \sem{B\,{:=}\,\malloc}\,H =                                                                   \\
         \quad \{(\rho,\nu\oplus\{B\mapsto (a,0)\},\mu)\mid
         (\rho,\nu,\mu)\in H, a\in \Z,
-        fresh(a, (\rho,\nu,\mu))\}\}                                                                  \\
+        a \text{ is a \emph{fresh}}\}                                                                 \\
         \sem{*(z+t)\,{:=}\,\malloc}\,H =
         \\
         \quad\{(\rho,\nu,\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}\mid
-        (\rho,\nu,\mu)\in H, a\in \Z, fresh(a, (\rho, \nu, \mu))\}.
+        (\rho,\nu,\mu)\in H, a\in \Z, a \text{ is a \emph{fresh}}\}.
     \end{array}
 \]
 Here,
@@ -61,24 +77,25 @@ setting the value of $f$ for $m$ to $z$.
 \section{Interprocedural Semantics}
 
 Let $f$ be a function with parameters $p_1, \ldots, p_n$.
-Assume that there is an edge of the CFG is labeled with $f(e_1, \ldots, e_n)$,
-and the concrete state at the node where the edge starts is $(\rho, \nu, \mu)$.
-The concrete semantics of the
-function call is defined by the function $\enter\,(\rho, \nu, \mu)$, which returns the state $(\rho', \nu', \mu')$, defined as follows:
-\begin{enumerate}
+Assume that there is an edge of the CFG labeled $f(e_1, \ldots, e_n)$,
+and the concrete state before the function call is $(\rho, \nu, \mu)$.
+The initial state of the function call is defined by the function $\enter\,(\rho, \nu, \mu)$, which returns the state $(\rho', \nu', \mu')$, defined as follows:
+\begin{itemize}
     \item $\rho'\,x = \rho\,x$ for all global variables $x \in \X$.
-    For the local variables of the caller, $\rho'$ does not contain mappings.
-          Additionally, for each parameter $p_i$ of the function which is not an auxiliary, $\rho'\,p_i = \sem{e_i}$, where $\sem{e_i}$ is the concrete value of the expression $e_i$ in the state $(\rho, \nu, \mu)$.
-    \item $\nu'$ is defined correspondingly: it contains the entries of $\nu'\,A = \nu\,A$ for all global variables $A \in \A$ and $\nu'$ does not contain a mapping for the local variables of the caller.
-    For each parameter $p_i$ of the function, $\nu'\,p_i=\sem{e_i}$, if $p_i$ is an auxiliary.
+          For the caller's local variables, $\rho'$ is not defined.
+          Additionally, for each parameter $p_i \in \X$ of the function, $\rho'\,p_i = \sem{e_i}$.
+    \item $\nu'$ is defined correspondingly: it contains the entries of $\nu'\,A = \nu\,A$ for all global variables $A \in \A$, and it is not defined for the caller's local variables.
+          For each auxiliary parameter $p_i \in \A$ of the function, $\nu'\,p_i=\sem{e_i}$.
     \item $\mu'\,(a,b)=\mu\,(a,b)$ for each address $(a,b)$.
-\end{enumerate}
+\end{itemize}
 
-At the end of the function, let the resulting state of the function be $(\rho', \nu', \mu')$.
-The concrete semantics of the edge form the return of the function to the caller is defined by the function $\combine\,(\rho, \nu, \mu)\,(\rho', \nu', \mu')$, which returns the state $(\rho'', \nu'', \mu'')$, defined as follows:
-\begin{enumerate}
+At the end of the function, let the resulting state be $(\rho', \nu', \mu')$ and the caller state before the function call  $(\rho, \nu, \mu)$.
+The concrete semantics of the edge returning from the function to the caller is defined by $\combine\,(\rho, \nu, \mu)\,(\rho', \nu', \mu')$, which returns the state $(\rho'', \nu'', \mu'')$:
+\begin{itemize}
     \item $\rho''\,x = \rho'\,x$ for all global variables $x \in \X$ and $\rho''\,x = \rho\,x$ for the local variables of the caller.
-    The local variables of the function are not present in $\rho''$.
-    \item Correspondingly, $\nu''\,A = \nu'\,A$ for all global auxiliary variables $A \in \X$ and $\nu''\,A = \nu\,A$ for the local variables of the caller.
+          The local variables of the function are not defined in $\rho''$.
+    \item Correspondingly, $\nu''\,A = \nu'\,A$ for all global auxiliary variables $A \in \X$ and $\nu''\,A = \nu\,A$ for the local variables of the caller, and $\nu''$ is not defined for the function's local variables.
     \item $\mu''\,(a,b)=\mu'\,(a,b)$ for each address $(a,b)$.
-\end{enumerate}
+\end{itemize}
+
+\todo{maybe say callee instead of function?}
