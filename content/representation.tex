@@ -32,20 +32,17 @@ Thus, offsets are represented in bits rather than bytes.
 The analyzer \goblint\ can determine the bit offsets of fields within a struct in most cases.
 \cpo\ leverages \goblint\ to find these offsets, and in the rare instances where \goblint\ cannot determine the exact offset, the expression is treated as unknown.
 
-\begin{figure}
-    \begin{centering}
-        \begin{minted}{C}
-struct S {
-int first;
-int arr[5];
-};
-    \end{minted}
-        \caption{Example of a C struct.}\label{fig:struct}\
-    \end{centering}
-\end{figure}
 
 \begin{example}
-    Consider the C struct of \cref{fig:struct}, and the following C variable declaration: \textsf{struct S x[3][2];}.
+    Consider this C struct:
+    \begin{minted}{C}
+        struct S {
+            int first;
+            int arr[5];
+        };
+                \end{minted}
+
+    and the following C variable declaration: \textsf{struct S x[3][2];}.
     The expression \textsf{x[2][1].arr[4]} is treated as $*(\&x + 1120)$.
     The size $s$ of an array element of $x$ is the size of the struct, i.e., $192$ bits.
     The offset of the struct $x[2][1]$ is $(2 \cdot m + 1) \cdot s = 960$, because $m = 2$ is the second dimension of the array $x$.
