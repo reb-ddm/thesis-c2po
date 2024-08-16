@@ -18,6 +18,8 @@
   minnames=3,
   maxbibnames=99,
   giveninits,
+  maxnames=1, minnames=1,
+  maxbibnames=99, minbibnames=99,
   uniquename=init]{biblatex} % TODO: adapt citation style
 \usepackage{graphicx}
 % \usepackage{scrhack} % necessary for listings package
@@ -39,10 +41,10 @@
 
 \usepackage[hidelinks]{hyperref} % hidelinks removes colored boxes around references and links
 \AtBeginDocument{%
-	\hypersetup{
-		pdftitle=\getTitle,
-		pdfauthor=\getAuthor,
-	}
+  \hypersetup{
+    pdftitle=\getTitle,
+    pdfauthor=\getAuthor,
+  }
 }
 \usepackage[capitalize]{cleveref}
 
@@ -52,22 +54,22 @@
 % for fachschaft_print.pdf
 \makeatletter
 \if@twoside
-	\typeout{TUM-Dev LaTeX-Thesis-Template: twoside}
+  \typeout{TUM-Dev LaTeX-Thesis-Template: twoside}
 \else
-	\typeout{TUM-Dev LaTeX-Thesis-Template: oneside}
+  \typeout{TUM-Dev LaTeX-Thesis-Template: oneside}
 \fi
 \makeatother
 
 \addto\extrasamerican{
-	\def\lstnumberautorefname{Line}
-	\def\chapterautorefname{Chapter}
-	\def\sectionautorefname{Section}
-	\def\subsectionautorefname{Subsection}
-	\def\subsubsectionautorefname{Subsubsection}
+  \def\lstnumberautorefname{Line}
+  \def\chapterautorefname{Chapter}
+  \def\sectionautorefname{Section}
+  \def\subsectionautorefname{Subsection}
+  \def\subsubsectionautorefname{Subsubsection}
 }
 
 \addto\extrasngerman{
-	\def\lstnumberautorefname{Zeile}
+  \def\lstnumberautorefname{Zeile}
 }
 
 % Themes
