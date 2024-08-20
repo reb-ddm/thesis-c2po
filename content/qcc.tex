@@ -1,88 +1,80 @@
-\section{Quantitative congruence closure}\label{chapter:qcc}
+\section{Quantitative Congruence Closure}\label{chapter:qcc}
 
-Given a conjunction $\Psi$ of propositions, the quantitative congruence closure infers all equalities that are logically implied by $\Psi$.
-As there are infinitely many such equalities, we consider only the equalities that contain terms from a specific set $\T$ of terms.
-The set $\T$ must be subterm-closed and contain at least all the terms that occur in $\Psi$.
-The equalities implied by $\Psi$ are described by the quantitative equivalence relation $\equivp$,
-which is the smallest equivalence relation $\equivp$ that satisfies these rules:
+Given a conjunction $\Psi$ of propositions, we want to find all equalities logically implied by $\Psi$.
+As infinitely many such equalities exist, we only consider the ones containing terms exclusively from a specific set $\T$.
+The set $\T$ must be subterm-closed and contain at least all the terms in $\Psi$.
+The equalities implied by $\Psi$ containing terms from $\T$ are described by the quantitative equivalence relation $\equivp$, which is the smallest equivalence relation $\equivp$ satisfying these rules:
 \begin{enumerate}[label={[E\arabic*]}, ref={[E\arabic*]}]
   \setcounter{enumi}{-1}
-\item\label{item:persistence} If $t_1 = z+t_2$ occurs in $\Psi$, then $t_1 \equivp z+t_2$;
-\item\label{item:quantitative-reflexivity} $t_1 \equivp 0+t_1$ for all $t\in\T$ (\emph{quantitative reflexivity});
-\item\label{item:quantitative-symmetry} If $t_1 \equivp z+t_2$, then $t_2 \equivp -z+t_1$ (\emph{quantitative symmetry});
-\item\label{item:quantitative-transitivity} If $t_1 \equivp z_1+t_2$ and $t_2 \equivp z_2 + t_3$,
-		then $t_1 \equivp (z_1+z_2)+t_3$ (\emph{quantitative transitivity});
-\item\label{item:dereferencing} If $t_1 \equivp (z_2 - z_1) + t_2$, then $*(z_1 + t_1) \equivp *(z_2 + t_2)$ holds as well, whenever $*(z_1 + t_1),  *(z_2 + t_2)$ are in $\T$ (\emph{dereferencing}).
+  \item\label{item:persistence} If $t_1 = z+t_2$ occurs in $\Psi$, then $t_1 \equivp z+t_2$;
+  \item\label{item:quantitative-reflexivity} $t \equivp 0+t$ for all $t\in\T$ (\emph{quantitative reflexivity});
+  \item\label{item:quantitative-symmetry} If $t_1 \equivp z+t_2$, then $t_2 \equivp -z+t_1$ (\emph{quantitative symmetry});
+  \item\label{item:quantitative-transitivity} If $t_1 \equivp z_1+t_2$ and $t_2 \equivp z_2 + t_3$,
+  then $t_1 \equivp (z_1+z_2)+t_3$ (\emph{quantitative transitivity});
+  \item\label{item:dereferencing} If $t_1 \equivp (z_2 - z_1) + t_2$, then $*(z_1 + t_1) \equivp *(z_2 + t_2)$ holds as well, whenever $*(z_1 + t_1),  *(z_2 + t_2)$ are in $\T$ (\emph{dereferencing}).
 \end{enumerate}
 
-\subsection{Quantitative partition}\label{subsection:quantitative-union-find}
+\subsection{Quantitative Partition}\label{subsection:quantitative-union-find}
 
 We can represent the quantitative equivalence relation $\equivp$ as a partition.
 The \emph{quantitative partition} $P = (\T, \tau, \omega)$ consists of a set of terms $\T$,
-a function $\tau : \T \rightarrow \T$ that assigns a representative term to each term $t \in \T$ and a mapping $\omega : \T \rightarrow \Z$,
+a function $\tau : \T \rightarrow \T$ that assigns a \emph{representative} to each term $t \in \T$ and a mapping $\omega : \T \rightarrow \Z$,
 which assigns to each term its offset from the representative of its equivalence class.
-This mean that for each $t \in \T$, it holds that $t \equivp \omega\,t + \tau\,t$.
-All terms that have the same representative belong to the same equivalence class, i.e., they are equivalent up to an integer offset.
-A representative term is a term $t \in \T$ that occurs on the right-hand side of the function $\tau$,
-i.e., there exists a $t'\in \T$ such that $\tau\,t' = t$.
-For each representative term $t$, it holds that $\tau\,t=t$ and $\omega\,t = 0$.
+These two functions model equalities of the form $t \equivp \omega\,t + \tau\,t$ for each $t \in \T$.
+All terms with the same representative belong to the same equivalence class, i.e., they are equivalent up to an integer offset.
+The set of representative terms $rep(P)$ is the set of terms $t \in \T$ that occur on the right-hand side of the function $\tau$, i.e., there exists a $t'\in \T$ such that $\tau\,t' = t$.
+For each $t\in rep(P)$, it holds that $\tau\,t=t$ and $\omega\,t = 0$.
 
 \subsubsection{Implementation}
 
-This partition is represented by using a data structure similar to union-find, but extended with integer offsets.
-The union-find data structure can be represented as a forest of trees,
-where each tree represents an equivalence class.
-Each node in the tree corresponds to a term $t \in \T$, and each tree is rooted at a representative element $\tau\,t$,
-which serves as the identifier for the entire set.\cite{uf-tarjan}
+The quantitative partition is represented using a data structure similar to union-find but extended with integer offsets.
+The union-find data structure is represented as a forest of trees, each representing an equivalence class.
+Each node in the tree corresponds to a term $t \in \T$, and the roots are representative elements $\tau\,t$.\cite{uf-tarjan}
 All the edges in the tree are directed towards the root.
-In order to represent the integer offset, we store a weight for each edge.
+In order to represent the integer offset, each edge is labeled with an integer weight.
 
-The forest is represented as a map $parent : \T \rightarrow \Z \times \T$ that maps each
-term $t$ to its parent node in the tree.
+The forest is represented as a map $parent : \T \rightarrow \Z \times \T$ that maps each term $t$ to an integer offset and its parent node in the tree.
 The nodes that have themselves as a parent are the representative terms.
-If $parent(t_1) = (z,t_2)$, then there is an edge from $t_1$ to $t_2$ with weight $z$
-in the graph and it holds that $t_1 \equivp z + t_2$.
+The mapping $parent(t_1) = (z,t_2)$ defines an edge from $t_1$ to $t_2$ with weight $z$ in the graph, and it implies the equality $t_1 \equivp z + t_2$.
 
-The $\find{t}$ operation returns the pair $(\omega\,t,\tau\,t)$.
-The offset $\omega t$ can be computed by following the path from $t$ to the root of the tree and summing up the weights of the edges.
-The representative $\tau\,t$ is the root of the tree.
+In order to compute the representative of a term in the tree, there is an operation $\find{t}$.
+It returns the pair $(\omega\,t,\tau\,t)$.
+The offset $\omega t$ can be computed by following the path from $t$ to the tree's root and summing up the weights of the encountered edges.
+The representative $\tau\,t$ is the root of the tree containing $t$.
 
-Initially, each term $t\in\T$ is its own parent, and equalities $t_1 = z + t_2$ between terms can be added by performing the
-$\union{t_1}{z}{t_2}$ operation.
+The union-find tree is built incrementally by adding consecutively equalities.
+Initially, each term $t\in\T$ is its own parent, and equalities $t_1 = z + t_2$ between terms can be added by performing the $\union{t_1}{z}{t_2}$ operation.
 This operation merges two trees by adding an edge from $\tau\,t_1$ to $\tau\,t_2$ with weight $z - \omega\,t_1 + \omega\,t_2$,
-thus merging the two equivalence classes of $t_1$ and $t_2$.
-If $\tau\,t_1 = \tau\,t_2$, but $z - \omega\,t_1 + \omega\,t_2 \neq 0$, then the conjunction is
-unsatisfiable.
+thus merging the two equivalence classes of $t_1$ and $t_2$ with the correct offset.
+If the two terms are already equivalent with a different offset, i.e., $\tau\,t_1 = \tau\,t_2$, but $z - \omega\,t_1 + \omega\,t_2 \neq 0$, then the conjunction is unsatisfiable.
 
 \begin{example}
-Consider the conjunction $\Psi \equiv B = 1 + A \land D = 2 + \&x \land A = 3 + \&x$.
-The union-find algorithm computes the following tree after having performed the three union operations:
+  Consider the conjunction $\Psi \equiv (B = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$.
+  The tree computed by the union-find algorithm is illustrated in \cref{fig:uf-tree}.
+  \begin{figure}
+    \begin{tikzpicture}[->, node distance=2cm, auto]
+      \node (x) {$\&x$};
+      \node (A) [below left of=x] {$A$};
+      \node (D) [below right of=x] {$D$};
+      \node (B) [below=1cm of A] {$B$};
 
-\begin{tikzpicture}[->, node distance=2cm, auto]
-    \node (x) {$\&x$};
-    \node (A) [below left of=x] {$A$};
-    \node (D) [below right of=x] {$D$};
-    \node (B) [below=1cm of A] {$B$};
-
-    \path (A) edge node {3} (x);
-    \path (B) edge node {1} (A);
-    \path (D) edge node {2} (x);
-\end{tikzpicture}
-
-From this representation, we can for example derive that $B = 4 + \&x$.
-Depending on the choice of the representatives, the tree can look different.
+      \path (A) edge node {3} (x);
+      \path (B) edge node {1} (A);
+      \path (D) edge node {2} (x);
+    \end{tikzpicture}
+    \caption{Union-find tree corresponding to the conjunction  $(B = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$}\label{fig:uf-tree}
+  \end{figure}
+  From this representation, we can, for example, derive that $B = 4 + \&x$.
+  The tree can look different depending on the choice of the representatives.
 \end{example}
 
-In a practical implementation, the representatives are chosen in such a way that the trees have the lowest possible height,
-thus making the $\find{t}$ operation more efficient.
-This optimization is called \emph{union by rank} and consists in adding the edge from
-the smallest to the biggest equivalence class.
-Another possible optimization is to set the parent node of a term to the representative of the tree,
-each time the $\find{t}$ operation is traverses the node.
+In a practical implementation, the representatives are chosen such that the trees have the lowest possible height, thus making the $\find{t}$ operation more efficient.
+This optimization is called \emph{union by rank} and consists of adding the edge from the smallest to the largest equivalence class during the $\union{t_1}{t_2}$ operation.
+Another possible optimization is, during the $\find{t}$ operation, to set the parent node of a term to the representative of the tree each time a node is traversed.
 This way, the tree is flattened, which makes the $\find{t}$ operation
 more efficient if we call it again for the same term $t$ or a term in the same equivalence class.
 This is the so-called \emph{path compression}.~\cite{uf-tarjan}
-
+%-----------
 \subsection{Quantitative finite automaton}\label{subsection:qfa}
 
 A partition $P = (\T, \tau, \omega)$ is useful for representing equalities between atoms
@@ -125,22 +117,22 @@ It is defined as follows:
 
 \begin{enumerate}
   \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$ we are done.
-  If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunction is unsatisfiable.
+        If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunction is unsatisfiable.
   \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{t_2}{z}$.
-  Now either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
-  Let $t$ be the term between $t_1$ and $t_2$ that has a new representative,
-  and let $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \eta, \delta)$ be the partition and qutomaton before the union operation
-  and $P' = (\T, \tau', \omega')$ and $M_{P'} = (S', \otau', \eta', \delta')$ be the partition after the union operation.
-  For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L_{M_P}(s_1)$,
-  we set $\delta'(z_1 - \omega\,(\tau\,t), s_1) = \delta'(z_2, s_2)$.
-  \todo[inline]{Then use merge for the successors.}
-  \todo{change $z_2$ in incoming transitions? how deep should I go in the details?}
+        Now either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
+        Let $t$ be the term between $t_1$ and $t_2$ that has a new representative,
+        and let $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \eta, \delta)$ be the partition and qutomaton before the union operation
+        and $P' = (\T, \tau', \omega')$ and $M_{P'} = (S', \otau', \eta', \delta')$ be the partition after the union operation.
+        For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L_{M_P}(s_1)$,
+        we set $\delta'(z_1 - \omega\,(\tau\,t), s_1) = \delta'(z_2, s_2)$.
+        \todo[inline]{Then use merge for the successors.}
+        \todo{change $z_2$ in incoming transitions? how deep should I go in the details?}
 \end{enumerate}
 
 \todo[inline]{This is the same as congruence closure (cite) but restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets as in (cite Oliveras Nieuwenhuis).}
 
 \todo[inline]{Define visualization, each equivalence class has one state and
-terms represetned are only those in $\T$, while there are more terms in $\L_{M_P}(s)$}
+  terms represetned are only those in $\T$, while there are more terms in $\L_{M_P}(s)$}
 
 \begin{theorem}
   % This is Theorem 3 in the other paper
