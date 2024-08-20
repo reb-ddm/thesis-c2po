@@ -74,70 +74,76 @@ Another possible optimization is, during the $\find{t}$ operation, to set the pa
 This way, the tree is flattened, which makes the $\find{t}$ operation
 more efficient if we call it again for the same term $t$ or a term in the same equivalence class.
 This is the so-called \emph{path compression}.~\cite{uf-tarjan}
-%-----------
-\subsection{Quantitative finite automaton}\label{subsection:qfa}
 
-A partition $P = (\T, \tau, \omega)$ is useful for representing equalities between atoms
-with an addition of integer offsets and it computes the closure under the rules
-\labelcref{item:persistence,item:quantitative-reflexivity,item:quantitative-symmetry,item:quantitative-transitivity}
-by construction.
-In order to take into account the dereferencing operation, we need to
-keep track for each term $t$, which equivalence classes contain terms of the form $*(z+t)$.
-This way, we can efficiently compute the equalities deriving from rule \labelcref{item:dereferencing}.
-For example if $\T = \{A, B, *A, *B\}$ and we perform a union of $A$ and $B$, the
-closure rule~\labelcref{item:dereferencing} tells us, that also the equivalence classes of $*A$ and $*B$ should be merged.
-Therefore, we introduce an alternative representation of the partition $P$ as a \emph{quantitative finite automaton} (QFA) $M_P$.
+\subsection{Quantitative Finite Automaton}\label{subsection:qfa}
 
-The QFA is defined by a triple $M_P = (S, \otau, \eta, \delta)$, where $S$ is a finite set of states, where each state represents an equivalence class of the partition.
-In order to know which state represents which equivalence class, the mapping $\otau : S \rightarrow \T$
-assigns a representative term to each state.
+A partition $P = (\T, \tau, \omega)$ groups all terms that are equal up to an integer offset.
+The partition takes into account the reflexivity, symmetry, and transitivity rules.
+Further, it is necessary to ensure that the equalities deriving from \labelcref{item:dereferencing} are always considered.
+Therefore, for each term $t$, we need to keep track of the equivalence classes that contain terms of the form $*(z+t)$ and merge two equivalence classes if they contain terms that are equal according to the rule \labelcref{item:dereferencing}.
+For example, if $\T = \{A, B, *A, *B\}$ and we perform a union of $A$ and $B$, the closure rule~\labelcref{item:dereferencing} tells us that also the equivalence classes of $*A$ and $*B$ should be merged.
+Thus, we introduce an alternative representation of the partition $P$ as a \emph{quantitative finite automaton} (QFA) $M_P$.
+
+The QFA is defined by a triple $M_P = (S, \otau, \eta, \delta)$. $S$ is a finite set of states, each representing an equivalence class of the partition.
+In order to know which state represents which equivalence class of the partition, the mapping $\otau : S \rightarrow \T$ assigns a representative term to each state.
+If $\otau\,s = t$ for a state $s \in S$, then $s$ represents the equivalence class of all terms whose representative in $P$ is $t$.
 The partial mapping $\eta : (\mathcal{A} \cup \{\&x | x \in \X\} \rightarrow \Z \times S)$ provides initial offsets and states for atoms, meaning that if $\eta\,a = (z,s)$, then $a$ is in the equivalence class represented by $s$.
 $\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition function.
-Intuitively, if $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that it holds that $*(z_1 + \otau\,s_1) \equivp z_2 + \otau\,s_2$.
+If $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that it holds that $*(z_1 + \otau\,s_1) \equivp z_2 + \otau\,s_2$.
 
-The QFA is constructed from the partition  $(\T, \tau, \omega)$ by defining $M_P = (S, \otau, \eta, \delta)$ where $S$ contains a state $s$ for each representative term $t$ of $P$ and we set $\otau\,s = t$.
-$\eta\,a = (\omega\,a, s_1)$ if $s_1 \in S$ and $\otau\,s = \tau\,a$,
-and $\delta\,z\,s_1 = (\omega\,t', s_2)$ if there is a $\tau\,t'=\otau\,s_2$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_1$ and $z = z_1 + \omega\,t_1$.
+The QFA $M_P = (S, \otau, \eta, \delta)$ is constructed from a partition  $P = (\T, \tau, \omega)$ as follows:
+\begin{itemize}
+  \item $S$ contains a state $s$ for each representative term $t$ of $P$ and we set $\otau\,s = t$.
+  \item $\eta\,a = (\omega\,a, s)$ if $s \in S$ and $\otau\,s = \tau\,a$
+  \item $\delta\,z\,s_1 = (\omega\,t', s_2)$ if there is a $\tau\,t'=\otau\,s_2$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_1$ and $z = z_1 + \omega\,t_1$.
+\end{itemize}
 
-We remark that a transition $\delta\,z\,s_1$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $\tau\,t_2=\otau\,s_1$ and $z = z_2 + \omega\,t_2$.
+We remark that following this definition, a transition $\delta\,z\,s_1$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $\tau\,t_2=\otau\,s_1$ and $z = z_2 + \omega\,t_2$.
+However, we show that the resulting mapping $\delta\,z\,s_1$  would have the same value in this case.
 Since $t_i \equivp (\omega t_i) + (\tau Q_i)$ for $i = 1,2$, it follows that $t_1 \equivp (z_2 - z_1)+ t_2$.
 Therefore $\tau\,*(z_2+t_2)=\otau\,s_2$ with offset $\omega(*(z_2+t_2)) = \omega\,t'$.
-This shows that the result of $\delta\,z\,s_1$ is well defined and doesn't depend on which term $t'$ we choose for deriving a transition.
-Additionally, $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
+This shows that the result of $\delta\,z\,s_1$ is well defined and does not depend on which term $t'$ we choose for deriving a transition.
+Moreover, we note that $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
 
 We use $\oT$ to denote the set of \emph{all} terms with variable names from $\X$ and auxiliaries from $\A$.
 We can extend the mappings $\eta$ and $\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M_P[a] = \eta(a)$ for atoms $a$, and $M_P[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M_P[t_1] = (z_1,s)$.
 
-Additionally, we define the set $\L(M_P)$ of terms $t \in \oT$ for which $M$ is defined.
-For each state $s \in S$, the set $\L_M(s)$ is the set of terms $t \in \oT$ for which it holds that $M_P[t] = (z, s)$ for some $z \in \Z$.
+Furthermore, we define the set $\L(M_P)$ of terms $t \in \oT$ for which $M$ is defined.
+For each state $s \in S$, the set $\L_{M_P}(s)$ is the set of terms $t \in \oT$ for which it holds that $M_P[t] = (z, s)$ for some $z \in \Z$.
 
-Using the automata, the $\closure{t_1}{z}{t_2}$\todo{add result type and $P$ and $M_P$ to the parameters}  operation performs the union of $t_1$ and $t_2$ and
-then computes the closure using the rule \labelcref{item:dereferencing}.
-It is defined as follows:
+Using the automaton, we define the $\closure{t_1}{z}{t_2}{P}$ operation that modifies the partition $P = (\T, \tau, \omega)$ and the automaton $M_P = (S, \otau, \eta, \delta)$ to include the equality $t_1 = z + t_2$ and then computes the closure of the rule \labelcref{item:dereferencing}.
+The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M_{P'} = (S', \otau', \eta', \delta')$  are computed as follows:
 
-\begin{enumerate}
-  \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$ we are done.
+\begin{itemize}
+  \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$, then $P' = P$ and $M_P = M_{P'}$.
         If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunction is unsatisfiable.
   \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{t_2}{z}$.
-        Now either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
-        Let $t$ be the term between $t_1$ and $t_2$ that has a new representative,
-        and let $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \eta, \delta)$ be the partition and qutomaton before the union operation
-        and $P' = (\T, \tau', \omega')$ and $M_{P'} = (S', \otau', \eta', \delta')$ be the partition after the union operation.
-        For each outgoing transition $\delta(z_1, s_1) = \delta(z_2, s_2)$ where $t \in \L_{M_P}(s_1)$,
-        we set $\delta'(z_1 - \omega\,(\tau\,t), s_1) = \delta'(z_2, s_2)$.
-        \todo[inline]{Then use merge for the successors.}
-        \todo{change $z_2$ in incoming transitions? how deep should I go in the details?}
-\end{enumerate}
+        Afterwards, either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
+        W.l.o.g., let $\tau\,t_1$ be the new representative of $t_1$ and $t_2$:
+        \begin{itemize}
+          \item Let $\otau\,s_1 = \tau\,t_1$ and $\otau\,s_2 = \tau\,t_2$.
+                After the merge, the state $s_2$ will not be in $S'$, as the equivalence classes of $s_1$ and $s_2$ are merged.
+                Therefore, we need to move all outgoing transitions of $s_2$ to be transitions of $s_2$.
+                For each transition $\delta(z_2, s_2) = (z_3, s_3)$, we set $\delta'(z_1, s_1) = (z_3, s_3)$, where $z_1 = z_2 - \omega\,t_1 + \omega\,t_2 - z$.
+          \item If $\delta(z_1,s_1) = (z_4, s_4)$ is defined, then the equivalence classes of $s_3$ and $s_4$ need to be merged later.
+                We add $(\otau\,s_3 = \omega\,(\otau\,s_4) - \omega\,(\otau\,s_3) + \otau\,s_4)$ to a queue $Q$ of pending equalities.
+          \item For each incoming transition $\delta(z_5, s_5) = \delta(z_2', s_2)$, we set $\delta'(z_5, s_5) = (z_2' - z_1, s_2)$.
+                The remaining transitions of $\delta$ are added to $\delta'$ without modifications.
+          \item Then we call $\closure{t_1}{z}{t_2}{P'}$ for each equality $t_1 = z + t_2 \in Q$.
+        \end{itemize}
+\end{itemize}
+%--------
+This algorithm is similar to congruence closure \cite{cc-}, but it is restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets.
 
-\todo[inline]{This is the same as congruence closure (cite) but restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets as in (cite Oliveras Nieuwenhuis).}
-
-\todo[inline]{Define visualization, each equivalence class has one state and
-  terms represetned are only those in $\T$, while there are more terms in $\L_{M_P}(s)$}
+\begin{example}
+  \todo[inline]{Define visualization, each equivalence class has one state and
+    terms represetned are only those in $\T$, while there are more terms in $\L_{M_P}(s)$}
+\end{example}
 
 \begin{theorem}
   % This is Theorem 3 in the other paper
   Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
-  The corresponding quantitative partition $(\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \otau, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
+  The corresponding quantitative partition $P = (\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \otau, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
   Then $\T \subseteq \L(M_P)$ and for every $t_1, t_2 \in \L(M_P)$ the following statements are equivalent:
   \begin{enumerate}
     \item $M_P[t_1] = z + M_P[t_2]$,
