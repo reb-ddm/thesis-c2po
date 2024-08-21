@@ -133,9 +133,34 @@ The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M_{P'} = (S',
         \end{itemize}
 \end{itemize}
 %--------
-This algorithm is similar to congruence closure \cite{cc-}, but it is restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets.
+This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but it is restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets.
+
+\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+
+  \node[state] (A) {$A$};
+
+  \node[state, below of=A] (B) {$B$};
+
+  \node[state, right of=A] (As) {$*A$};
+
+  \node[state, right of=B] (Bs) {$*B$};
+
+  \path[->]
+  (A) edge[] node {$0,0$} (As)
+  (B) edge[] node {$0,0$} (Bs);
+
+  \node[above left=1cm and 0.3cm of A] {$s_0$};
+  \node[above left=1cm and 0.5cm of B] {$s_1$};
+  \node[above left=1cm and 0.7cm of As] {$s_2$};
+  \node[above left=1cm and 0.7cm of Bs] {$s_3$};
+
+\end{tikzpicture}
 
 \begin{example}
+  A QFA can be visualized by labeling the states with the terms of $T$ that are in the corresponding equivalence class.
+  For example, consider the set of terms $\T = \{A, B, *A, *B\}$.
+  The initial automaton would be the one in figure \ref{fig:initial-example}.
+  If the operation $\closure{A}{1}{B}{P}$ is called, the automaton would be updated as in figure \ref{fig:closure-example}.
   \todo[inline]{Define visualization, each equivalence class has one state and
     terms represetned are only those in $\T$, while there are more terms in $\L_{M_P}(s)$}
 \end{example}
