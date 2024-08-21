@@ -112,7 +112,7 @@ The new partition $\restr{P}{-\Set} = (\T', \tau', \omega')$ is defined as follo
     Let $M_P = (S, \otau, \eta, \delta)$ be a QFA and let $\restr{M_P}{-\Set} = (S', \otau', \eta', \delta')$ be the automaton that is obtained by restricting $M_P$ as described above.
     Then,
     \begin{enumerate}
-        \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t] = (z, s)$ and $M[\otau'\,s] = (z', s')$ iff $\restr{M_P}{-\Set}[t] = (z - z', s)$ and $s = s'$,
+        \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t] = (z, s)$ and $M_P[\otau'\,s] = (z', s')$ iff $\restr{M_P}{-\Set}[t] = (z - z', s)$ and $s = s'$,
         \item $\L(\restr{M_P}{-\Set}) = \L(M_P) \setminus \Set$ and
               \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t_1] = z + M_P[t_2]$ iff $\restr{M_P}{-\Set}[t_1] = z + \restr{M_P}{-\Set}[t_2]$.
     \end{enumerate}

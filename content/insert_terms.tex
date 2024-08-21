@@ -10,7 +10,7 @@ as they sometimes need to be added to existing equivalence classes.
     The partition $\Pi$ is equal to $\{\{A, B\}, \{*A\}\}$.
     If we want to add the term $*B$ to $\T$, we need add it to the same equivalence class as $*A$,
     as they are equivalent according to the rules defined in \cref{chapter:qcc}.
-    \todo{The same example is already somewhere else}
+    \todo{The same example is already somewhere else. But mainly, $\Pi$ doesn't exist any more}
 \end{example}
 
 Given a partition $P = (\T, \tau, \omega)$ and the QFA $M_P = (S, \otau, \eta, \delta)$ and a set $\T'$, which is a superset of $\T$ and closed under subterms,
@@ -33,6 +33,6 @@ Let $s_1 \in S$ be the state for which it holds that $\otau\,s_1 = \tau\,t$.
 If $\delta(z + \omega\,t,s_1)$ is not defined, then we add a new state $s_2$ to $S$
 and define $\delta(z + \omega\,t, s_1) = (0, s_2)$ and $\otau\,s_2 = *(z+t)$.
 Otherwise, let $\delta(z + \omega\,t, s_1) = (z', s_2)$.
-Then we perform the operation $\union{*(z + t)}{z'}{\otau\,s_2}$.
+Then we perform the operation $\union{*(z + t)}{\otau\,s_2}{z'}$.\todo{maybe closure?}
 In this case, we do not need to add a new state to the automaton,
 as the new term is added to the existing equivalence class of $s_2$.

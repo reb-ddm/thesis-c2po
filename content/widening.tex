@@ -9,7 +9,7 @@ However, the loss of information is not enough to guarantee that the join operat
     \Psi_n \equiv (*^{2^n} \&x = \&x)\hspace{6pt} (n\geq 0).
   \]
   This could for example occur in a list structure, where each element points to its successor, and the last element points again to the first element of the list.
-  Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M_P[\Psi_n]$ and $M_P[\Psi_{n+1}]$ is $M_P[\Psi_{n+1}]$.
+  Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M_P$\todo{what is P} and $M_P[\Psi_{n+1}]$ is $M_P[\Psi_{n+1}]$.
   If we compute the join of the partitions corresponding to $\Psi_n$ and $\Psi_{n+1}$, we get the partition corresponding to $\Psi_{n+1}$.\cite{2pointer}
 \end{example}
 
@@ -37,7 +37,7 @@ For a given set $\T$ of terms, there is only a finite number of possible automat
 The set of terms doesn't change after having applied the widening operation, therefore the widening operator will always reach a fixpoint after a finite amount of iterations.
 
 \begin{example}\label{ex:widen}\todo{fix and add graph}
-  If we consider the sequence of conjunctions $\Psi_n$ from \cref{ex:widen-ascending-chain}, the automaton representation $M[\Psi_n]$ is a cycle of length $2^n$.
+  If we consider the sequence of conjunctions $\Psi_n$ from \cref{ex:widen-ascending-chain}, the automaton representation $M_P$\todo{what is P} is a cycle of length $2^n$.
   If we apply widening to $\Psi_n$ and $\Psi_{n+1}$, the resulting automaton will contain a simple path from the equivalence class of $\&x$ to the equivalence class of $*^{2^{n}-1}\&x$,
   and no cycles.
   This means that each term is in its own equivalence class, we have lost all information about equalities.
