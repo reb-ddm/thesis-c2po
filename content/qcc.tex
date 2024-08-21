@@ -69,7 +69,7 @@ If the two terms are already equivalent with a different offset, i.e., $\tau\,t_
 \end{example}
 
 In a practical implementation, the representatives are chosen such that the trees have the lowest possible height, thus making the $\find{t}$ operation more efficient.
-This optimization is called \emph{union by rank} and consists of adding the edge from the smallest to the largest equivalence class during the $\union{t_1}{t_2}$ operation.
+This optimization is called \emph{union by rank} and consists of adding the edge from the smallest to the largest equivalence class during the $\union{t_1}{z}{t_2}$ operation.
 Another possible optimization is, during the $\find{t}$ operation, to set the parent node of a term to the representative of the tree each time a node is traversed.
 This way, the tree is flattened, which makes the $\find{t}$ operation
 more efficient if we call it again for the same term $t$ or a term in the same equivalence class.
@@ -113,18 +113,18 @@ For each state $s \in S$, the set $\L_{M_P}(s)$ is the set of terms $t \in \oT$ 
 
 Using the automaton, we define the $\closure{t_1}{z}{t_2}{P}$ operation that modifies the partition $P = (\T, \tau, \omega)$ and the automaton $M_P = (S, \otau, \eta, \delta)$ to include the equality $t_1 = z + t_2$ and then computes the closure of the rule \labelcref{item:dereferencing}.
 The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M_{P'} = (S', \otau', \eta', \delta')$  are computed as follows:
-
+\todo{reread}
 \begin{itemize}
   \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$, then $P' = P$ and $M_P = M_{P'}$.
         If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunction is unsatisfiable.
-  \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{t_2}{z}$.
+  \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{z}{t_2}$.
         Afterwards, either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
         W.l.o.g., let $\tau\,t_1$ be the new representative of $t_1$ and $t_2$:
         \begin{itemize}
           \item Let $\otau\,s_1 = \tau\,t_1$ and $\otau\,s_2 = \tau\,t_2$.
-                After the merge, the state $s_2$ will not be in $S'$, as the equivalence classes of $s_1$ and $s_2$ are merged.
+                After the union, the state $s_2$ will not be in $S'$, as the equivalence classes of $s_1$ and $s_2$ are merged.
                 Therefore, we need to move all outgoing transitions of $s_2$ to be transitions of $s_2$.
-                For each transition $\delta(z_2, s_2) = (z_3, s_3)$, we set $\delta'(z_1, s_1) = (z_3, s_3)$, where $z_1 = z_2 - \omega\,t_1 + \omega\,t_2 - z$.
+                For each transition $\delta(z_2, s_2) = (z_3, s_3)$, we set $\delta'(z_1, s_1) = (z_3, s_3)$, where $z_1 = z_2 - \omega\,t_1 + \omega\,t_2 - z$, if $\delta(z_1,s_1)$ is not already defined.
           \item If $\delta(z_1,s_1) = (z_4, s_4)$ is defined, then the equivalence classes of $s_3$ and $s_4$ need to be merged later.
                 We add $(\otau\,s_3 = \omega\,(\otau\,s_4) - \omega\,(\otau\,s_3) + \otau\,s_4)$ to a queue $Q$ of pending equalities.
           \item For each incoming transition $\delta(z_5, s_5) = \delta(z_2', s_2)$, we set $\delta'(z_5, s_5) = (z_2' - z_1, s_2)$.
@@ -135,36 +135,79 @@ The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M_{P'} = (S',
 %--------
 This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but it is restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets.
 
-\begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+\begin{figure}\begin{subfigure}{0.5\textwidth}
+\begin{centering}
+  \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
-  \node[state] (A) {$A$};
+    \node[state] (A) {$A$};
 
-  \node[state, below of=A] (B) {$B$};
+    \node[state, below=1cm of A] (B) {$B$};
 
-  \node[state, right of=A] (As) {$*A$};
+    \node[state, right of=A] (As) {$*A$};
 
-  \node[state, right of=B] (Bs) {$*B$};
+    \node[state, right of=B] (Bs) {$*(1 + B)$};
+
+    \path[->]
+    (A) edge[] node {$0,0$} (As)
+    (B) edge[] node {$1,0$} (Bs);
+
+    \node[above left=0.5cm and 0.3cm of A] {$s_0$};
+    \node[above left=0.5cm and 0.3cm of B] {$s_1$};
+    \node[above left=0.5cm and 0.3cm of As] {$s_2$};
+    \node[above left=0.5cm and 0.3cm of Bs] {$s_3$};
+
+  \end{tikzpicture}
+\end{centering}
+  \caption{A QFA representing the empty conjunction.}\label{fig:initial-example}
+\end{subfigure}
+\begin{subfigure}{0.5\textwidth}
+  \begin{centering}
+
+  \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
+
+  \node[state] (AB) {$\begin{array}{c}
+    A = \\
+    1 + B
+  \end{array}$};
+
+  \node[state, right of=AB] (ABs) {$\begin{array}{c}
+    *A = \\
+    *(1 + B)
+  \end{array}$};
 
   \path[->]
-  (A) edge[] node {$0,0$} (As)
-  (B) edge[] node {$0,0$} (Bs);
+  (AB) edge[] node {$0,0$} (ABs);
 
-  \node[above left=1cm and 0.3cm of A] {$s_0$};
-  \node[above left=1cm and 0.5cm of B] {$s_1$};
-  \node[above left=1cm and 0.7cm of As] {$s_2$};
-  \node[above left=1cm and 0.7cm of Bs] {$s_3$};
-
+  \node[above left=0.9cm and 0.3cm of AB] {$s_0$};
+  \node[above left=0.9cm and 0.3cm of ABs] {$s_2$};
 \end{tikzpicture}
+\end{centering}
+
+  \caption{The same QFA after the operation $\closure{A}{1}{B}{P}$.}\label{fig:closure-example}
+\end{subfigure}
+
+\caption{An example of the $\closure{A}{1}{B}{P}$ operation on a QFA over the set of terms
+$\T = \{A, B, *A, *(1 + B)\}$}
+
+
+\end{figure}
 
 \begin{example}
-  A QFA can be visualized by labeling the states with the terms of $T$ that are in the corresponding equivalence class.
-  For example, consider the set of terms $\T = \{A, B, *A, *B\}$.
-  The initial automaton would be the one in figure \ref{fig:initial-example}.
-  If the operation $\closure{A}{1}{B}{P}$ is called, the automaton would be updated as in figure \ref{fig:closure-example}.
-  \todo[inline]{Define visualization, each equivalence class has one state and
-    terms represetned are only those in $\T$, while there are more terms in $\L_{M_P}(s)$}
+  A QFA can be visualized by labeling the states with the terms of $\T$ that are in the corresponding equivalence class.
+  For example, consider the set of terms $\T = \{A, B, *A, *(1 + B)\}$.
+  The edges are labeled with the offsets: for an edge $\delta(s_1, z_1) = (s_2, z_2)$, the edge between $s_1$ and $s_2$ is labeled with $z_1, z_2$.
+
+  The initial automaton would be the one in \cref{fig:initial-example}.
+  If the operation $\closure{A}{1}{B}{P}$ is called,
+  first the $\union{A}{1}{B}$ is performed and the new representative of $B$ becomes $A$, with offset $1$.
+  Then, we want to move the outgoing transitions from $s_1$ to $s_0$, as the state $s_1$ is removed.
+  However, there already exists a transition $\delta(s_0,0) = (s_2, 0)$.
+  Therefore, we add the equality $*(1 + B) = *A$ to a queue of pending equalities.
+  Then we recursively call $\closure{*(1 + B)}{0}{*A}{P'}$ and thus perform the union of $*(1 + B)$ and $*A$.
+  The resulting automaton is visualized in \cref{fig:closure-example}.
 \end{example}
 
+\todo[inline]{Either prove or remove this theorem.}
 \begin{theorem}
   % This is Theorem 3 in the other paper
   Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
