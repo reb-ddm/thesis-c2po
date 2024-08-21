@@ -22,8 +22,17 @@ a function $\tau : \T \rightarrow \T$ that assigns a \emph{representative} to ea
 which assigns to each term its offset from the representative of its equivalence class.
 These two functions model equalities of the form $t \equivp \omega\,t + \tau\,t$ for each $t \in \T$.
 All terms with the same representative belong to the same equivalence class, i.e., they are equivalent up to an integer offset.
-The set of representative terms $rep(P)$ is the set of terms $t \in \T$ that occur on the right-hand side of the function $\tau$, i.e., there exists a $t'\in \T$ such that $\tau\,t' = t$.
-For each $t\in rep(P)$, it holds that $\tau\,t=t$ and $\omega\,t = 0$.
+
+We denote as $P[\Psi]$ the quantitative partition that model the conjunction $\Psi$.
+The set of representative terms $rep(P[\Psi])$ is the set of terms $t \in \T$ that occur on the right-hand side of the function $\tau$, i.e., there exists a $t'\in \T$ such that $\tau\,t' = t$.
+For each $t\in rep(P[\Psi])$, it holds that $\tau\,t=t$ and $\omega\,t = 0$.
+
+The quantitative partition $P = (\T, \tau, \omega)$ is useful to define a normal form for propositions.
+Given an equality $p \equiv t_1 = z + t_2$ and a partition $P = (\Pi, \tau, \omega)$,
+the normalized equality $norm_P(p)$ is an equivalent equality that only contains representatives of $P$,
+i.e., $\tau\,t_1 = z - \omega\,t_1 + \omega\,t_2 + \tau\,t_2$.
+Equivalently, the normalized disequality $norm_P(p)$ for $p \equiv t_1 \neq z + t_2$ is the disequality $\tau\,t_1 = z - \omega\,t_1 + \omega\,t_2 + \tau\,t_2$.
+The normalized block disequality $norm_P(p)$ for $p \equiv bl(t_1) \neq bl(t_2)$ is the disequality $bl(\tau\,t_1) \neq bl(\tau\,t_2$).
 
 \subsubsection{Implementation}
 
@@ -166,12 +175,12 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
   \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
   \node[state] (AB) {$\begin{array}{c}
-    A = \\
+    \boldsymbol{A} = \\
     1 + B
   \end{array}$};
 
   \node[state, right of=AB] (ABs) {$\begin{array}{c}
-    *A = \\
+    \boldsymbol{*A} = \\
     *(1 + B)
   \end{array}$};
 
@@ -187,7 +196,8 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
 \end{subfigure}
 
 \caption{An example of the $\closure{A}{1}{B}{P}$ operation on a QFA over the set of terms
-$\T = \{A, B, *A, *(1 + B)\}$}
+$\T = \{A, B, *A, *(1 + B)\}$.
+The representative of each equivalence class is represented in bold as the mentioned first term.}
 
 
 \end{figure}
@@ -200,10 +210,12 @@ $\T = \{A, B, *A, *(1 + B)\}$}
   The initial automaton would be the one in \cref{fig:initial-example}.
   If the operation $\closure{A}{1}{B}{P}$ is called,
   first the $\union{A}{1}{B}$ is performed and the new representative of $B$ becomes $A$, with offset $1$.
+  It would be equivalent to choose $B$ as the new representative, but we choose $A$ here as an example.
   Then, we want to move the outgoing transitions from $s_1$ to $s_0$, as the state $s_1$ is removed.
   However, there already exists a transition $\delta(s_0,0) = (s_2, 0)$.
   Therefore, we add the equality $*(1 + B) = *A$ to a queue of pending equalities.
   Then we recursively call $\closure{*(1 + B)}{0}{*A}{P'}$ and thus perform the union of $*(1 + B)$ and $*A$.
+  As before, we choose $*A$ as the new representative, but $*(1+B)$ would also be a possible choice.
   The resulting automaton is visualized in \cref{fig:closure-example}.
 \end{example}
 
@@ -223,4 +235,4 @@ $\T = \{A, B, *A, *(1 + B)\}$}
 This theorem was proven in~\cite{2pointer} for the case of a one-dimensional memory model.
 The proof can easily be adapted for the two-dimensional memory model.
 
-We remark that the only equalities that can be derived from $\Psi$ are derived from $\Psi_=$. We cannot derive equalities from any of the disequalities.
+We remark that the only equalities that can be derived from $\Psi$ are derived from the equalities in $\Psi$. We cannot derive equalities from any of the disequalities.
