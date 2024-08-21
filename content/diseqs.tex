@@ -3,27 +3,36 @@
 The 2-Pointer Logic considers not only equalities, but also block disequalities and disequalities between terms.
 These are necessary in order to infer which terms are definitely not
 modified when an assignment takes place.
-Given a conjunction $\Psi$ of propositions, the block disequalities implied by the $\Psi_{bl}$
-and $\equivp$ can be derived by the following rules:
+Given a conjunction $\Psi$ of propositions and the corresponding equivalence relation $\equivp$, the block disequalities implied by $\Psi$ can be derived by the following rules:\todo{cite new paper?}
 
 \begin{enumerate}[label={[B\arabic*]}, ref={[B\arabic*]}]
     \setcounter{enumi}{-1} % to start with B0
-    \item	If $bl(t_1)\neq bl(t_2)$ then $bl(t_2)\nequivp bl(t_1)$ (\emph{symmetry});
+    \item If $bl(t_1)\neq bl(t_2)$ then $bl(t_1)\nequivp bl(t_2)$
+    \item If $bl(t_1)\nequivp bl(t_2)$ then $bl(t_2)\nequivp bl(t_1)$
+          (\emph{symmetry});
           \item\label{item:closure-under-quantitative-equalities}
           If $bl(t_1)\nequivp bl(t_2)$, $t'_1 \equivp z_1+t_1$ and $t'_2\equivp z_2+t_2$, then
           also $bl(t'_1)\nequivp bl(t'_2)$ (\emph{closure under quantitative equalities});
           \item\label{item:distinct-vars-block-neq} $bl(\&x) \neq bl(\&y)$ for all distinct $x, y \in \X$.
 \end{enumerate}
 
-The block disequalities are stored as a list $B$ of disequalities between representative terms
-of the congruence closure.
-The disequalities deriving from rule~\ref{item:distinct-vars-block-neq} are considered as \emph{implicit} block disequalities.
-The disequalities between other kinds of terms derive implicitly from the list $B$ and the congruence closure of $\Psi$.
+The block disequalities are stored as a map $B[\Psi]$ which maps representative terms to a set of representative terms that are not in the same block.
+It is sufficient to only store the disequalities between representatives, i.e.,
+the normalized disequalities $norm_{P[\Psi]}(p)$.
+The block disequalities between other terms can be derived from the congruence closure of $\Psi$ and the map $B[\Psi]$.
+The disequalities deriving from rule~\ref{item:distinct-vars-block-neq} are considered as \emph{implicit} block disequalities and are therefore not stored in the map $B[\Psi]$.
+
+\begin{example}
+    Consider the conjunction $\Psi \equiv A = 1 + B \land bl(B) \neq bl(*(1 + B))$.\todo{change A and B to something else please because of the map B}
+    The QFA deriving from $\Psi$ is shown in \cref{fig:closure-example}.
+    As $\tau\,B = A$ and $\tau\,(*(1+B)) = *A$, the map $B[\Psi]$ would contain the entries $A \mapsto \{*A\}$ and $*A \mapsto \{A\}$.
+\end{example}
+\todo{define them more explicitly and also with examples in order to understand the meet ecc.}
 
 \section{Disequalities}\label{section:disequalities}
 
 Let $\Psi$ be a conjunction of 2-pointer logic terms.
-We define the binary relation $\nequivp$ which represents all disequalities that can be derived from $\Psi$.
+We define the binary relation $\nequivp$ which represents all disequalities that can be derived from $\Psi$, given the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$.\todo{cite new paper?}
 
 \begin{enumerate}[label={[D\arabic*]}, ref={[D\arabic*]}]
     \setcounter{enumi}{-1} % to start with D0
@@ -31,47 +40,43 @@ We define the binary relation $\nequivp$ which represents all disequalities that
     If $t_1 \neq z + t_2$ occurs in $\Psi$, and $t_1 \equivp z'_1 + t'_1$ and $t_2\equivp z'_2+t'_2$,
     then $t'_1\nequivp (z'_2-z'_1+z)+t'_2$ (\emph{closure under quantitative equalities});
     \item\label{item:neq-quantitative-symmetry} If $t_1 \nequivp z + t_2$, then $t_2 \nequivp -z + t_1$ (\emph{quantitative symmetry});
-          %
-          \item\label{item:inverse-deref}
-          If $*(z_1 + t_1) \nequivp *(z_2 + t_2)$, then $t_1 \nequivp (z_2 - z_1) + t_2$
-          (\emph{inverse dereferencing});
-          \item\label{item:eq-neq} If $t_1 \equivp z + t_2$, then $t_1\nequivp z'+t_2$ for all $z'\neq z$;
-          \item\label{item:block-neq} If $bl(t_1) \neq bl(t_2) \in \Psi$, then $t_1 \nequivp z + t_2$ for all $z \in \Z$.
+    %
+    \item\label{item:inverse-deref}
+    If $*(z_1 + t_1) \nequivp *(z_2 + t_2)$, then $t_1 \nequivp (z_2 - z_1) + t_2$
+    (\emph{inverse dereferencing});
+    \item\label{item:eq-neq} If $t_1 \equivp z + t_2$, then $t_1\nequivp z'+t_2$ for all $z'\neq z$;
+    \item\label{item:block-neq} If $bl(t_1) \nequivp bl(t_2) \in \Psi$, then $t_1 \nequivp z + t_2$ for all $z \in \Z$.
 \end{enumerate}
 
-As for the block disequalities, we store a list $D$ of disequalities between representative terms.
-The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we don't need to explicitly store them, as they implicitly derive from the relation $\equivp$ or respectively from the block disequalities in the list $B$.
-\todo{define closure of disequalities with also as a parameter the partition and the block diseqs}
+As for the block disequalities, we store a map $D[\Psi]$ of disequalities between representative terms.
+A disequality $t_1 \nequivp z + t_2$ is represented in $D[\Psi]$ as the mapping $t_1 \mapsto S$ and $(z, t_2) \in S$, as well as the mapping $t_2 \mapsto S$ and $(-z, t_1) \in S$.
+The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we don't need to explicitly store them, as they implicitly derive from the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$, which are stored in the partition $P[\Psi]$ and the map $B[\Psi]$.
 
-The list $D$ consists of all disequalities and block disequalities deriving from
+The list $D[\Psi]$ consists of all disequalities and block disequalities deriving from
 \labelcref{item:neq-quantitative-equalities,item:neq-quantitative-symmetry,item:inverse-deref,item:eq-neq,item:block-neq},
 but only those that contain representative terms.
 This set is finite, because we only store equalities between different representatives and not the implicit equalities following from \labelcref{item:eq-neq,item:block-neq}.
 
-Given a disequality $p \equiv t_1 \neq z + t_2$ and a partition $P = (\Pi, \tau, \omega)$,
-the normalized disequality $norm_P(p)$ is an equivalent disequality that only contains representatives of $P$,
-i.e., $\otau\,t_1 = z - \omega\,t_1 + \omega\,t_2 + \otau\,t_2$.
-This set can be computed in polynomial time in the size of the formula $\Psi$ in the following way:
-
-\todo[inline]{If you also define a normalize(B) or something, then the definition of meet will be easier.}
+The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size of the formula $\Psi$ in the following way:
 
 \begin{itemize}
     \item For each equality $*(z_1 + t_1) \equivp z + *(z_2 + t_2)$ for $z \neq 0$
-    that follows from $\Psi$,
-    add the normalized version of the disequality $t_1 = (z_2 - z_1) + t_2$ to $D$.
-    \item For each disequality $bl(*(z_1 + t_1)) \neq bl(*(z_2 + t_2))$ that follows from $\Psi$, add the normalized version of the disequality $t_1 \neq (z_2 - z_1) + t_2$ to $D$.
-    these two first rules only add a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
-    \item Compute the closure of the disequalities in $D$ using rule~\labelcref{item:inverse-deref}.
-    \item For each disequality $p \in \Psi$, add $norm_P(p)$ to $D$.
+          that follows from $\Psi$,
+          add $norm_{P[\Psi]}(t_1 = (z_2 - z_1) + t_2)$ to $D$.
+    \item For each disequality $bl(*(z_1 + t_1)) \nequivp bl(*(z_2 + t_2))$ that follows from $\Psi$, add $norm_{P[\Psi]}(t_1 \neq (z_2 - z_1) + t_2)$ to $D$.
+          These two first rules only add a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
+    \item Compute the closure of the disequalities in $D$ using rule~\labelcref{item:inverse-deref}, and add the normalized disequalities to $D$.
+    \item For each disequality $p \in \Psi$, add $norm_{P[\Psi]}(p)$ to $D$.
     \item Again, compute the closure of the disequalities in $D$ using rule~\labelcref{item:inverse-deref}.
 \end{itemize}
 
-Given a conjunction $\Psi$, a set $\T$ and the corresponding partition $P$,
-it holds that $t_1 \nequivp z + t_2$ iff one of the following holds:
+Given a conjunction $\Psi$, a set $\T$ and the corresponding partition $P = P[\Psi]$, let $p \equiv t_1 \neq z + t_2$ and $norm_{P[\Psi]}(p) = t'_1 \neq z' + t'_2$.
+Then
+it holds that $\Psi$ implies $p$ iff $t_1 \nequivp z + t_2$  and iff one of the following holds:
 
 \begin{enumerate}
-    \item The normalized disequality $norm_P(t_1 \neq z + t_2)$ is in $D$;
-    \item Either $bl(\otau\,t_1) \neq bl(\otau\,t_2) \in B$;
-    \item $t_1 \equivp z' + t_2$ for any $z' \neq z$.
+    \item\label{item:diseqs} There is a mapping $t_1' \mapsto S$ in $D$ and $(z', t_2') \in S$;
+    \item\label{item:bl-diseqs} or there is a mapping $t_1 \mapsto S$ in $B$ and $t_2 \in S$;
+    \item\label{item:eqs} or $t_1 \equivp z' + t_2$ for any $z' \neq z$.
 \end{enumerate}
-We call the disequalities that follow from 1.\ the \emph{explicit} disequalities and those following from 2.\ and 3.\ the \emph{implicit} disequalities.
+We call the disequalities that follow from \labelcref{item:diseqs}.\ the \emph{explicit} disequalities and those following from \labelcref{item:bl-diseqs}.\ and \labelcref{item:eqs}.\ the \emph{implicit} disequalities.
