@@ -1,8 +1,8 @@
 \section{Block Disequalities}\label{section:block-disequalities}
 
-The 2-Pointer Logic considers not only equalities, but also block disequalities and disequalities between terms.
-These are necessary in order to infer which terms are definitely not
-modified when an assignment takes place.
+The 2-Pointer Logic considers not only equalities but also block disequalities and disequalities between terms.
+These are necessary to infer which terms are not
+modified when an assignment occurs.
 Given a conjunction $\Psi$ of propositions and the corresponding equivalence relation $\equivp$, the block disequalities implied by $\Psi$ can be derived by the following rules:\todo{cite new paper?}
 
 \begin{enumerate}[label={[B\arabic*]}, ref={[B\arabic*]}]
@@ -16,10 +16,10 @@ Given a conjunction $\Psi$ of propositions and the corresponding equivalence rel
           \item\label{item:distinct-vars-block-neq} $bl(\&x) \neq bl(\&y)$ for all distinct $x, y \in \X$.
 \end{enumerate}
 
-The block disequalities are stored as a map $B[\Psi]$ which maps representative terms to a set of representative terms that are not in the same block.
+The block disequalities are stored as a map $B[\Psi]$ that maps representative terms to a set of representative terms that are not in the same block.
 It is sufficient to only store the disequalities between representatives, i.e.,
 the normalized disequalities $norm_{P[\Psi]}(p)$.
-The block disequalities between other terms can be derived from the congruence closure of $\Psi$ and the map $B[\Psi]$.
+The block disequalities between other terms are derived from the congruence closure of $\Psi$ and the map $B[\Psi]$.
 The disequalities deriving from rule~\ref{item:distinct-vars-block-neq} are considered as \emph{implicit} block disequalities and are therefore not stored in the map $B[\Psi]$.
 
 \begin{example}
@@ -50,12 +50,12 @@ We define the binary relation $\nequivp$ which represents all disequalities that
 
 As for the block disequalities, we store a map $D[\Psi]$ of disequalities between representative terms.
 A disequality $t_1 \nequivp z + t_2$ is represented in $D[\Psi]$ as the mapping $t_1 \mapsto S$ and $(z, t_2) \in S$, as well as the mapping $t_2 \mapsto S$ and $(-z, t_1) \in S$.
-The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we don't need to explicitly store them, as they implicitly derive from the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$, which are stored in the partition $P[\Psi]$ and the map $B[\Psi]$.
+The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we do not need to explicitly store them, as they implicitly derive from the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$, which are stored in the partition $P[\Psi]$ and the map $B[\Psi]$.
 
 The list $D[\Psi]$ consists of all disequalities and block disequalities deriving from
 \labelcref{item:neq-quantitative-equalities,item:neq-quantitative-symmetry,item:inverse-deref,item:eq-neq,item:block-neq},
 but only those that contain representative terms.
-This set is finite, because we only store equalities between different representatives and not the implicit equalities following from \labelcref{item:eq-neq,item:block-neq}.
+This set is finite because we only store equalities between different representatives and not the implicit equalities following from \labelcref{item:eq-neq,item:block-neq}.
 
 The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size of the formula $\Psi$ in the following way:
 
@@ -72,7 +72,7 @@ The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size o
 
 Given a conjunction $\Psi$, a set $\T$ and the corresponding partition $P = P[\Psi]$, let $p \equiv t_1 \neq z + t_2$ and $norm_{P[\Psi]}(p) = t'_1 \neq z' + t'_2$.
 Then
-it holds that $\Psi$ implies $p$ iff $t_1 \nequivp z + t_2$  and iff one of the following holds:
+it holds that $\Psi$ implies $p$ if and only if $t_1 \nequivp z + t_2$ and if and only if one of the following holds:
 
 \begin{enumerate}
     \item\label{item:diseqs} There is a mapping $t_1' \mapsto S$ in $D$ and $(z', t_2') \in S$;
