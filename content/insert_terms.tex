@@ -1,38 +1,30 @@
 \section{Extension to a superset of terms}
 
-When new terms appear during the analysis, the partition $P$ and the automaton $M$ need to be updated
-in order to be able to express properties about the new terms.
-It is not sufficient to simply add the new terms to a fresh equivalence class,
-as they sometimes need to be added to existing equivalence classes.
+When new terms appear during the analysis, the partition $P$ and the automaton $M_P$ need to be updated to express properties about the new terms.
+It is not sufficient to simply add a fresh equivalence class for the new terms, as they sometimes need to be added to existing equivalence classes.
 
 \begin{example}
     Let $\Psi \equiv A = B$ and $\T = \{A, B, *A\}$.
-    The partition $\Pi$ is equal to $\{\{A, B\}, \{*A\}\}$.
-    If we want to add the term $*B$ to $\T$, we need add it to the same equivalence class as $*A$,
-    as they are equivalent according to the rules defined in \cref{chapter:qcc}.
-    \todo{The same example is already somewhere else. But mainly, $\Pi$ doesn't exist any more}
+    The equivalence classes of $P[\Psi]$ are $\{A, B\}$ and $\{*A\}$.
+    If we want to add the term $*B$ to $\T$, we need to add it to the same equivalence class as $*A$, as the two terms are equivalent according to the rules defined in \cref{chapter:qcc}.
+    \todo{The same example is already somewhere else.}
 \end{example}
 
-Given a partition $P = (\T, \tau, \omega)$ and the QFA $M_P = (S, \otau, \eta, \delta)$ and a set $\T'$, which is a superset of $\T$ and closed under subterms,
-we define the operation $\ext{k}{\T'}$ that extends the kernel $k = \angl{P, M_P, B, D}$ to the set of terms $\T'$,
-without altering the semantics of the representation.
-Only $P$ and $M_P$ need to be modified, while $B$ and $D$ do not change.
+Let $P = (\T, \tau, \omega)$ be a partition with the corresponding QFA $M_P = (S, \otau, \eta, \delta)$ and let $\T'$ be a superset of $\T$ and closed under subterms.
+We define the operation $\ext{k}{\T'}$ that extends the kernel $k = \angl{P, M_P, B, D}$ to the set of terms $\T'$, without altering the semantics of the representation.
+Only $P$ and $M_P$ need to be modified, while $B$ and $D$ remain unchanged.
 
 The extension is built inductively based on the structure of the terms in $\T'$.
-We describe how to add a new atom and a term of the form $*(z+t)$, where $t$ is already a part of $\T$.
-This can be repeated for all terms in $\T'$.
+We first describe how to add a new atom and then consider terms of the form $*(z+t)$, where $t$ is already a part of $\T$.
+This is repeated for all terms in $\T'$.
 
-In the case that $\T' = \T \cup \{a\}$ for an atom $a \notin \T$, we simply add a new
-equivalence class $\{a\}$ to $\Pi$ and a new state $s_1$ to the states $S$ of $M_P$.
-We define $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s_1)$, $\otau\,s_1 = a$.
+In the case that $\T' = \T \cup \{a\}$ for an atom $a \notin \T$, we simply add a new equivalence class with representative $a$ to $P$, by including a new state $s$ to the states $S$ of $M_P$ and defining $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s)$, $\otau\,s = a$.
 
-Consider $\T' = \T \cup \{*(z+t)\}$ for a term $t \in \T$, but $*(z + t) \notin \T$.
-First we add a new equivalence class $\{*(z+t)\}$ to $\Pi$.
+If $\T' = \T \cup \{*(z+t)\}$ for a term $t \in \T$, but $*(z + t) \notin \T$, we add a new equivalence class $\{*(z+t)\}$ to $P$ and then determine if it needs to be merged with an existing equivalence class.
 We define $\tau\,(*(z+t)) = *(z+t)$ and $\omega\,(*(z+t))=0$.
-Let $s_1 \in S$ be the state for which it holds that $\otau\,s_1 = \tau\,t$.
-If $\delta(z + \omega\,t,s_1)$ is not defined, then we add a new state $s_2$ to $S$
-and define $\delta(z + \omega\,t, s_1) = (0, s_2)$ and $\otau\,s_2 = *(z+t)$.
-Otherwise, let $\delta(z + \omega\,t, s_1) = (z', s_2)$.
-Then we perform the operation $\union{*(z + t)}{\otau\,s_2}{z'}$.\todo{maybe closure?}
+Let the resulting partition be $P'$ and let $s \in S$ be the state of the subterm $t$, i.e., for which it holds that $\otau\,s = \tau\,t$.
+If $\delta(z + \omega\,t,s)$ is not defined, then we add a new state $s'$ to $S$ and define $\delta(z + \omega\,t, s) = (0, s')$ and $\otau\,s' = *(z+t)$.
+Otherwise, let $\delta(z + \omega\,t, s) = (z', s')$.
+Then we perform the operation $\closure{*(z + t)}{z'}{\otau\,s'}{P'}$.
 In this case, we do not need to add a new state to the automaton,
-as the new term is added to the existing equivalence class of $s_2$.
+as the new term is added to the existing equivalence class of $s'$.
