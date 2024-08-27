@@ -22,7 +22,7 @@ Relational analyses monitor relationships between variables, such as equalities 
 They \emph{weakly}-relational analyses only consider relations between pairs of variables, rather than an arbitrary number of variables.
 The primary advantage of these analyses lies in their simplicity, which allows for a polynomial-time implementation.
 
-This master's thesis presents the design and implementation of a weakly relational pointer analysis in \goblint.
+This master's thesis presents the design and implementation of a weakly-relational pointer analysis in \goblint.
 The analysis focuses on C programs and is based on 2-Pointer Logic \cite{2pointer}, thus it is called \cpo.
 At each program point, it infers a set of propositions that consistently hold across all possible executions.
 These inferred properties are expressed using the 2-Pointer Logic introduced by \textcite{2pointer},
