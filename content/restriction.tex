@@ -1,30 +1,31 @@
 \section{Restriction to a Subset of Terms}
 
 During an assignment, it is necessary to forget information about a specific set of terms.
-For instance, when assigning a value to a term, all terms in the domain that might be modified by this assignment---those that may alias with this term---must be removed.
+For instance, when assigning a value to a term, all terms in the domain that this assignment might modify---those that may alias with this term---must be removed.
 This section explains how to restrict a kernel $k = \angl{P, M_P, B, D}$
-to exclude all propositions containing terms from a specified set.
+to keep only the propositions containing terms from a specified set $\Set$ of allowed terms.
 
-We begin by defining the restriction of a partition $P = (\T, \tau, \omega)$ and its corresponding automaton $M_P = (S, \otau, \eta, \delta)$ to forget information about the terms in a set $\Set$.
-The complement of $\Set$ needs to be closed under subterms, ensuring that the
-resulting partition will still contain terms from a set that remains closed under subterms.
+Let $P = (\T, \tau, \omega)$ be a partition and its corresponding automaton $M_P = (S, \otau, \eta, \delta)$ and $\Set \subseteq \L(M_P)$ a subterm-closed set of terms.
+This section describes how to compute the restricted automaton $\restr{M_P}{\Set} = (S', \otau', \eta', \delta')$ such that $\L(\restr{M_P}{\Set})$ only includes terms from $\Set$.
+For some states $s \in S$, the representative $\otau\,s$ might not be in $\Set$.
+If this is the case, we must find a new representative $\otau'\,s$ from the set $\L_{M_P}(s) \cap \Set$.
+If this set is empty, the state $s$ must be removed from the automaton.
 
-Given a set $\Set$, we can find a restricted
-automaton $\restr{M_P}{-\Set} = (S', \otau', \eta', \delta')$ such that $\L(\restr{M_P}{-\Set})$ does not include terms from
-$\Set$, but retains the equalities between all other terms in $\L(M_P) \setminus \Set$.
-From this, we derive the restricted partition $\restr{P}{-\Set} = (\T', \tau', \omega')$, where $\T'$ contains
-the terms in $\T \setminus \Set$ and additionally all terms that appear in the codomain of the function $\otau'$.
-
-This is necessary to ensure that for each state $s \in S'$, a representative term in $\T'$ can be found,
-even if $\T \setminus \Set$ does not contain any term in $\L_{\restr{M_P}{-\Set}}(s)$.
+From $\restr{M_P}{\Set}$, we will see how to derive the restricted partition $\restr{P}{\Set} = (\T', \tau', \omega')$, where $\T'$ contains the terms in $\T \cap \Set$ and additionally all terms that appear in the codomain of the function $\otau'$.
+We do not define $\T' = \Set$, as $\Set$ may be an infinite set.
+However, defining $\T' = \T \cap \Set$ would not be sufficient, as there may be some states $s \in S'$ for which
+$\T \cap \Set$ does not contain any term of $\L_{M_P}(s)$, i.e.,
+$\L_{M_P}(s) \cap \T \cap \Set = \emptyset$.
+If such a state $s$ exists, it would mean that $s$ does not have a corresponding equivalence class in $\restr{P}{\Set}$.
+To avoid this, we add for each $s \in S'$ the term $\otau'\,s$ to $\T'$, ensuring that there is at least one element in the equivalence class of $s$.
 
 \begin{example}
     Consider the conjunction $\Psi \equiv \&x = \&z \land *x = \&y$.
     We choose $\T = \{\&x, \&y, \&z, x, *x\}$. The corresponding automaton $M_P$ can be visualized as follows:
-
+    \todo{should I make this Figure 4.3 and reference it, or is it ok like this?}
     \begin{center}
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto,
-                state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+                state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
             \node[state] (q_0) {$\&x, \&z$};
             \node[below=0.5cm of q_0] {$s_1$};
             \node[state] (q_1) [right=of q_0] {$x$};
@@ -33,86 +34,85 @@ even if $\T \setminus \Set$ does not contain any term in $\L_{\restr{M_P}{-\Set}
             \node[below=0.5cm of q_2] {$s_3$}; % Label for the third state
 
             \path[->]
-            (q_0) edge node {} (q_1)
-            (q_1) edge node {} (q_2);
+            (q_0) edge node [above] {$0,0$} (q_1)
+            (q_1) edge node [above] {$0,0$} (q_2);
         \end{tikzpicture}
     \end{center}
-    Let $\Set$ be the set of terms that contain the variable $x$.
-    If we simply remove all terms from $\Set$ from the automaton, the state $s_2$ would
-    not contain any terms from $\T \setminus \Set$.
-    However, the set $\L_{M_P}(s_2)$ contains not only $x$, but also $z$, which is not in $\Set$.
-    Therefore, we can choose $z$ as the new representative for $s_2$.
-    The new set of terms after the restriction is $\T' = (\T \setminus \Set) \cup \{z\} = \{\&y, \&z, z\}$.
+    Let $\Set$ be the (infinite) set of terms that do not contain the variable $x$.
+    We want to compute $\restr{M_P}{\Set}$.
+    It holds that $\T \cap \Set = \{\&y, \&z\}$.
+    The set $\T \cap \Set$ does
+    not contain any terms from $\L_{M_P}(s_2) = \{x,z\}$.
+    However, $\L_{M_P}(s_2)$ contains $z$, which is in $\Set$, and is therefore allowed to appear in $\restr{M_P}{\Set}$.
+    Therefore, we can choose $z$ as the new representative $\tau'\,s_2$.
+    The new set of terms after the restriction is $\T' = (\T \cap \Set) \cup \{z\} = \{\&y, \&z, z\}$.
     The resulting automaton can be visualized as follows:
+
     \begin{center}
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto,
-                state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+                state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
             \node[state] (q_0) {$\&z$};
-            \node[below=0.5cm of q_0] {$s_1$};
+            \node[below=0.6cm of q_0] {$s_1$};
             \node[state] (q_1) [right=of q_0] {$z$};
-            \node[below=0.5cm of q_1] {$s_2$};
+            \node[below=0.6cm of q_1] {$s_2$};
             \node[state] (q_2) [right=of q_1] {$\&y$};
-            \node[below=0.5cm of q_2] {$s_3$};
+            \node[below=0.6cm of q_2] {$s_3$};
 
             \path[->]
-            (q_0) edge node {} (q_1)
-            (q_1) edge node {} (q_2);
+            (q_0) edge node [above] {$0,0$} (q_1)
+            (q_1) edge node [above] {$0,0$} (q_2);
         \end{tikzpicture}
     \end{center}
     It represents the formula $*z = \&y$.
-    \todo{add edge weights}
 \end{example}
 
-The restriction $\restr{M_P}{-\Set} = (S', \otau', \eta', \delta')$ is computed using a breadth-first search (BFS) on the automaton $M_P$
-to determine which paths remain reachable after excluding all terms in $\Set$.
-For some states $s \in S$, the representative $\otau(s)$ might be in $\Set$.
-If this is the case, we need to find a new representative for $s$ from the set $\L_{M_P}(s) \setminus \Set$.
-If this set is empty, the state $s$ must be removed from the automaton.
-
+The restriction $\restr{M_P}{\Set} = (S', \otau', \eta', \delta')$ is computed using a breadth-first search (BFS) on the automaton $M_P$ to determine which paths remain reachable when keeping only the terms in $\Set$.
 The algorithm proceeds as follows, with $\V$ representing the set of visited states and $Q$ being a queue of states to be processed:
-\begin{enumerate}
-\item Start with the initial states of $M_P$ and consider each atom $a \in \T \setminus \Set$ where $\eta(a) = (z, s)$:
-   \begin{itemize}
-       \item If $s$ has not been visited, choose a new representative for $s$.
-       Set $\otau'(s) = a$ and $\eta'(a) = (0, s)$.
-       Add $s$ to $\V$ and to $Q$.
-       \item If $s$ has already been visited, there exists a $t$ such that $\otau'(s) = t$.
-       Let $M_P[t] = (z', s)$.
-       Define $\eta'(a) = (z - z', s)$.
-   \end{itemize}
 
-\item Remove a state $s_1$ from the queue $Q$.
-Consider all outgoing transitions $\delta(z_1, s_1) = (z_2, s_2)$.
-   \begin{itemize}
-       \item If a term $*(z+t) \in \L(M) \setminus \Set$ can be found such that $M_P[t] = (z_1', s_1)$ and $z = z_1 - z_1'$,
-       the transition remains valid.
-           \begin{itemize}
-               \item If $s_2$ has not been visited, set $\otau'(s_2) = *(z+t)$ and add $s_2$ to $\V$ and to $Q$.
-               \item If $s_2$ has been visited, $\otau'(s_2)$ is already defined.
-               \item Let $M_P[\otau'(s_1)] = (z_3, s_1)$ and $M_P[\otau'(s_2)] = (z_4, s_2)$.
-               Define the corresponding transition $\delta'(z_1 - z_3, s_1) = (z_2 - z_4, s_2)$.
-           \end{itemize}
-       \item If no such term is found, the transition is no longer valid in $\restr{M_P}{-\Set}$, and $s_2$ is not added to the set of visited states.
-   \end{itemize}
-\item If $Q$ is not empty, return to step 2 and continue processing.
+\begin{enumerate}
+    \item Start with the initial states $\eta(a) = (z, s)$ for each atom $a \in \T \cap \Set$:
+          \begin{itemize}
+              \item If $s$ has not been visited, i.e., $s \notin \V$, set $a$ as the representative for $s$:
+                    $\otau'(s) = a$ and $\eta'(a) = (0, s)$.
+                    Add $s$ to $\V$ and to $Q$.
+              \item If $s$ has already been visited, i.e., $s \in \V$, there exists a $t$ such that $\otau'(s) = t$.
+                    Let $M_P[t] = (z', s)$.
+                    Define $\eta'(a) = (z - z', s)$.
+          \end{itemize}
+
+          \item\label{item:remove-from-Q} Remove a state $s_1$ from the queue $Q$.
+          Consider all outgoing transitions $\delta(z_1, s_1) = (z_2, s_2)$.
+          \begin{itemize}
+              \item If a term $*(z+t) \in \L(M_P) \cap \Set$ exists such that $M_P[t] = (z_1', s_1)$ and $z = z_1 - z_1'$,
+                    then the transition remains valid.
+                    \begin{itemize}
+                        \item If $s_2 \in \V$, then $\otau'(s_2)$ is already defined.
+                              Otherwise, set $\otau'(s_2) = *(z+t)$ and add $s_2$ to $\V$ and to $Q$.
+                        \item Now let $M_P[\otau'(s_1)] = (z_3, s_1)$ and $M_P[\otau'(s_2)] = (z_4, s_2)$.
+                              Define the transition $\delta'(z_1 - z_3, s_1) = (z_2 - z_4, s_2)$.
+                    \end{itemize}
+              \item If no such term exists, the transition does not appear in $\restr{M_P}{\Set}$, and $s_2$ is not added to the set of visited states.
+          \end{itemize}
+    \item If $Q$ is not empty, return to step \labelcref{item:remove-from-Q}.\ and continue with the next state in $Q$.
 \end{enumerate}
 
-Essentially, the algorithm retains the transitions between the states that remain reachable after removing the terms and adjusts the weights of these transitions to the new representatives.
-The set $S'$ is equivalent to the set of visited states $\V$.
+Essentially, the algorithm retains the transitions between the states that remain reachable using only terms from $\Set$ and adjusts the weights of these transitions to the new representatives.
+The set $S'$ equals the set of visited states $\V$.
 
-The new partition $\restr{P}{-\Set} = (\T', \tau', \omega')$ is defined as follows:
+The new partition $\restr{P}{\Set} = (\T', \tau', \omega')$ is defined as follows:
 \begin{itemize}
-    \item $\T' = (\T \setminus \Set) \cup \{t \mid \exists s \in S' . \otau'\,s = t\}$,
-    \item For each $t \in \T'$, if $\restr{M_P}{-\Set}[t] = (z, s)$, then $\tau'\,t = \otau'\,s$ and $\omega'\,t = z$.
+    \item $\T' = (\T \cap \Set) \cup \{t \mid \exists s \in S' . \otau'\,s = t\}$,
+    \item For each $t \in \T'$, if $\restr{M_P}{\Set}[t] = (z, s)$, then $\tau'\,t = \otau'\,s$ and $\omega'\,t = z$.
 \end{itemize}
 
 \begin{theorem}\label{restriction}
-    Let $M_P = (S, \otau, \eta, \delta)$ be a QFA and let $\restr{M_P}{-\Set} = (S', \otau', \eta', \delta')$ be the automaton that is obtained by restricting $M_P$ as described above.
+    \todo[inline]{Not only prove this, but also explain it}
+    Let $M_P = (S, \otau, \eta, \delta)$ be a QFA and let $\restr{M_P}{\Set} = (S', \otau', \eta', \delta')$ be the automaton that is obtained by restricting $M_P$ as described above.
     Then,
     \begin{enumerate}
-        \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t] = (z, s)$ and $M_P[\otau'\,s] = (z', s')$ iff $\restr{M_P}{-\Set}[t] = (z - z', s)$ and $s = s'$,
-        \item $\L(\restr{M_P}{-\Set}) = \L(M_P) \setminus \Set$ and
-              \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M_P}{-\Set})$, it holds that $M_P[t_1] = z + M_P[t_2]$ iff $\restr{M_P}{-\Set}[t_1] = z + \restr{M_P}{-\Set}[t_2]$.
+        \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M_P}{\Set})$, it holds that $M_P[t] = (z, s)$ and $M_P[\otau'\,s] = (z', s')$ iff $\restr{M_P}{\Set}[t] = (z - z', s)$ and $s = s'$,
+        \item $\L(\restr{M_P}{\Set}) = \L(M_P) \cap \Set$ and
+              \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M_P}{\Set})$, it holds that $M_P[t_1] = z + M_P[t_2]$ iff $\restr{M_P}{\Set}[t_1] = z + \restr{M_P}{\Set}[t_2]$.
     \end{enumerate}
 \end{theorem}
 \begin{proof}
@@ -120,13 +120,12 @@ The new partition $\restr{P}{-\Set} = (\T', \tau', \omega')$ is defined as follo
     \todo[inline]{Proof of point 2}
     Point~\labelcref{item:correctness-restriction} follows from point~\labelcref{item:lemma-restriction}.
 \end{proof}
-%--------------
+
 \subsubsection{(Block-)Disequalities}
-We can also find the set of disequalities and the block disequalities that are still valid when considering only the terms $\T'$.
+Given a kernel $k = \angl{P, M_P, B, D}$, we can restrict it to a set of terms $\Set$ by setting $\restr{k}{\Set} = \angl{\restr{P}{\Set}, \restr{M_P}{\Set}, \restr{B}{\Set}, \restr{D}{\Set}}$.
+$\restr{B}{\Set}$ and $\restr{D}{\Set}$ represent the block disequalities and quantitative disequalities that are still valid when considering only the terms in $\T'$.
 We keep only the propositions between representatives of the equivalence classes that
-still have a corresponding state in the automaton $\restr{M_P}{-\Set}$, but we need to update the representatives to the new representatives.
-The remaining disequalities are removed.
+still have a corresponding state in the automaton $\restr{M_P}{\Set}$, but we need to update the terms in the disequalities to the new representatives.
+Disequalities containing terms that are not in $\T'$ are removed.
 
-For $k = \bot$, the restriction $\restr{k}{-\Set}$ is also $\bot$.
-
-Given a conjunction $\Psi$, we denote the restriction of the corresponding kernel $k$ to forget propostions about terms in $\Set$ by $\restr{\Psi}{-\Set}$.\todo{do you need this in the end?}
+For $k = \bot$, the restriction $\restr{k}{\Set}$ is $\bot$.
