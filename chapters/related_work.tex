@@ -1,5 +1,13 @@
 \chapter{Related Work}\label{chapter:related-work}
 
+This chapter gives an overview of the related work on congruence closure, pointer analyses, and weakly-relational analyses.
+
+Existing congruence closure algorithm are discussed and compared to the quantitative congruence closure introduced by \textcite{2pointer},
+which is used by the \cpo\ analysis.
+Moreover, multiple approaches to pointer analysis are presented, as well as weakly-relational analyses that have been used for other domains than pointers.
+
+The 2-Pointer Logic~\cite{2pointer} is based on these foundational concepts, offering a weakly-relational pointer analysis that utilizes a quantitative congruence closure of pointer expressions.
+Building upon this approach, the \cpo\ analysis presented in this master's thesis was developed by defining the necessary operations for abstract interpretation.
 
 \section{Congruence Closure}
 
@@ -9,11 +17,11 @@ in different variations. \textcite{cc-tarjan} described a congruence closure alg
 where each element is directly mapped to its representative, thus not requiring the
 use of a union-find data structure.
 The methods of \textcite{cc-nelson,cc-shostak} are based on a union-find data structure~\cite{uf-tarjan}, as
-is done in this master's thesis. They doesn't directly use a finite automata to represent
+is done in this master's thesis. They do not directly use a finite automaton to represent
 the congruence closure, but define the procedure directly on graphs,
 allowing to define the congruence closure of terms that contain arbitrary uninterpreted function symbols
 of any arity.
-Our quantitative congruence closure is similar, but restricted to a single uniterpreted function $*$
+Our quantitative congruence closure is similar, but restricted to a single uninterpreted function $*$
 and extended to handle simple arithmetic operations.
 This quantitative congruence closure for 2-Pointer Logic was introduced by \textcite{2pointer}.
 
@@ -21,7 +29,7 @@ The congruence closure algorithm can also be viewed as a rewrite system,
 for rewriting canonical normal forms of terms by replacing subterms with their representatives,
 as in \cite{cc-kapur,abstract-cc}.
 There exists an extension with integer offsets for this approach, as described by \textcite{cc-offsets}.
-This is done in a similar way to our approach, but it doesn't use union-find and it considers a
+This is done similarly to our approach, but it doesn't use union-find and it considers a
 binary function $\cdot$, where the offset is added to the second argument.
 
 Join algorithms for congruence closure are described by \textcite{join},
@@ -37,7 +45,7 @@ It is less precise, but in practical examples it finds mostly the same results a
 
 There are numerous pointer analyses for C programs that are used in static analysis tools.
 As C is widely used in crucial code bases, such as operating systems, device drivers, and embedded systems,
-it is important to beable to prove correctness properties about the pointers used in these programs.
+it is important to be able to prove correctness properties about the pointers used in these programs.
 For a comprehensive overview of pointer analyses, see \textcite{pointeranalysis}.
 
 The recent work on pointer analysis can be roughly divided into three categories:
@@ -54,8 +62,8 @@ The same idea can be applied in a context- and flow-sensitive way, by providing 
 This is used in multiple practical C analyzers, such as \textsc{Mopsa}~\cite{mopsa}, \textsc{Frama-C}~\cite{framac,Bühler2024} and \goblint~\cite{goblint}.
 This non-relational analysis is more precise than the flow-insensitive analysis, but when the sets are not singletons,
 it can no longer infer relational properties about the pointers.
-Our relatioinal analysis is therefore a good complement to these analyses, as it can infer additional
-properties about the pointers, i.e.mustequalities and disequalities between terms made up of pointers, dereferencing and pointer arithmetic.
+Our relational analysis is therefore a good complement to these analyses, as it can infer additional
+properties about the pointers, i.e. must-equalities and disequalities between terms made up of pointers, dereferencing and pointer arithmetic.
 In this master's thesis, the non-relational pointer analysis by \textcite{goblint} is used in combination
 with the newly implemented relational analysis in order to augment the precision of the analysis.
 
@@ -67,6 +75,17 @@ These analyses are very precise, but also very expensive in terms of time and me
 The analysis of this master's thesis is a compromise between the precision of shape analysis and
 the efficiency of less precises analysis, by only considering relations between pairs of pointers.
 
+Moreover, the \cpo\ domain is comparable to the domain introduced by~\textcite{Mine06}, which, similarly to \cpo, considers dereferencing and pointer arithmetic, and pointer values are interpreted as a tuple of a variable and an offset.
+However, in~\cite{Mine06}, the abstraction tracks
+a set of possible pointer cells that the variables may point to and a set of possible values for the offset.
+In contrast, we track must-equalities and disequalities, without considering concrete values,
+which makes it possible to express different properties than the domain in~\cite{Mine06}.
+The domain in~\cite{Mine06} assumes that \malloc\ is not used in the program,
+while we explicitly handle the \malloc\ operator in our analysis.
+It also explicitly handles union types, which are not explicitly considered in our analysis.
+
+\subsection{Weakly-Relational Analyses}
+
 The idea of restricting the number of variables in relational analysis has been precedently used
 for other domains than pointers, such as numerical domains and strings.
 They are so-called \emph{weakly-relational} analyses, as they only consider relations between pairs of variables.
@@ -77,13 +96,4 @@ The same idea has been applied to non-numerical domains by \textcite{SeidlETS202
 Here, we use this concept for pointer analysis, and we track equalities and disequalities between pairs of pointer expressions.
 The advantage of weakly-relational analyses is their simplicity:
 by focusing on simple propositions, we have been able to provide polynomial-time algorithms for the implementation of our analysis in an abstract interpreter.
-Therefore our analysis complements the computationally expensive full-fledged shape analyses.
-
-Moreover, the \cpo\ domain is comparable to the domain introduced by~\textcite{Mine06}, which, similarly to \cpo, considers dereferencing and pointer arithmetic, and pointer values are interpreted as a tuple of a variable and an offset.
-However, in~\cite{Mine06}, the abstraction tracks
-a set of possible pointer cells that the variables may point to and a set of possible values for the offset.
-In contrast, we track must-equalities and disequalities, without considering concrete values,
-which makes it possible to express different properties than the domain in~\cite{Mine06}.
-The domain in~\cite{Mine06} assumes that \malloc\ is not used in the program,
-while we explicitly handle the \malloc\ operator in our analysis.
-It also explicitly handles union types, which are not explicitly considered in our analysis.
+Therefore, our analysis complements the computationally expensive full-fledged shape analyses.
