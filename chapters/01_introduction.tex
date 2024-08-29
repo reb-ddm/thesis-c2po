@@ -3,32 +3,46 @@
 \chapter{Introduction}\label{chapter:introduction}
 
 Ensuring the reliability of software in safety-critical systems is essential to prevent bugs that could result in catastrophic failures.
-Many safety-critical applications are developed in C, a language valued for low-level capabilities but notorious for lacking inherent safety features.
-In particular, complex pointer manipulations can introduce subtle bugs that are difficult to detect.
-Automatic verification tools can help to find these bugs by using static analysis,
-allowing for the formal analysis of the behavior of programs without executing them.
-\todo{more concrete examples, like in the c2po paper?}
+Many of these safety-critical applications are developed in C, which has strong low-level capabilities but lacks inherent safety features.
+C allows for complex pointer manipulations, which can introduce subtle bugs that are difficult to detect.
+To help find these bugs, static analysis tools can automatically analyze the behavior of programs and prove properties about programs without executing them.
 
-Current static analysis techniques for pointers address various facets of the problem.
-A common strategy involves inferring the set of possible address values that each variable in the program may hold.
+Current static analysis techniques for pointers infer different properties and vary in precision and efficiency.
 There are fast but relatively imprecise methods, such as those proposed by \textcite{Steensgaard} and \textcite{Andersen}, as well as more precise approaches that determine, for each program point and variable, the set of potential addresses it can point to.
-Examples of such methods are implemented in tools like \textsc{Mopsa} \cite{mopsa} and \goblint \cite{goblint}.
-Additionally, there are highly precise analyses capable of accurately modeling the shape of dynamic data structures in the heap.
-However, these methods are less efficient and thus not suitable for large-scale programs \cite{rivalpapers,kreiker,predator}.
+Examples of such methods are implemented in tools like \textsc{Mopsa}~\cite{mopsa} and \goblint~\cite{goblint}.
+On the other hand, there exist highly precise analyses capable of accurately modeling the shape and content of dynamic data structures in the heap~\cite{rivalpapers,kreiker,predator}.
+However, these methods are less efficient and thus not suitable for large-scale programs.
 
-As a compromise between precision and efficiency,
-weakly-relational analyses have been explored \cite{octagon,SeidlETS2023}.
-Relational analyses monitor relationships between variables, such as equalities and inequalities.
-They \emph{weakly}-relational analyses only consider relations between pairs of variables, rather than an arbitrary number of variables.
-The primary advantage of these analyses lies in their simplicity, which allows for a polynomial-time implementation.
+This master's thesis introduces a relational pointer analysis that can infer relationships between pointer variables in C programs, including pointer arithmetic and dereferencing.
+\begin{example}
+    Consider a C program with multiple possible implementations for the functions \texttt{malloc} and \texttt{free}.
+    A pair of these functions is defined in a struct \texttt{alloc\_functions}:
+    \begin{minted}{C}
+struct alloc_functions {
+ void *(*malloc)(size_t);
+ void (*free)(void *);
+};
+    \end{minted}
+    There are two variables \texttt{malloc\_f} and \texttt{free\_f} that point to the currently used implementation of the functions \texttt{malloc} and \texttt{free}, respectively.
 
-This master's thesis presents the design and implementation of a weakly-relational pointer analysis in \goblint.
-The analysis focuses on C programs and is based on 2-Pointer Logic \cite{2pointer}, thus it is called \cpo.
+    An interesting property to confirm is whether the two variables \texttt{malloc\_f} and \texttt{free\_f} point to matching implementations, thus ensuring that the correct \texttt{free} function is called for each \texttt{malloc} call.
+    This prevents bugs that arise from incompatible implementations of the two functions.
+    Our analysis can prove the absence of such bugs by inferring the proposition by showing that the two variables belong to the same struct \texttt{alloc\_functions}, i.e.,
+    \[
+        \texttt{free\_f} = 64 + \texttt{malloc\_f}.
+    \]
+\end{example}
+
+In order to not have to deal with the complexity of relationships between an arbitrary number of variables, our analysis is \emph{weakly}-relational~\cite{octagon,SeidlETS2023}, as it only considers relationships between pairs of variables.
+The primary advantage of \emph{weakly}-relational analyses lies in their simplicity, which allows for a polynomial-time implementation at the cost of losing some of the precision with respect to other relational analyses.
+
+Here, we design a weakly-relational pointer analysis and implement it in \goblint.
+The analysis focuses on C programs and is based on 2-Pointer Logic~\cite{2pointer}, thus it is called \cpo.
 At each program point, it infers a set of propositions that consistently hold across all possible executions.
 These inferred properties are expressed using the 2-Pointer Logic introduced by \textcite{2pointer},
-consisting of equalities or disequalities formed from pairs of terms,
+consisting of equalities and disequalities formed from pairs of terms,
 which may include variable names, dereferencing, and pointer arithmetic.
-An example of such a property is \todo{example program which is useful somehow}
+An example of such a property is
 \begin{equation}\label{example:introduction}
     (x = \&y + 3) \land (*(\&z + 2) \neq \&y + 1),
 \end{equation}
@@ -59,21 +73,21 @@ It is easily possible to implement the collaboration of the different analyses, 
 This master's thesis is structured as follows:
 \begin{itemize}
     \item \cref{chapter:background} gives an overview of the abstract interpretation method, which builds the theoretical foundation on which the \cpo\ analysis is designed.
-    It also includes a brief description of the abstract interpreter \goblint\, where the \cpo\ analysis is implemented, and some \goblint\ analyses that collaborate with \cpo\ to augment the precision of the analysis.
+          It also includes a brief description of the abstract interpreter \goblint\, where the \cpo\ analysis is implemented, and some \goblint\ analyses that collaborate with \cpo\ to augment the precision of the analysis.
     \item \cref{chapter:concrete_semantics} introduces a concrete semantics that models C pointers, the memory content, and how program statements modify the values of pointers and the memory.
     \item \cref{chapter:2pointer} recalls the 2-Pointer Logic introduced in~\cite{2pointer} and extends it with block disequalities.
-    A representation of the conjunctions is introduced, which automatically discovers the \emph{closure} of the conjunction,
-    i.e., the set of all propositions that are implied by the conjunction.
-    For example the proposition $*(\&z + 2) \neq x - 2$ is implied by the conjunction~\labelcref{example:introduction}.
-    The implied conjunctions are computed using the  the \emph{quantitative congruence closure} of all the equalities that are present in the conjunction and
-    the closure of the disequalities, using the rule that when $*t_1 \neq *t_2$, this implies that the pointers are also different, i.e., $t_1 \neq t_2$.
+          A representation of the conjunctions is introduced, which automatically discovers the \emph{closure} of the conjunction,
+          i.e., the set of all propositions that are implied by the conjunction.
+          For example the proposition $*(\&z + 2) \neq x - 2$ is implied by the conjunction~\labelcref{example:introduction}.
+          The implied conjunctions are computed using the \emph{quantitative congruence closure} of all the equalities that are present in the conjunction and
+          the closure of the disequalities, using the rule that when $*t_1 \neq *t_2$, this implies that the pointers are also different, i.e., $t_1 \neq t_2$.
     \item \cref{chapter:analysis} describes the abstract domain used in the analysis and the corresponding operations that are needed to implement an abstract interpretation analysis, including the \emph{equals}, \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing} operations.
-    Two possible algorithms of the \emph{equals} and the \emph{join} operation are presented, which differ in
-    their precision and efficiency.
-    Transfer functions are described, which define the behavior of the analysis during an assignment and a function call.
+          Two possible algorithms of the \emph{equals} and the \emph{join} operation are presented, which differ in
+          their precision and efficiency.
+          Transfer functions are described, which define the behavior of the analysis during an assignment and a function call.
     \item \cref{chapter:evaluation} evaluates the implementation of the \cpo\ analysis in \goblint\ on a set of benchmarks,
-    comparing the analysis with the existing non-relational pointer analysis in \goblint, and also
-    evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation.
+          comparing the analysis with the existing non-relational pointer analysis in \goblint, and also
+          evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation.
     \item \cref{chapter:related-work} gives an overview of the related work on congruence closure, pointer analysis, and weakly-relational analyses.
     \item \cref{chapter:conclusion} concludes the thesis and gives an outlook on future work.
 \end{itemize}
