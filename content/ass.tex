@@ -10,29 +10,67 @@ We consider an assignment of the form $s_1\,{:=}\,?$.
 After this assignment, the value of $s_1$ changes to an unknown value,
 so we must forget all the equalities and disequalities that contain the term $s_1$,
 but also all other terms that may be modified by overwriting $s_1$.
-Only the terms where we know that each subterm is definitely not equal to the address of $s_1$ are not modified by overwriting $s_1$.
+Only the terms where we know that each subterm is definitely not equal to the address of $s_1$ and also definitely not overlapping with $s_1$ are not modified by overwriting $s_1$.
+
+\begin{example}
+	Consider the following C program:
+\begin{minted}[linenos=true, escapeinside=||]{C}
+int main(){
+	long *lpt = (long *)malloc(sizeof(long));
+	long lo = 0;
+
+	*lpt = lo;// *lpt: 0; l: 0
+	assert(*lpt == lo);|\label{firstassert}|
+	*(lpt + 1) = 'a';// *lpt: 0; l: 0|\label{assignmentuno}|
+	assert(*lpt == lo); // this is false|\label{secondassert}|
+	*((char *)lpt + 1) = 'a';// *lpt: 24832; l: 0|\label{assignment}|
+	assert(*lpt == lo); // this is false|\label{thirdassert}|
+}
+\end{minted}
+In line~\ref{firstassert}, the assertion \texttt{*lpt == lo} holds, because the value of \texttt{*lpt} and the value of \texttt{lo} are both 0.
+In line~\ref{assignmentuno}, the expression \texttt{*(lpt + 1)} is overwritten, which is represented as $*(64 + lpt)$ in our analysis.
+We now want to determine if the term $*lpt$ is modified by this assignment.
+The address of $*lpt$ is $lpt$ and the address of $*(64 + lpt)$ is $64 + lpt$.
+Given that $lpt \nequivp 64 + lpt$, we know that the assignment does not write at the same address as $*lpt$.
+
+However, in line~\ref{assignment}, the expression \texttt{*((char *)lpt + 1)} is overwritten, which is represented as $*(8 + lpt)$ in our analysis.
+Even though we know that $lpt \nequivp 8 + lpt$, it does not hold that the value of $*lpt$ does not change when overwriting $*(8 + lpt)$, because the two values overlap.
+Therefore, a disequality between two terms follows from an equality with an offset, we need to make sure that the terms do not overlap in order to be sure that assigning to one of them does not modify the other one.
+\end{example}
+
+Let $t_1$ be a pointer to a value that is $k_1$ bits large and $t_2$ be a pointer to a value of $k_2$ bits.
+The two terms $t_1$ and $z + t_2$ overlap iff
+\begin{itemize}
+	\item $t_1 \equivp z' + t_2$ \todo{use $\equiv_k$} and
+	\item $z' < 0$ and $-z' < k_1$, or $z' > 0$ and $z' < k_2$.
+\end{itemize}\todo{add visualization?}
+
 In the following, we will describe how to find the set of terms
 that are not modified by the assignment.
+For this, we use different information sources: the disequalities implied by the abstract domain, the information about the type of the terms to find potential overlaps, and the \emph{MayPointTo} analysis that is present in \goblint\ and which was introduced in \cref{section:goblint}.
 
 \ignore{When overwriting $s_1$, all the terms whose value is written in the memory at the same address as $s_1$ are also modified.
-In the case that $s_1$ is an auxiliary $B \in \A$, then we can't reach the address of $B$ by dereferencing any other term.
-Therefore, the only terms that are modified by overwriting $B$ are the terms that contain $B$ as a subterm.
-On the other hand, if $s_1$ is a pointer term $*(z+t)$, then we need to forget all the terms that contain any subterm that may be equal to $z+t$.
-Then we need to restrict the kernel $k$ to forget all the equalities and disequalities that contain the prohibited terms.}
+	In the case that $s_1$ is an auxiliary $B \in \A$, then we can't reach the address of $B$ by dereferencing any other term.
+	Therefore, the only terms that are modified by overwriting $B$ are the terms that contain $B$ as a subterm.
+	On the other hand, if $s_1$ is a pointer term $*(z+t)$, then we need to forget all the terms that contain any subterm that may be equal to $z+t$.
+	Then we need to restrict the kernel $k$ to forget all the equalities and disequalities that contain the prohibited terms.}
 
 Given a kernel $k = \angl{P, M_P, B, D}$, a partition $P = (\T, \tau, \omega)$ and a term $t$,
-we want to compute the set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias with $t$.
+we want to compute the set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias or overlap with $t$.
 This is exactly the set of terms that are not modified when the value of $t$ changes.
 We differentiate between two cases: the case where $t$ is an atom and the case where $t$ is a dereferenced term.
 
 If $t$ is an atom, then it is impossible to reach the address of $t$ by dereferencing.
 Therefore, $\restr{\T}{\neg t}$ is the set of all terms that do not contain $t$ as a subterm.
 
-If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms of $\T$ where for each subterm of the form $*(z' + v)$ it holds that $t' \nequivp (z' - z) + v$.
+If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms of $\T$ where for each subterm of the form $*(z' + v)$ it holds that:
+\begin{itemize}
+	\item\label{item:diseqs} The disequality $v \nequivp (z - z') + t'$ is implied by $D$ or $B$;
+    \item\label{item:eqs} or $t_1 \equivp z' + t_2$ for any $z' \neq z$ and the terms $v$ and $(z - z') + t'$ do not overlap;
+    \item or the intersection of the sets of addresses that $v$ may point to and the addresses that $(z - z') + t'$ may point to is empty.
+    These sets are computed using the \emph{MayPointTo} analysis of \goblint.
+\end{itemize}
 \todo{add definition of $\nequiv_k$}
-\todo[inline]{If it only was that easy. What about overlapping terms? What about MayPointTo?}
-As defined in \cref{section:disequalities}, we can derive the disequalities from the disequalities in $D$, from the equalities
-implied by $P$ and from the set of block disequalities $B$.
 
 To simplify the notation, the kernel that is restricted to the terms in $\restr{\T}{\neg t}$ is denoted $\restr{k}{\neg t}$.
 It represents all propositions that follow from $M$ and that are still valid after overwriting the value of $t$.
