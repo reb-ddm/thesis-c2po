@@ -141,15 +141,18 @@ Therefore, in order to decide the equivalence of two kernels $k_1$ and $k_2$, it
 
 \todo[inline]{Proof that they are equivalent}
 
-\todo[inline]{Implementation detail: it is lazily computed.}
-\subsection{Partial Order}
+The advantage of computing the normal form instead of comparing the equivalence classes is that it only needs to be computed once per kernel, and the resulting normal form can be reused for each equality check.
+In the implementation, it is possible to configure which of the two algorithms for equality is used by the analysis.
+If the normal form algorithm is chosen, then the kernel contains an additional field containing the normal form.
+This normal form is \emph{lazily} computed, i.e., it will only be calculated when needed, and it is not computed if it is never used.
+Once calculated, the result is stored directly in the kernel and can be reused.
 
-The natural partial ordering between conjunctions is semantic implication, i.e.,
-$\Psi_1 \rightarrow \Psi_2$
-iff $(\rho, \nu, \mu) \models \Psi_1$ whenever $(\rho, \nu, \mu) \models \Psi_2$.
-This is the case iff $\Psi_1 \land \Psi_2$ is semantically equal to $\Psi_1$.
-Therefore it is possible to reduce the \emph{less equal} operation to a \emph{meet} and an \emph{equal} operation.
-A kernel $k_1$ that represents a conjunction $\Psi_1$ is \emph{less or equal} to a kernel $k_2$ representing $\Psi_2$ iff
-$k_1 \meet k_2$ is semantically equal to $k_1$.
-We already described how to decide semantic equality between two kernels.
+
+\section{Partial Order}
+
+The natural partial ordering between conjunctions is the semantic implication, i.e., $\Psi_1 \rightarrow \Psi_2$ if and only if $(\rho, \nu, \mu) \models \Psi_1$ whenever $(\rho, \nu, \mu) \models \Psi_2$.
+This is the case if and only if $\Psi_1 \land \Psi_2$ is semantically equal to $\Psi_1$.
+Therefore, it is possible to reduce the \emph{less equal} operation to a \emph{meet} and an \emph{equal} operation.
+A kernel $k_1$ that represents a conjunction $\Psi_1$ is \emph{less or equal} to a kernel $k_2$ representing $\Psi_2$ if and only if $k_1 \meet k_2$ is semantically equal to $k_1$.
+We have already described how semantic equality between two kernels can be decided.
 In the next section, the \emph{meet} operation ($\meet$) is presented.
