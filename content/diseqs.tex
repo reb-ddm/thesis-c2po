@@ -62,7 +62,7 @@ The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size o
 \begin{itemize}
     \item For each equality $*(z_1 + t_1) \equivp z + *(z_2 + t_2)$ for $z \neq 0$
           that follows from $\Psi$,
-          add $norm_{P[\Psi]}(t_1 = (z_2 - z_1) + t_2)$ to $D$.
+          add $norm_{P[\Psi]}(t_1 \neq (z_2 - z_1) + t_2)$ to $D$.
     \item For each disequality $bl(*(z_1 + t_1)) \nequivp bl(*(z_2 + t_2))$ that follows from $\Psi$, add $norm_{P[\Psi]}(t_1 \neq (z_2 - z_1) + t_2)$ to $D$.
           These two first rules only add a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
     \item Compute the closure of the disequalities in $D$ using rule~\labelcref{item:inverse-deref}, and add the normalized disequalities to $D$.
