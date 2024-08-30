@@ -1,60 +1,64 @@
 \section{Equality}
 
-Given two kernels $k_1$ and $k_2$, we want to decide whether they are semantically equivalent.
-In this section, two methods for computing the \emph{equal} operation are presented.
+Given two kernels, $k_1$ and $k_2$, we want to decide whether they are semantically equivalent.
+This section presents two methods for computing the \emph{equal} operation.
 Their main difference is in how the equivalence of two partitions $P_1$ and $P_2$ is decided.
-The first method is based on comparing the equivalence classes of the partitions $P_1$ and $P_2$.
+The first method compares the equivalence classes of the partitions $P_1$ and $P_2$.
 The second method is based on computing a normal form of the conjunctions represented by the kernels $k_1$ and $k_2$.
-It then suffices to compare the normal forms syntactically. This has the advantage that the normal form can be computed once
-for every kernel and there is no need to recompute it for every comparison.
+It then suffices to compare the normal forms syntactically.
+This approach has the advantage that the normal form can be computed once for every kernel, and there is no need to recompute it for every comparison.
 
 \subsection{Comparing Equivalence Classes}
 
 Let $P_1 = (\T_1, \tau_1, \omega_1)$ and $P_2 = (\T_2, \tau_2, \omega_2)$ be two partitions.
 First, we extend both partitions to the set $\T = \T_1 \cup \T_2$.
-Then we compare the equivalence classes of the resulting partitions $P_1' = (\T, \tau_1', \omega_1')$ and $P_2' = (\T, \tau_2', \omega_2')$ of $\ext{P_1}{\T}$ and $\ext{P_2}{\T}$.
+Then we compare the equivalence classes of the resulting partitions $\ext{P_1}{\T} = (\T, \tau_1', \omega_1')$ and $\ext{P_2}{\T} = (\T, \tau_2', \omega_2')$.
 
-For this, we need to check for each element $t \in \T$, if $t = \omega_1'\,t + \tau_1'\,t$ also holds in $P_2$, i.e.,
-if $\omega_2'\,t + \tau_2'\,t = \omega_1'\,t + \omega_2'\,(\tau_1'\,t) + \tau_2'\,(\tau_1'\,t)$.
+For this, we need to check for each element $t \in \T$ if all equalities implied by $P_1$ are also implied by $P_2$.
+Let $t' \equiv \tau_1'\,t$ and $z = \omega_1'\,t$.
+It follows that $P_1$ implies the equality $t = z + t'$.
+If $\omega_2'\,t + \tau_2'\,t = z + \omega_2'\,t' + \tau_2'\,t'$ holds, then the same equality is also implied by $P_2$.
 
-Afterwards, the disequalities and block disequalities are compared.
+Afterward, the disequalities and block disequalities are compared.
 For two kernels $k_1 = \angl{P_1, M_{P_1}, B_1, D_1}$ and $k_2 = \angl{P_2, M_{P_2}, B_2, D_2}$,
 we rewrite the disequalities $B_2$ and $D_2$ to be about the representatives of $P_1$.
-I.e., for each disequality $t_1 \neq z + t_2$ in $D_2$, we convert it to the disequality $\tau_1'\,t_1 \neq (z + \omega_1'\,t_2 - \omega_1'\,t_1) + \tau_1'\,t_2$
-and for each block disequality $bl(t_1) \neq bl(t_2)$ in $B_2$, we convert it to the disequality $bl(\tau_1'\,t_1) \neq bl(\tau_1'\,t_2)$.
-This is possible, because we previously extended the partitions to the same set $\T$,
-i.e., $\tau_1'\,t$ is defined for each term $t$ occurring in $B_2$ and $D_2$.
-Then we check if the resulting set of block disequalities is equal to $B_1$ and if the resulting set of disequalities is equal to $D_1$.
+For each block disequality $t_1 \mapsto S \in B_2$ and each $t_2 \in S$, we convert it to the disequality $norm_{P_1}(bl(t_1) = bl(t_2))$ and for each mapping in $D_2$ of the form $t_1 \mapsto S$ and each element $(z, t_2) \in S$, we we convert it to the disequality $norm_{P_1}(t_1 = z + t_2)$.
+The normalization is possible because we previously extended the two partitions to the same set $\T$, i.e., $\tau_1'\,t$ is defined for each term $t$ occurring in $B_2$ and $D_2$.
+Then, we check if the resulting set of block disequalities is equal to the set of mappings of $B_1$ and if the resulting set of disequalities equals the set of mappings of $D_1$.
 
 \subsection{Compute Normal Form}
 
-In~\cite{2pointer} a different approach is presented to decide the equivalence of two partitions.
+\textcite{2pointer} presents a different approach to deciding the equivalence of two partitions.
 This is done by computing a normal form $\nf(\Psi)$ of a conjunction $\Psi$, such that $\Psi$ is semantically equivalent to $\nf(\Psi)$ and such that two conjunctions $\Psi_1$ and $\Psi_2$ are semantically equivalent iff $\nf(\Psi_1)$ and $\nf(\Psi_2)$ are syntactically equivalent.
 
 The main idea is to find \emph{minimal representatives} for each state $s$ in the QFA $M_P$,
 which corresponds to the smallest term in $\L_{M_P}(s)$, according to the order defined in \cref{chapter:2pointer}.
-Then the automaton is transformed to a formula that utilizes only the minimal representatives, thus obtaining a normal form
-that is independent on the chosen set $\T$ and on the chosen representatives.
+Then, the automaton is transformed to a formula that utilizes only the minimal representatives, thus obtaining a normal form that is independent of the chosen set $\T$ and on the chosen representatives.
 
 Let $M_P = (S, \otau, \eta, \delta)$ be a QFA.\@
 For each state $s \in S$, we compute the minimal term $m_s$ and the corresponding offset $z_s$ such that $M[m_s] = (z_s,s)$.
-This can be computed by using a variantion of Dijktra's shortest path algorithm,
-that will be described in the following.
-We use an initially empty FIFO queue $P$ to store all states $s$ for which $(m_s,z_s)$ is already computed,
-but where the outgoing edges still have to be processed.
-First, we consider all atoms $a$ for which $\eta$ is defined, in ascending order. For each $\eta\,a = (z,s)$ we do:
+This can be computed using a variation of Dijktra's shortest path algorithm, which is described in the following.
+
+Let $P$ be an initially empty FIFO queue, which we use to store all states $s$ for which $(m_s,z_s)$ is already computed but where the outgoing edges still have to be processed.
+
 \begin{enumerate}
-    \item If $(m_s,z_s)$ is not defined yet, set $(m_s,z_s) = (a,z)$.
-    \item Add $s$ to $P$.
+    \item
+          First, we consider all atoms $a$ for which $\eta$ is defined in ascending order. For each $\eta\,a = (z,s)$, if $(m_s,z_s)$ is not defined yet, we set
+          \[
+              (m_s,z_s) = (a,z)
+          \]
+          and add $s$ to $P$.
+    \item
+          Then, we process the queue $P$ in a FIFO manner until it is empty.
+          For each state $s$ in $P$, we consider all outgoing edges $\delta\,z\,s = (z',s')$ in order of ascending $z$.
+          For each such edge where $(m_{s'},z_{s'})$ is not defined yet, we set
+          \[
+              (m_{s'},z_{s'}) = (*((z-z_s)+m_s),z')
+          \]
+          and add $s'$ to $P$.
 \end{enumerate}
-Then we process the queue $P$ in a FIFO manner, until it is empty.
-For each state $s$ in $P$, we consider all outgoing edges $\delta\,z\,s = (z',s')$ in order of ascending $z$.
-For each such edge, we do:
-\begin{enumerate}
-    \item If $(m_{s'},z_{s'})$ is not defined yet, set $(m_{s'},z_{s'}) = (*((z-z_s)+m_s),z')$.
-    \item Add $s'$ to $P$.
-\end{enumerate}
-The algorithm is correct because longer paths always result in larger terms than shorter paths.
+
+The correctness is given by the fact that longer paths always result in larger terms than shorter paths.
 Thus, we do not need to update a pair once it was computed.
 
 \begin{example}\label{ex:min-repr}
@@ -89,49 +93,48 @@ Thus, we do not need to update a pair once it was computed.
 
         \end{tikzpicture}
     \end{center}
+
     The minimal representatives are computed by first considering the atoms in ascending order.
     Assuming that the linear order on atoms is $\&x < A < B$,
     we define first $m_{s_0} = \&x$ and $z_{s_0} = 0$.
     Then we define $m_{s_1} = A$ and $z_{s_1} = -2$.
-    There is nothing to do for $B$, because we already defined $m_{s_0}$.
+    There is nothing to do for $B$ because we already defined $m_{s_0}$.
     The queue $P$ is now $\{s_0, s_1\}$.
     We consider the outgoing edge of $s_0$ with $z = -1$.
     There is nothing to do for $s_1$, as $m_{s_1}$ is already defined.
     Then we consider the outgoing edge of $s_0$ with $z = 0$
     and set $m_{s_2} = x$ and $z_{s_2} = 0$.
-    Then we are done.
+    Thus, we have found the minimal representative for each state.
 \end{example}
-Using the minimal representatives, we can now transform the kernel $k = \angl{P,M_P,B,D} \neq \bot$ with $M_P = (S, \otau, \eta, \delta)$ to a normal formula $\F_{normal}[k]$,
+Using the minimal representatives, we can now transform the kernel $k = \angl{P,M_P,B,D} \neq \bot$ with $M_P = (S, \otau, \eta, \delta)$ to a normal form $\F_{normal}[k]$,
 defined as follows:
 
 \[
     \begin{array}{lll}
-        \F_{normal}[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = (z - z_s) + m_s) \land                                                           \\
-                         &        & \bigwedge_{\delta\,z\,s=(z',s')} (*((z-z_s) + m_s) = (z'-z_{s'} + m_{s'}) \land                                 \\
-                         &        & \bigwedge_{s,s' \in S \land \{\otau\,s, \otau\,s'\} \in B} (bl(m_{s}) \neq bl(m_{s'})) \land           \\
-                         &        & \bigwedge_{s,s' \in S \land (\otau\,s, z,\otau\,s') \in D} (m_{s} \neq (z+ z_{s} -z_{s'}) + m_{s'})
+        \F_{normal}[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = (z - z_s) + m_s) \land                                                                     \\
+                       &        & \bigwedge_{\delta\,z\,s=(z',s')} (*((z-z_s) + m_s) = ((z'-z_{s'}) + m_{s'}) \land                                         \\
+                       &        & \bigwedge_{s,s' \in S \land \otau\,s, \mapsto T \in B \land \otau\,s'\ \in T} (bl(m_{s}) \neq bl(m_{s'})) \land           \\
+                       &        & \bigwedge_{s,s' \in S \land \otau\,s, \mapsto T \in D \land (z,\otau\,s') \in T} (m_{s} \neq (z+ z_{s} -z_{s'}) + m_{s'})
     \end{array}
 \]
 
 The trivial propositions of the form $t = 0 + t$ are removed from the formula, as well as the repeated equalities.
 
-This corresponds to the formula representation $\F[k]$, but it expresses the proposition using the minimal representatives instead of the representatives of the union-find.
-The advantage of this normal form is that the formula representation does not depend on the chosen representatives and also not of the chosen set $\T$.
-Thus, there is a unique normal form for each semantic equivalence class of kernels,
-even though there exists multiple different kernel representations of the same conjunction.
+The definition of $\F_{normal}[k]$ is analogous to the formula representation $\F[k]$, but it expresses the proposition using the minimal representatives instead of the union-find representatives.
+The advantage of this normal form is that the formula representation depends neither on the chosen representatives nor the chosen set $\T$.
+Thus, there is a unique normal form for each semantic equivalence class of kernels, even though multiple kernel representations of the same conjunction exist.
 Therefore, in order to decide the equivalence of two kernels $k_1$ and $k_2$, it suffices to compare the normal forms $\F_{normal}[k_1]$ and $\F_{normal}[k_2]$ syntactically.
 
 \begin{example}
     Consider the conjunction $\Psi$ from \cref{ex:min-repr}.
     The normal form of the kernel $k$ representing $\Psi$ is
     \[
-    (B = -1+\&x) \land (*(-1 + \&x) = 2 + A) \land (*A = 3 + x)
+        (B = -1+\&x) \land (*(-1 + \&x) = 2 + A) \land (*A = 3 + x)
     \]
     where $B = -1 + \&x$ originates from $\eta\,B = (-1,s_0)$.
     The equalities originating from $\eta\,\&x = (0,s_0)$ and $\eta\,A = (0, s_1)$ are removed, because they are trivial.
-    The edge $\delta\,(-1,s_0) = (0,s_0)$ gives the equality $*(-1 + \&x) = 2 + A$ and
-    $\delta\,(-2,s_1) = (3,s_2)$ gives the equality $*A = 3 + x$.
-    The last edge $\delta\,(0,s_0) = (0,s_2)$ gives the trivial equality $x = 0 + x$.
+    The edge $\delta\,(-1,s_0) = (0,s_0)$ gives rise to the equality $*(-1 + \&x) = 2 + A$ and $\delta\,(-2,s_1) = (3,s_2)$ generates the equality $*A = 3 + x$.
+    The last edge $\delta\,(0,s_0) = (0,s_2)$ generates the trivial equality $x = 0 + x$.
 \end{example}
 
 \todo[inline]{Correctness proof}
