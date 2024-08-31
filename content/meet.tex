@@ -1,58 +1,53 @@
 \section{Meet}\label{section:meet}
 
-Semantically, the meet of two conjunctions consists in taking the conjunction of the conjunctions:
+Semantically, the \emph{meet} of two conjunctions consists in taking the conjunction of the conjunctions:
 $\Psi_1 \meet \Psi_2 \equiv \Psi_1 \land \Psi_2$.
 
-Given two kernels $k_1$ for $\Psi_1$ and $k_2$ for $\Psi_2$,
+Given two kernels $k_1$ of $\Psi_1$ and $k_2$ of $\Psi_2$,
 we want to compute the kernel $k_1 \meet k_2$ that represents the conjunction $\Psi_1 \land \Psi_2$.
 If either $k_1 = \bot$ or $k_2 = \bot$, then $k_1 \meet k_2 = \bot$.
-Otherwise, we consider the formula representations $\F[k_2]$ and add each proposition of $\F[k_2]$ to the kernel $k_1$.
-First all quantitative equalities are added, then all block disequalities and finally all disequalities.
+Otherwise, we consider the formula representation $\F[k_2]$ of $k_2$ and add each proposition of $\F[k_2]$ to the kernel $k_1$.
+First, all quantitative equalities are added, then all block disequalities, and finally, all disequalities.
 Let $k = \angl{P,M_P,B,D}$ and $P = (\T, \tau, \omega)$ and $M_P = (S, \otau, \eta, \delta)$.
-We define the conjunction $p \meet k$ of $k$ and a proposition $p$ as follows,
-assuming that all the terms occurring in $p$ have already been added to $\T$ by extending the partition $P$:
+Assuming that all the terms occurring in $p$ have already been added to $\T$ by extending the partition $P$,
+the conjunction $p \meet k$ of a kernel $k$ and a proposition $p$ is defined as follows:
 \begin{itemize}
-    \item Let $p \equiv (t_1 = z + t_2)$. Again, let $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
-    \begin{itemize}
-        \item If $t_1' \equiv t_2'$ and $\omega\,t_1 = z + \omega\,t_2$,
-        then the equality is already implied by $P$ and we set $p \meet k = k$.
-        \item If $t_1' \equiv t_2'$, but $\omega\,t_1 \neq z + \omega\,t_2$,
-        or if $\{t_1',t_2'\}\in B$, or if $t_1' \neq (z + \omega\,t_2 - \omega\,t_1) + t_2'$ is in $D$,
-        then there is a contradiction and we set $p \meet k = \bot$.
-        \item We compute the $\closure{t_1}{z}{t_2}{P}$.
-        Let $P' = (\T, \tau', \omega')$ and $M_P'$ be the partition and QFA resulting from the closure operation.
-        Now, we need to update the block disequalities and the disequalities to be about the representatives of $P'$.
-        For each block disequality $bl(t_1) \neq bl(t_2)$ in $B$, we convert it to the disequality $bl(\tau'\,t_1) \neq bl(\tau'\,t_2)$:
-        $B' = \{bl(\tau'\,t_1) \neq bl(\tau'\,t_2) \mid bl(t_1) \neq bl(t_2) \in B\}$.
-        There could be additional disequalities implied by the equality $t_1' = z + t_2'$, that need to be stored and
-        possibly could lead to a contradiction.
-        Therefore we set $D' = closure_\neq(D)$. \todo{what this ``closure'' doesn't exists}
-        If a contradiction occurs, we set $p \meet k = \bot$.
-        We set $p \meet k = \angl{P',M_P',B',D'}$.
-    \end{itemize}
-    \item Let $p \equiv (bl(t_1) \neq bl(t_2))$, $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
-    \begin{itemize}
-        \item If $t_1' \equiv t_2'$, then $p \meet k = \bot$.
-         Otherwise, let $t_1' \neq t_2'$. We define $p \meet k = \angl{P,M_P,B', D'}$.
-         \item If $t_1$' and $t_2'$ are address expressions, then $bl(t_1') \neq bl(t_2')$ is trivially true.
-          Therefore, we set $B'= B$ and $D'=D$. \todo[inline]{not only when $t_1'$ and $t_2'$ contain an address, but also when the equivalence classes contain an address}
-          \todo[inline]{Add to the definition of $closure_\neq$ that disequalities that are already implied by the partition or block diseqs are removed.}
-          \item Otherwise, we set $B' = B \cup \{t_1' \neq t_2'\}$.
-          The disequalities must be updated to remove redundant information, and also to
-          potentially store new disequalities that can be derived from the new block disequality by using the rule
-          \labelcref{item:inverse-deref} of \cref{section:disequalities}.
-        We set $D' = closure_\neq(D \setminus \{(t_1',z,t_2') \in D \mid z \in \Z\})$.\todo{what this ``closure'' doesn't exists}
-    \end{itemize}
+    \item Let $p \equiv (t_1 = z + t_2)$ and let $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
+          \begin{itemize}
+              \item If $t_1' \equiv t_2'$ and $\omega\,t_1 = z + \omega\,t_2$,
+                    then the equality is already implied by $P$ and we set $p \meet k = k$.
+              \item If $t_1' \equiv t_2'$, but $\omega\,t_1 \neq z + \omega\,t_2$,
+                    or if $\{t_1',t_2'\}\in B$, or if $t_1' \neq (z + \omega\,t_2 - \omega\,t_1) + t_2'$ is in $D$,
+                    then there is a contradiction and we set $p \meet k = \bot$.
+              \item Otherwise, we compute the $\closure{t_1}{z}{t_2}{P}$.
+                    Let $P' = (\T, \tau', \omega')$ and $M_P'$ be the partition and QFA resulting from the closure operation.
+                    Now, we need to update the block and quantitative disequalities to be about the representatives of $P'$.
+                    For each block disequality $bl(t_1) \neq bl(t_2)$ in $B$, we convert it to the disequality $bl(\tau'\,t_1) \neq bl(\tau'\,t_2)$.
+                    $B'$ is the result of updating all mappings of $B$ to the new representatives.
+                    We set $D' = D[\F[k_1] \land p]$.
+                    If a contradiction occurs during the construction of $D'$, we set $p \meet k = \bot$.
+                    We set $p \meet k = \angl{P',M_P',B',D'}$.
+          \end{itemize}
+    \item Let $p \equiv (bl(t_1) \neq bl(t_2))$. Again, let $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
+          \begin{itemize}
+              \item If $t_1' \equiv t_2'$, then $p \meet k = \bot$.
+                    Otherwise, let $t_1' \nequiv t_2'$. We define $p \meet k = \angl{P,M_P,B', D'}$, where $B'$ and $D'$ are described in the following:
+              \item If $t_1$' and $t_2'$ are address expressions, then $bl(t_1') \neq bl(t_2')$ is trivially true.
+                    Therefore, we set $B'= B$ and $D'=D$.
+              \item Otherwise, we add the mapping $t_1' \mapsto \{t_2'\}$ to $B$, or if $B$ already contains a mapping $t_1' \mapsto T$, then we add $t_2'$ to $T$.
+                    We set $D' = D[\F[k_1] \land p]$.
+          \end{itemize}
     \item Let $p \equiv (t_1 \neq z + t_2)$, $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
-    \begin{itemize}
-        \item If $t_1'$ and $t_2'$ are address expressions, then the disequality is trivially true.\todo{same as before}
-        The same holds if $t_1' \equiv t_2'$ and $\omega\,t_1 = z + \omega\,t_2$
-        or if $\{t_1',t_2'\}\in B$. In these cases, we set $p \meet k = k$.
-         \item If $t_1' \equiv t_2'$, but $\omega\,t_1 \neq z + \omega\,t_2$, then
-         there is a contradiction and we set $p \meet k = \bot$.
-         \item We set $p \meet k = \angl{P,M_P,B,D'}$, where $D' = closure(D \cup \{t_1' \neq z' + t_2'\})$
-         and $z' = z - \omega\,t_1 + \omega\,t_2$.
-    \end{itemize}
+          \begin{itemize}
+              \item If $t_1'$ and $t_2'$ are both address expressions, then the disequality is trivially true.
+                    The same holds if $t_1' \equiv t_2'$ and $\omega\,t_1 = z + \omega\,t_2$
+                    or if $\{t_1',t_2'\}\in B$. In these cases, we set $p \meet k = k$.
+              \item If $t_1' \equiv t_2'$, but $\omega\,t_1 \neq z + \omega\,t_2$, then
+                    there is a contradiction and we set $p \meet k = \bot$.
+              \item We set $p \meet k = \angl{P,M_P,B,D'}$, where $D' = D[\F[k_1] \land p]$.
+          \end{itemize}
 \end{itemize}
+
+As an optimization, the quantitative disequalities can be computed only at the end, and not after each added proposition, by setting $D' = D[\F[k_1] \land \F[k_2]]$
 
 \todo[inline]{some kind of proof?}
