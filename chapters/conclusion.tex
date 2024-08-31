@@ -6,7 +6,7 @@ capable of inferring relational properties between pairs of pointer expressions 
 
 The basic principles of abstract interpretation are presented, and then a concrete semantics is introduced that is the foundation for our abstract analysis.
 Then, the 2-Pointer Logic~\cite{2pointer} is described, as well as its representation and operations for computing the closure of a conjunction of propositions and for changing the set of terms that are considered by the analysis.
-The 2-Pointer logic can express equalities and disequalities between pairs pointer expressions that contain the addition of integer constants, as well as dereferences.
+The 2-Pointer Logic can express equalities and disequalities between pairs pointer expressions that contain the addition of integer constants, as well as dereferences.
 Here, it is extended with block disequalities, which model that pointer arithmetic is only valid within the same memory block.
 
 The abstract domain of \cpo\ is represented by a representation of 2-Pointer Logic conjunctions, including a congruence closure of the equalities and representations of quantitative disequalities and block disequalities.

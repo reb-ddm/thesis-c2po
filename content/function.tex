@@ -82,10 +82,10 @@ The abstract combine function $\combine^\sharp$ performs the following steps:
     \item Remove all tainted \todo{explain tainted} variables from the caller state
     \item Meet the caller state with the state of the function.
     \item For each parameter $p$, if the function was called with the
-    expression $e$ as a value for the parameter $p$, and if this expression is expressible in 2-pointer logic,
+    expression $e$ as a value for the parameter $p$, and if this expression is expressible in 2-Pointer Logic,
      add the equality $p' = e$ to the resulting state.
     \item If the return value is assigned to the variable $x$ in the caller,
-    and the function returns an expression $e'$ and this expression is expressible in 2-pointer logic,
+    and the function returns an expression $e'$ and this expression is expressible in 2-Pointer Logic,
     then add the assignment $\sem{x = e'}^\sharp$ is performed.
     \item Remove all local variables of the function from the abstract state,
     as well as the shadow variables.
