@@ -22,6 +22,9 @@ the normalized disequalities $norm_{P[\Psi]}(p)$.
 The block disequalities between other terms are derived from the congruence closure of $\Psi$ and the map $B[\Psi]$.
 The disequalities deriving from rule~\ref{item:distinct-vars-block-neq} are considered as \emph{implicit} block disequalities and are therefore not stored in the map $B[\Psi]$.
 
+If $\Psi$ contains a block disequality $bl(t_1) \neq bl(t_2)$ and for $P[\Psi] = (\T, \tau, \omega)$ it holds that
+$\tau\,t_1 \equiv \tau\,t_2$, then the conjunction $\Psi$ is unsatisfiable.
+
 \begin{example}
     Consider the conjunction $\Psi \equiv A = 1 + B \land bl(B) \neq bl(*(1 + B))$.\todo{change A and B to something else please because of the map B}
     The QFA deriving from $\Psi$ is shown in \cref{fig:closure-example}.
@@ -57,13 +60,22 @@ The list $D[\Psi]$ consists of all disequalities and block disequalities derivin
 but only those that contain representative terms.
 This set is finite because we only store equalities between different representatives and not the implicit equalities following from \labelcref{item:eq-neq,item:block-neq}.
 
+Given a map $D$, a disequality $t_1 \nequivp z + t_2$ can be added by:
+\begin{itemize}
+\item Let $norm_{P[\Psi]}(t_1 \neq z + t_2) \equiv t_1' = z' + t_2'$.
+\item If $t_1' \equiv t_2'$ and $z \neq 0$, then it is unsatisfiable.
+\item If $t_1'$ and $t_2'$ are both address constants, then the disequality is implicit and not stored in $D$.
+\item Let $t_1' \mapsto T_1$ be in $D$ and $t_2' \mapsto T_2$ be in $D$. Add $(z', t_2')$ to $T_1$ and $(-z', t_1')$ to $T_2$.
+If $D$ has no mapping for $t_1'$ or $t_2'$, add the mapping $t_1' \mapsto \{(z', t_2')\}$ or $t_2' \mapsto \{(-z', t_1')\}$, respectively.
+\end{itemize}
+
 The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size of the formula $\Psi$ in the following way:
 
 \begin{itemize}
     \item For each equality $*(z_1 + t_1) \equivp z + *(z_2 + t_2)$ for $z \neq 0$
           that follows from $\Psi$,
-          add $norm_{P[\Psi]}(t_1 \neq (z_2 - z_1) + t_2)$ to $D$.
-    \item For each disequality $bl(*(z_1 + t_1)) \nequivp bl(*(z_2 + t_2))$ that follows from $\Psi$, add $norm_{P[\Psi]}(t_1 \neq (z_2 - z_1) + t_2)$ to $D$.
+          add $t_1 \neq (z_2 - z_1) + t_2$ to $D$, as described before.
+    \item For each disequality $bl(*(z_1 + t_1)) \nequivp bl(*(z_2 + t_2))$ that follows from $\Psi$, add $t_1 \neq (z_2 - z_1) + t_2$ to $D$, as described before.
           These two first rules only add a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
     \item Compute the closure of the disequalities in $D$ using rule~\labelcref{item:inverse-deref}, and add the normalized disequalities to $D$.
     \item For each disequality $p \in \Psi$, add $norm_{P[\Psi]}(p)$ to $D$.
