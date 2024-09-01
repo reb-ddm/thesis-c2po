@@ -45,12 +45,12 @@ If $(\rho, \nu, \mu)\models p$ for each proposition $p$ in $\Psi$, then we say t
 
 \section{Kernel Representation of 2-Pointer Logic Conjunctions}
 
-We introduce the \emph{kernel} representation, which groups the quantitative partition, the quantitative automaton, and the two maps of disequalities and block disequalities.
+We introduce the \emph{kernel} representation, which groups the quantitative partition, the quantitative automaton, and the two sets of disequalities and block disequalities.
 The kernel is the abstract state of the analysis, and it represents the conjunction of propositions that hold in a specific program point, as well as all propositions that they imply.
 
 A \emph{kernel} consists of a tuple $k = \angl{P,M_P,B,D}$, where $P = (\T, \tau, \omega)$ is a quantitative partition, as described in \cref{subsection:quantitative-union-find}.
 Each state of the QFA $M$ represents an equivalence class of $P$, as outlined in \cref{subsection:qfa}.
-$B$ and $D$ are maps representing the explicit block disequalities and disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
+$B$ and $D$ are sets representing the explicit block disequalities and disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
 Given a satisfiable conjunction $\Psi$ of 2-Pointer Logic propositions, the kernel representation of $\Psi$ is denoted as $k[\Psi] = \angl{P[\Psi],M_{P[\Psi]},B[\Psi],D[\Psi]}$.
 If $\Psi$ is unsatisfiable, the abstract state is represented as $\bot$.
 
@@ -60,8 +60,8 @@ It is possible to convert a kernel representation $k = \angl{P,M_P,B,D}$ with $M
   \begin{array}{lll}
     \F[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = z + \otau\,s) \land                            \\
           &        & \bigwedge_{\delta\,z\,s=(z',s')} (*(z + \otau\,s) = z' + \otau\,s') \land     \\
-          &        & \bigwedge_{t \mapsto S \in B}  \bigwedge_{t' \in S} (bl(t) \neq bl(t')) \land \\
-          &        & \bigwedge_{t \mapsto S \in D} \bigwedge_{(z, t') \in S}(t \neq z + t')
+          &        & \bigwedge_{\{t,t'\}\in B} (bl(t) \neq bl(t')) \land \\
+          &        & \bigwedge_{(t,z, t') \in D}(t \neq z + t')
   \end{array}
 \]
 

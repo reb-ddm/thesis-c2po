@@ -22,9 +22,9 @@ If $\omega_2'\,t + \tau_2'\,t = z + \omega_2'\,t' + \tau_2'\,t'$ holds, then the
 Afterward, the disequalities and block disequalities are compared.
 For two kernels $k_1 = \angl{P_1, M_{P_1}, B_1, D_1}$ and $k_2 = \angl{P_2, M_{P_2}, B_2, D_2}$,
 we rewrite the disequalities $B_2$ and $D_2$ to be about the representatives of $P_1$.
-For each block disequality $t_1 \mapsto S \in B_2$ and each $t_2 \in S$, we convert it to the disequality $norm_{P_1}(bl(t_1) = bl(t_2))$ and for each mapping in $D_2$ of the form $t_1 \mapsto S$ and each element $(z, t_2) \in S$, we we convert it to the disequality $norm_{P_1}(t_1 = z + t_2)$.
+For each block disequality $\{t_1,t_2\} \in B_2$, we convert it to the disequality $norm_{P_1}(bl(t_1) = bl(t_2))$ and for each disequality in $D_2$ of the form $(t_1, z, t_2) \in D$, we convert it to the disequality $norm_{P_1}(t_1 = z + t_2)$.
 The normalization is possible because we previously extended the two partitions to the same set $\T$, i.e., $\tau_1'\,t$ is defined for each term $t$ occurring in $B_2$ and $D_2$.
-Then, we check if the resulting set of block disequalities is equal to the set of mappings of $B_1$ and if the resulting set of disequalities equals the set of mappings of $D_1$.
+Then, we check if the resulting set of block disequalities is equal to the set $B_1$ and if the resulting set of disequalities equals the set $D_1$.
 
 \subsection{Compute Normal Form}
 
@@ -113,8 +113,8 @@ defined as follows:
     \begin{array}{lll}
         \F_{normal}[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = (z - z_s) + m_s) \land                                                                     \\
                        &        & \bigwedge_{\delta\,z\,s=(z',s')} (*((z-z_s) + m_s) = ((z'-z_{s'}) + m_{s'}) \land                                         \\
-                       &        & \bigwedge_{s,s' \in S \land \otau\,s, \mapsto T \in B \land \otau\,s'\ \in T} (bl(m_{s}) \neq bl(m_{s'})) \land           \\
-                       &        & \bigwedge_{s,s' \in S \land \otau\,s, \mapsto T \in D \land (z,\otau\,s') \in T} (m_{s} \neq (z+ z_{s} -z_{s'}) + m_{s'})
+                       &        & \bigwedge_{s,s' \in S \land \{\otau\,s,\otau\,s'\}\in B} (bl(m_{s}) \neq bl(m_{s'})) \land           \\
+                       &        & \bigwedge_{s,s' \in S \land (\otau\,s, z,\otau\,s') \in D} (m_{s} \neq (z+ z_{s} -z_{s'}) + m_{s'})
     \end{array}
 \]
 

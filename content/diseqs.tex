@@ -16,26 +16,28 @@ Given a conjunction $\Psi$ of propositions and the corresponding equivalence rel
           \item\label{item:distinct-vars-block-neq} $bl(\&x) \neq bl(\&y)$ for all distinct $x, y \in \X$.
 \end{enumerate}
 
-The block disequalities are stored as a map $B[\Psi]$ that maps representative terms to a set of representative terms that are not in the same block.
+The block disequalities are stored as an undirected graph $B$
+with edges $\{t_1,t_2\}$ corresponding to conjunctions $bl(t_1) \neq bl(t_2)$,
+where $t_1$ and $t_2$ are representative terms in the partition $P[\Psi]$.
 It is sufficient to only store the disequalities between representatives, i.e.,
-the normalized disequalities $norm_{P[\Psi]}(p)$.
-The block disequalities between other terms are derived from the congruence closure of $\Psi$ and the map $B[\Psi]$.
-The disequalities deriving from rule~\ref{item:distinct-vars-block-neq} are considered as \emph{implicit} block disequalities and are therefore not stored in the map $B[\Psi]$.
+the normalized disequalities $norm_{P[\Psi]}(p)$ because
+the block disequalities between other terms are derived from the congruence closure $P[\Psi]$.
+The disequalities deriving from rule~\ref{item:distinct-vars-block-neq} are considered as \emph{implicit} block disequalities and are therefore not stored in the set $B[\Psi]$.
 
 If $\Psi$ contains a block disequality $bl(t_1) \neq bl(t_2)$ and for $P[\Psi] = (\T, \tau, \omega)$ it holds that
 $\tau\,t_1 \equiv \tau\,t_2$, then the conjunction $\Psi$ is unsatisfiable.
 
 \begin{example}
-    Consider the conjunction $\Psi \equiv A = 1 + B \land bl(B) \neq bl(*(1 + B))$.\todo{change A and B to something else please because of the map B}
+    Consider the conjunction $\Psi \equiv A = 1 + B \land bl(B) \neq bl(*(1 + B))$.\todo{change A and B to something else please because of the set B}
     The QFA deriving from $\Psi$ is shown in \cref{fig:closure-example}.
-    As $\tau\,B = A$ and $\tau\,(*(1+B)) = *A$, the map $B[\Psi]$ would contain the entries $A \mapsto \{*A\}$ and $*A \mapsto \{A\}$.
+    As $\tau\,B = A$ and $\tau\,(*(1+B)) = *A$, the set $B[\Psi]$ would contain the entry $\{A,A*\}$.
 \end{example}
 \todo{define them more explicitly and also with examples in order to understand the meet ecc.}
 
-\section{Disequalities}\label{section:disequalities}
+\section{Quantitative Disequalities}\label{section:disequalities}
 
 Let $\Psi$ be a conjunction of 2-Pointer Logic terms.
-We define the binary relation $\nequivp$ which represents all disequalities that can be derived from $\Psi$, given the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$.\todo{cite new paper?}
+We define the binary relation $\nequivp$ which represents all quantitative disequalities that can be derived from $\Psi$, given the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$.\todo{cite new paper?}
 
 \begin{enumerate}[label={[D\arabic*]}, ref={[D\arabic*]}]
     \setcounter{enumi}{-1} % to start with D0
@@ -51,22 +53,24 @@ We define the binary relation $\nequivp$ which represents all disequalities that
     \item\label{item:block-neq} If $bl(t_1) \nequivp bl(t_2) \in \Psi$, then $t_1 \nequivp z + t_2$ for all $z \in \Z$.
 \end{enumerate}
 
-As for the block disequalities, we store a map $D[\Psi]$ of disequalities between representative terms.
-A disequality $t_1 \nequivp z + t_2$ is represented in $D[\Psi]$ as the mapping $t_1 \mapsto S$ and $(z, t_2) \in S$, as well as the mapping $t_2 \mapsto S$ and $(-z, t_1) \in S$.
-The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we do not need to explicitly store them, as they implicitly derive from the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$, which are stored in the partition $P[\Psi]$ and the map $B[\Psi]$.
+As for the block disequalities, we store a set $D[\Psi]$ of disequalities between representative terms.
+$D[\Psi]$ is a finite weighted directed graph $D$ with edges $(t_1,z,t_2)$ corresponding to all implied
+quantitative disequalities $t_1 \nequivp z+t_2$, where $t_1$ and $t_2$ are representative terms in the partition $P[\Psi]$ and
+$\{t_1,t_2\}\not\in B$ and at least one
+$t_i$ is not an address expression.
+The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we do not need to explicitly store them, as they implicitly derive from the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$, which are stored in the partition $P[\Psi]$ and the set $B[\Psi]$.
 
 The list $D[\Psi]$ consists of all disequalities and block disequalities deriving from
 \labelcref{item:neq-quantitative-equalities,item:neq-quantitative-symmetry,item:inverse-deref,item:eq-neq,item:block-neq},
 but only those that contain representative terms.
 This set is finite because we only store equalities between different representatives and not the implicit equalities following from \labelcref{item:eq-neq,item:block-neq}.
 
-Given a map $D$, a disequality $t_1 \nequivp z + t_2$ can be added by:
+Given a set $D$, a disequality $t_1 \nequivp z + t_2$ can be added by:
 \begin{itemize}
 \item Let $norm_{P[\Psi]}(t_1 \neq z + t_2) \equiv t_1' = z' + t_2'$.
 \item If $t_1' \equiv t_2'$ and $z \neq 0$, then it is unsatisfiable.
 \item If $t_1'$ and $t_2'$ are both address constants, then the disequality is implicit and not stored in $D$.
-\item Let $t_1' \mapsto T_1$ be in $D$ and $t_2' \mapsto T_2$ be in $D$. Add $(z', t_2')$ to $T_1$ and $(-z', t_1')$ to $T_2$.
-If $D$ has no mapping for $t_1'$ or $t_2'$, add the mapping $t_1' \mapsto \{(z', t_2')\}$ or $t_2' \mapsto \{(-z', t_1')\}$, respectively.
+\item Otherwise, add $(t_1', z', t_2')$ and $(t_2', -z', t_1')$ to $D$.
 \end{itemize}
 
 The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size of the formula $\Psi$ in the following way:
@@ -87,8 +91,8 @@ Then
 it holds that $\Psi$ implies $p$ if and only if $t_1 \nequivp z + t_2$ and if and only if one of the following holds:
 
 \begin{enumerate}
-    \item\label{item:diseqs} There is a mapping $t_1' \mapsto S$ in $D$ and $(z', t_2') \in S$;
-    \item\label{item:bl-diseqs} or there is a mapping $t_1 \mapsto S$ in $B$ and $t_2 \in S$;
+    \item\label{item:diseqs} $(t_1',z', t_2') \in D[\Psi]$;
+    \item\label{item:bl-diseqs} $\{t_1,t_2\} \in B[\Psi]$ in $B$;
     \item\label{item:eqs} or $t_1 \equivp z' + t_2$ for any $z' \neq z$.
 \end{enumerate}
 We call the disequalities that follow from \labelcref{item:diseqs}.\ the \emph{explicit} disequalities and those following from \labelcref{item:bl-diseqs}.\ and \labelcref{item:eqs}.\ the \emph{implicit} disequalities.
