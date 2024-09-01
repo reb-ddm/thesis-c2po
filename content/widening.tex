@@ -9,18 +9,18 @@ However, the loss of information is not enough to guarantee that the join operat
     \Psi_n \equiv (*^{2^n} \&x = \&x)\hspace{6pt} (n\geq 0).
   \]
   This could for example occur in a list structure, where each element points to its successor, and the last element points again to the first element of the list.
-  Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M_P$\todo{what is P} and $M_P[\Psi_{n+1}]$ is $M_P[\Psi_{n+1}]$.
-  If we compute the join of the partitions corresponding to $\Psi_n$ and $\Psi_{n+1}$, we get the partition corresponding to $\Psi_{n+1}$.\cite{2pointer}
+  Then we have for each $n \geq 0$, $\Psi_n \Longrightarrow \Psi_{n+1}$ and in particular the product automaton between $M_P[\Psi]$ and $M_P[\Psi_{n+1}]$ is $M_P[\Psi_{n+1}]$.
+  If we use the second algorithm for join and compute the join of the partitions $P[\Psi_n]$ and $P[\Psi_{n+1}]$, we get the partition $P[\Psi_{n+1}]$.
 \end{example}
 
 Therefore, we need to define a widening operator~\cite{widening} that finds an even less precise upper bound of two automata than the join, such that it reaches a fixpoint after a finite number of iterations.
 
-We decide to define the widening operator in such a way that the result can't contain terms of arbitrary size, such that there can't be ascending chains of arbitrary size. Therefore we define the widening operator as first computing the join and then restricting the set of terms of the result to the set of terms that occur in the first input conjunction.
+We decide to define the widening operator in a way that the result can't contain terms of arbitrary size, such that there can't be ascending chains of arbitrary size.
+Therefore, we define the widening operator as first computing the join and then restricting the set of terms of the result to the set of terms that occur in the first input conjunction.
 
 \begin{definition}
-  For two conjunctions $\Psi_1$ and $\Psi_2$ over the sets of terms $\T_1$ and $\T_2$, respectively, we define the widening operation
+  For two conjunctions $\Psi_1$ and $\Psi_2$ over the sets of terms $\T_1$ and $\T_2$, respectively, we define the widening operation as
   $\Psi_1 \widen \Psi_2 = \restr{(\Psi_1 \join \Psi_2)}{\T_1}$.
-  \todo{define this notation that restricts to a set and not to a -set}
 \end{definition}
 
 The widening operator depends on which join operator was chosen, and it
@@ -31,9 +31,9 @@ Instead of adding all the terms of the two kernels to both kernels at the beginn
 we simply add the terms of the first kernel to the second kernel,
 and we build the resulting partition starting from the set of terms of the first kernel.
 This computes the same result as the above defined widening operator,
-but it avoids the need to compute a restriction.
+but it avoids computing a restriction.
 
-For a given set $\T$ of terms, there is only a finite number of possible automata and sets of disequations that contain only terms of $\T$.
+For a given set $\T$ of terms, there is only a finite number of possible automata and sets of disequalities that contain only terms of $\T$.
 The set of terms doesn't change after having applied the widening operation, therefore the widening operator will always reach a fixpoint after a finite amount of iterations.
 
 \begin{example}\label{ex:widen}\todo{fix and add graph}
@@ -57,24 +57,23 @@ As shown in~\cite{2pointer}, the domain of 2-pointer propositions also has infin
 	\Phi_n \equiv\bigwedge_{i=1}^n (\&y = *(i+\&x))\qquad(n\geq 0)
 	\]
 	Then $\Phi_{n+1}\implies\Phi_n$ for all $n\geq 0$ and all are inequivalent.
-	%
 	Thus, the $\Phi_n,n\geq 0$, constitute an infinite strictly descending chain in \cpo.
 \end{example}
 
 Similarly to the widening operation, we define the narrowing as the meet operation with a limited set of terms.
 However, it is not sufficient to limit the terms of the result, we also need to limit the possible offsets
-appearing in disequalities.
+appearing in disequalities.\cite{new-paper-todo}
 
 \begin{example}\label{e:narrow1}\todo{rephrase, this is copied from the paper}
 	Consider the sequence of kernels corresponding to the propositions
 	\[
 	\Psi_n \equiv (y\neq n+\&x)\qquad(n\geq 0)
 	\]
-	Let $k_n$ denote the kernel of $\Psi_n$. Then all kernels consider the set $\T=\{\&x,\&y,y\}$ of terms
-	and have a trivial congruence closure with $\Pi=\{\{\&x\},\{\&y\},\{y\}\}$ and offsets 0 only.
-	The sets $D_n$ of disequalities, though, are given by $D_n=\{(y,n,\&x)\}$. Consider
-	the sequence $a_n, n\geq 0,$ defined by $a_0 = k_0$ and $a_n = a_{n-1}\narrow k_n$ for $n>0$. Each element $a_m$, is
-	a kernel with set $D'_m$ of quantitative disequalities given by
+	Let $k_n$ denote the kernel of $\Psi_n$.
+  Then all kernels consider the set $\T=\{\&x,\&y,y\}$ of terms.
+	The sets $D_n$ of disequalities, are given by $D_n=\{(y,n,\&x)\}$.
+  Consider the sequence $a_n, n\geq 0$ defined by $a_0 = k_0$ and $a_n = a_{n-1}\meet k_n$ for $n>0$.
+  Each element $a_m$, is a kernel with set $D'_m$ of quantitative disequalities given by
 	\[
 	D'_m = \{(y,j,\&x)\mid 0\leq j\leq m\}.
 	\]
@@ -84,14 +83,17 @@ To guarantee that the kernel does not grow in each iteration
 and that a fixpoint is always reached, we only consider the propositions that contain terms of the first input conjunction
 and disequalities that contain offsets that are in the range of offsets of the first input conjunction.
 
-\todo[inline]{find smallest and biggest offset in the disequalities and only consider offsets in this range}
+Let $k = \angl{P,M_P,B,D}$ be a kernel. We define $max\_offset(D)$ to be the biggest absolute value of an offset that appears in the disequalities of $D$:
+\[
+max\_offset(D) = \max\{ \lvert z \rvert \mid (t_1,z,t_2) \in D \}.
+\]
 
 Let $k_1$ and $k_2$ be the kernels.
 As for the meet, if either $k_1 = \bot$ or $k_2 = \bot$, then $k_1 \meet k_2 = \bot$.
-Otherwise, we consider the formula representations $\F[k_1]$ and we keep only the propositions that contain terms of $\T_1$.
-We also filter out the disequalities that contain offsets that are not in the range of offsets of the first input conjunction.\todo{explain more in detail}
+Otherwise, we consider the formula representations $\F[k_1]$, and we keep only the propositions that contain terms of $\T_1$.
+We also filter out the disequalities in $k_2$ that contain offsets $z$ where $\lvert z \rvert > max\_offset(D_1)$.
 Then we add each remaining proposition of $\F[k_1]$ to the kernel $k_2$,
-the same way as we did for the meet operation in \cref{section:meet}.
+as is done for the meet operation in \cref{section:meet}.
 
 \begin{example}\todo{this is not a good example and it' wrong}
     If we consider the result of widen of \cref{ex:widen}, we assume that the result automaton $M$

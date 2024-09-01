@@ -2,7 +2,7 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
-Ensuring the reliability of software in safety-critical systems is essential to prevent bugs that could result in catastrophic failures.
+Using automatic analysis tools for software is essential in order to ensure its reliability, especially in safety-critical applications.
 Many of these safety-critical applications are developed in C, which has strong low-level capabilities but lacks inherent safety features.
 C allows for complex pointer manipulations, which can introduce subtle bugs that are difficult to detect.
 To help find these bugs, static analysis tools can automatically analyze the behavior of programs and prove properties about programs without executing them.
@@ -17,12 +17,12 @@ This master's thesis introduces a relational pointer analysis that can infer rel
 \begin{example}
     Consider a C program with multiple possible implementations for the functions \texttt{malloc} and \texttt{free}.
     A pair of these functions is defined in a struct \texttt{alloc\_functions}:
-    \begin{minted}{C}
+\begin{minted}{C}
 struct alloc_functions {
  void *(*malloc)(size_t);
  void (*free)(void *);
 };
-    \end{minted}
+\end{minted}
     There are two variables \texttt{malloc\_f} and \texttt{free\_f} that point to the currently used implementation of the functions \texttt{malloc} and \texttt{free}, respectively.
 
     An interesting property to confirm is whether the two variables \texttt{malloc\_f} and \texttt{free\_f} point to matching implementations, thus ensuring that the correct \texttt{free} function is called for each \texttt{malloc} call.

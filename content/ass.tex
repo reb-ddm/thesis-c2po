@@ -2,7 +2,7 @@
 
 In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp\,k$ of the assignment $s_1\,{:=}\,s_2$ over the kernel $k$, for each of the three possibilities of $s_2$.
 If $k \equiv \bot$, then $\sem{s_1\,{:=}\,s_2}^\sharp\,k \equiv \bot$.
-In the following, we assume that $k \neq \bot$.
+In the following, assume that $k \neq \bot$.
 
 \subsection{Indefinite Assignment}
 
@@ -22,7 +22,7 @@ int main(){
 	*lpt = lo;// *lpt: 0; l: 0
 	assert(*lpt == lo);|\label{firstassert}|
 	*(lpt + 1) = 'a';// *lpt: 0; l: 0|\label{assignmentuno}|
-	assert(*lpt == lo); // this is false|\label{secondassert}|
+	assert(*lpt == lo);|\label{secondassert}|
 	*((char *)lpt + 1) = 'a';// *lpt: 24832; l: 0|\label{assignment}|
 	assert(*lpt == lo); // this is false|\label{thirdassert}|
 }
@@ -31,23 +31,25 @@ In line~\ref{firstassert}, the assertion \texttt{*lpt == lo} holds, because the 
 In line~\ref{assignmentuno}, the expression \texttt{*(lpt + 1)} is overwritten, which is represented as $*(64 + lpt)$ in our analysis.
 We now want to determine if the term $*lpt$ is modified by this assignment.
 The address of $*lpt$ is $lpt$ and the address of $*(64 + lpt)$ is $64 + lpt$.
-Given that $lpt \nequivp 64 + lpt$, we know that the assignment does not write at the same address as $*lpt$.
+Given that $lpt \nequiv_{k} 64 + lpt$, we know that the assignment does not write at the same address as $*lpt$, therefore we do not need to forget the information we had about $*lpt$.
 
 However, in line~\ref{assignment}, the expression \texttt{*((char *)lpt + 1)} is overwritten, which is represented as $*(8 + lpt)$ in our analysis.
-Even though we know that $lpt \nequivp 8 + lpt$, it does not hold that the value of $*lpt$ does not change when overwriting $*(8 + lpt)$, because the two values overlap.
-Therefore, a disequality between two terms follows from an equality with an offset, we need to make sure that the terms do not overlap in order to be sure that assigning to one of them does not modify the other one.
+Even though we know that $lpt \nequiv_{k} 8 + lpt$, it does not hold that the value of $*lpt$ does not change when overwriting $*(8 + lpt)$, because the two values overlap.
+Therefore, when a disequality between two terms follows from an equality with an offset, we additionally need to make sure that the terms do not overlap in order to be sure that assigning to one of them does not modify the other one.
 \end{example}
 
 Let $t_1$ be a pointer to a value that is $k_1$ bits large and $t_2$ be a pointer to a value of $k_2$ bits.
 The two terms $t_1$ and $z + t_2$ overlap iff
 \begin{itemize}
-	\item $t_1 \equivp z' + t_2$ \todo{use $\equiv_k$} and
-	\item $z' < 0$ and $-z' < k_1$, or $z' > 0$ and $z' < k_2$.
+	\item $t_1 \equiv_{k} z' + t_2$ \todo{use $\equiv_k$} and
+	\item $z' < 0$ and $-z' < k_1$, or $z' > 0$ and $z' < k_2$,
 \end{itemize}\todo{add visualization?}
+where $\equiv_{k}$ symbolizes the equalities that are implied by $k$, i.e.,
+it is equal to $\equiv_{\F[k],\T}$.
 
 In the following, we will describe how to find the set of terms
-that are not modified by the assignment.
-For this, we use different information sources: the disequalities implied by the abstract domain, the information about the type of the terms to find potential overlaps, and the \emph{MayPointTo} analysis that is present in \goblint\ and which was introduced in \cref{section:goblint}.
+that are not modified by an assignment.
+For this, we use different information sources: the disequalities implied by the abstract domain, the C-type of the terms to find potential overlaps, and the \emph{MayPointTo} analysis that is present in \goblint\ and which was introduced in \cref{section:goblint}.
 
 \ignore{When overwriting $s_1$, all the terms whose value is written in the memory at the same address as $s_1$ are also modified.
 	In the case that $s_1$ is an auxiliary $B \in \A$, then we can't reach the address of $B$ by dereferencing any other term.
@@ -63,18 +65,17 @@ We differentiate between two cases: the case where $t$ is an atom and the case w
 If $t$ is an atom, then it is impossible to reach the address of $t$ by dereferencing.
 Therefore, $\restr{\T}{\neg t}$ is the set of all terms that do not contain $t$ as a subterm.
 
-If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms of $\T$ where for each subterm of the form $*(z' + v)$ it holds that:
+If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms, where for each subterm of the form $*(z' + v)$ it holds that:
 \begin{itemize}
-	\item\label{item:diseqs} The disequality $v \nequivp (z - z') + t'$ is implied by $D$ or $B$;
-    \item\label{item:eqs} or $t_1 \equivp z' + t_2$ for any $z' \neq z$ and the terms $v$ and $(z - z') + t'$ do not overlap;
+	\item\label{item:diseqs} The disequality $v \nequiv_k (z - z') + t'$ is implied by $D$ or $B$;
+    \item\label{item:eqs} or $t_1 \equiv_k z' + t_2$ for any $z' \neq z$ and the terms $v$ and $(z - z') + t'$ do not overlap. The C-type of the terms is used to determine the size in bits of the value that is stored at the address of the term;
     \item or the intersection of the sets of addresses that $v$ may point to and the addresses that $(z - z') + t'$ may point to is empty.
     These sets are computed using the \emph{MayPointTo} analysis of \goblint.
 \end{itemize}
-\todo{add definition of $\nequiv_k$}
 
-To simplify the notation, the kernel that is restricted to the terms in $\restr{\T}{\neg t}$ is denoted $\restr{k}{\neg t}$.
-It represents all propositions that follow from $M$ and that are still valid after overwriting the value of $t$.
-Therefore, we can define the assignment as follows:
+To simplify the notation, the restricted kernel $\restr{k}{\restr{\T}{\neg t}}$ is denoted $\restr{k}{\neg t}$.
+It represents all propositions that follow from $k$ and that are still valid after overwriting the value of $t$.
+The assignment is defined as follows:
 
 \[
 	\sem{s_1\,{:=}\;?}^\sharp\,k \equiv \restr{k}{\neg s_1}.
@@ -87,7 +88,6 @@ Therefore, we can define the assignment as follows:
 	\]
 \end{proposition}
 
-\todo{prove}
 The proof of this proposition for the case of a one-dimensional memory model can be found in~\cite{2pointer}.
 This proof can easily be adapted to the two-dimensional model.
 
@@ -96,11 +96,11 @@ This proof can easily be adapted to the two-dimensional model.
 We consider an assignment of the form $s_1\,{:=}\,z_1+s$.
 As before, we need to forget all the equalities and disequalities about terms that may be modified by overwriting $s_1$.
 After this, is not sufficient to simply add the equality $s_1 = z_1+s$ to the set of equalities,
-because the term $z_1 + s$ may also be modified by the assignment. For example, when we assign $B\,{:=}\,1+B$, the equality $B = 1 + B$ would incorrectly lead to an unsatisfiable conjunction.
+because the term $z_1 + s$ may also be modified by the assignment. For example, when we assign $V\,{:=}\,1+V$, the equality $V = 1 + V$ would incorrectly lead to an unsatisfiable conjunction.
 Therefore, we introduce a fresh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $s_1$ to $A$.
 This way we can remember the original value of $z_1 + s$ trough the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
 
-We define the abstract effect of the definite assignment as follows:
+Thus, the abstract effect of the definite assignment is defined as follows:
 
 \[
 	\sem{s_1\,{:=}\,z_1+s}^\sharp\,k\;\equiv\;
@@ -114,7 +114,6 @@ We define the abstract effect of the definite assignment as follows:
 	\]
 \end{proposition}
 
-\todo{As before, todo prove}
 As before, the proof of this proposition for the case of a one-dimensional memory model can be found in~\cite{2pointer}.
 
 \subsection{Memory Allocation}
@@ -125,14 +124,14 @@ the block of the term $s_1$ is different from the block of any other term in the
 but also different than any other term $t \in \oT$ that is not (yet) in the partition.
 However, we cannot remember an infinite number of equalities that contain an infinite number of possible terms,
 therefore we choose to only remember that this new address is different than the address of any other term in $\T$.
-Let $k = \angl{P, M_P, B,D}$, and $\restr{k}{\neg s_1} = \angl{P', M_P, B, B}$.
+Let $k = \angl{P, M_P, B,D}$, and $\restr{k}{\neg s_1} = \angl{P', M_P', B', D'}$.
 For each equivalence class in the partition $P'$, we add a disequality that states
 that the block of the term $s_1$ is different from the block of the representative of the equivalence class.
 
 \[
 	\sem{s_1\,{:=}\,\text{\malloc}}^\sharp\,k \equiv
-	\restr{k}{\neg s_1}\;\land
-	\bigwedge_{t\in \T,s_1\notin Q'}(bl(s_1) \neq bl(\tau\,t))
+	\restr{k}{\neg s_1}\;\meet
+	\bigwedge_{t\in \T, t \nequiv s_1}(bl(s_1) \neq bl(\tau\,t))
 \]
 
 \begin{proposition}\label{p:ass-malloc}
@@ -145,8 +144,8 @@ that the block of the term $s_1$ is different from the block of the representati
 \begin{proof}
 	We only consider the case where $s_1$ equals the expression $*(z+t)$.
 	The other case where $s_1 = B$ is analogous.
-	Let $(\rho',\nu',\mu') \in \sem{s_1\,{:=}\,\malloc}\,(\gamma\,k)$, then we know that there exists $(\rho,\nu,\mu) \in \gamma\,k$ such that $\rho'=\rho$, $\nu'=\nu$ and $\mu' =\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto a\}$ and $fresh(a, (\rho, \nu, \mu))$.
+	Let $(\rho',\nu',\mu') \in \sem{s_1\,{:=}\,\malloc}\,(\gamma\,k)$, then we know that there exists $(\rho,\nu,\mu) \in \gamma\,k$ such that $\rho'=\rho$, $\nu'=\nu$ and $\mu' =\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}$ and $a$ is \emph{fresh}.
 	From Proposition~\ref{p:ass-unknown} it follows that $(\rho',\nu',\mu') \models \restr{k}{\neg s_1}$.
-	From $fresh(a,( \rho,\nu,\mu))$ it follows that all addresses stored in any term which is not $s_1$ do not have the same address block as $a$, therefore $(\rho',\nu',\mu') \models \bigwedge_{t\in \T,s_1\notin Q'}(bl(s_1) \neq bl(\tau\,t))$.
+	Given that $a$ is \emph{fresh}, it follows that all addresses stored in any term which is not $s_1$ do not have the same address block as $a$, therefore $(\rho',\nu',\mu') \models \bigwedge_{t\in \T, t \nequiv s_1}(bl(s_1) \neq bl(\tau\,t))$.
 	It directly follows that $(\rho',\nu',\mu') \in \gamma\,(\sem{s_1\,{:=}\,\malloc}^\sharp\,k)$
 \end{proof}
