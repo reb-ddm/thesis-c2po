@@ -26,7 +26,7 @@ and can thus be computed efficiently.
 
 During the analysis, the program is represented by a control flow graph (CFG), where each node represents a program point, and each edge represents a statement of the program,
 such as assignments, conditional branches, and function calls.
-Each node $p$ in the CFG is associated with a concrete state $s_p$ that describes the values of the variables and the memory at that program point.
+Each node $p$ in the CFG is associated with a concrete state $C[p]$ that describes the values of the variables and the memory at that program point.
 \cref{fig:example-C-program} shows an example C program and \cref{fig:example-CFG} shows its corresponding CFG.
 
 \begin{figure}\begin{subfigure}{0.45\textwidth}
@@ -65,8 +65,8 @@ int main(){
 \end{figure}
 
 The concrete edge effect $\sem{l}$ describes the alteration of the concrete state after an edge with label $l$.
-For example in \cref{fig:example-CFG}, the concrete state at node $p_2$ is $s_{p_2} = \angl{x \rightarrow 1}$.
-The state of node $p_3$ is equal to $s_{p_3} = \sem{x = x+1}\,s_{p_2} = \angl{x \rightarrow 2}$.\todo{$s_p$ is ugly. Find something else, like $X[p]$ for the abstract semantics}
+For example in \cref{fig:example-CFG}, the concrete state at node $p_2$ is $C[p_2] = \angl{x \rightarrow 1}$.
+The state of node $p_3$ is equal to $C[p_3] = \sem{x = x+1}\,C[p_2] = \angl{x \rightarrow 2}$.
 
 The abstract interpretation method consists of computing an abstract over-approximation of the concrete semantics at each node in the CFG with an abstract description of the state.
 Each analysis chooses an abstract domain that can characterize specific properties of interest of the program.
@@ -186,9 +186,9 @@ These edges are visualized in \cref{fig:function-cfg}, where $p_4$ is the first 
       \draw[->] (usw3) -- node[right] {return} (fend);
 
       % Enter and combine edges
-      \draw[call] (beforecall.east) to node[above] {$\enter(s_{p_1})$} (fstart.west);
+      \draw[call] (beforecall.east) to node[above] {$\enter(C[p_1])$} (fstart.west);
       \draw[combine] (beforecall) ++(0,-1.1cm) .. controls +(right:1cm) and +(down:0.5cm) .. (aftercall.east);
-      \draw[->, combine] (fend.west) to node[below] {$\combine(s_{p_1},s_{p_5})$} (aftercall.east);
+      \draw[->, combine] (fend.west) to node[below] {$\combine(C[p_1],C[p_5])$} (aftercall.east);
 
     \end{tikzpicture}
 
