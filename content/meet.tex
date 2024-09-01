@@ -23,7 +23,10 @@ the conjunction $p \meet k$ of a kernel $k$ and a proposition $p$ is defined as 
                     Let $P' = (\T, \tau', \omega')$ and $M_P'$ be the partition and QFA resulting from the closure operation.
                     Now, we need to update the block and quantitative disequalities to be about the representatives of $P'$.
                     For each block disequality $bl(t_1) \neq bl(t_2)$ in $B$, we convert it to the disequality $bl(\tau'\,t_1) \neq bl(\tau'\,t_2)$.
-                    $B'$ is the result of updating all mappings of $B$ to the new representatives.
+                    $B'$ is the result of updating all terms of $B$ to the new representatives:
+                    \[
+                        $B' = \{bl(\tau'\,t_1) \neq bl(\tau'\,t_2) \mid bl(t_1) \neq bl(t_2) \in B\}$.
+                    \]
                     We set $D' = D[\F[k_1] \land p]$.
                     If a contradiction occurs during the construction of $D'$, we set $p \meet k = \bot$.
                     We set $p \meet k = \angl{P',M_P',B',D'}$.
@@ -34,7 +37,7 @@ the conjunction $p \meet k$ of a kernel $k$ and a proposition $p$ is defined as 
                     Otherwise, let $t_1' \nequiv t_2'$. We define $p \meet k = \angl{P,M_P,B', D'}$, where $B'$ and $D'$ are described in the following:
               \item If $t_1$' and $t_2'$ are address expressions, then $bl(t_1') \neq bl(t_2')$ is trivially true.
                     Therefore, we set $B'= B$ and $D'=D$.
-              \item Otherwise, we add the mapping $t_1' \mapsto \{t_2'\}$ to $B$, or if $B$ already contains a mapping $t_1' \mapsto T$, then we add $t_2'$ to $T$.
+              \item Otherwise, we add the disequality $\{t_1',t_2'\}$ to $B$.
                     We set $D' = D[\F[k_1] \land p]$.
           \end{itemize}
     \item Let $p \equiv (t_1 \neq z + t_2)$, $t_1'=\tau\,t_1$ and $t_2'=\tau\,t_2$.
