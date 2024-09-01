@@ -1,9 +1,9 @@
 \section{Block Disequalities}\label{section:block-disequalities}
 
-The 2-Pointer Logic considers not only equalities but also block disequalities and disequalities between terms.
+The 2-Pointer Logic considers not only equalities but also block and quantitative disequalities between terms.
 These are necessary to infer which terms are not
 modified when an assignment occurs.
-Given a conjunction $\Psi$ of propositions and the corresponding equivalence relation $\equivp$, the block disequalities implied by $\Psi$ can be derived by the following rules:\todo{cite new paper?}
+Given a conjunction $\Psi$ of propositions and the corresponding equivalence relation $\equivp$, the block disequalities implied by $\Psi$ can be derived by the following rules:\cite{new-paper-todo}
 
 \begin{enumerate}[label={[B\arabic*]}, ref={[B\arabic*]}]
     \setcounter{enumi}{-1} % to start with B0
@@ -32,12 +32,11 @@ $\tau\,t_1 \equiv \tau\,t_2$, then the conjunction $\Psi$ is unsatisfiable.
     The QFA deriving from $\Psi$ is shown in \cref{fig:closure-example}.
     As $\tau\,B = A$ and $\tau\,(*(1+B)) = *A$, the set $B[\Psi]$ would contain the entry $\{A,A*\}$.
 \end{example}
-\todo{define them more explicitly and also with examples in order to understand the meet ecc.}
 
 \section{Quantitative Disequalities}\label{section:disequalities}
 
 Let $\Psi$ be a conjunction of 2-Pointer Logic terms.
-We define the binary relation $\nequivp$ which represents all quantitative disequalities that can be derived from $\Psi$, given the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$.\todo{cite new paper?}
+We define the binary relation $\nequivp$ which represents all quantitative disequalities that can be derived from $\Psi$, given the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$.\cite{new-paper-todo}
 
 \begin{enumerate}[label={[D\arabic*]}, ref={[D\arabic*]}]
     \setcounter{enumi}{-1} % to start with D0
@@ -53,14 +52,14 @@ We define the binary relation $\nequivp$ which represents all quantitative diseq
     \item\label{item:block-neq} If $bl(t_1) \nequivp bl(t_2) \in \Psi$, then $t_1 \nequivp z + t_2$ for all $z \in \Z$.
 \end{enumerate}
 
-As for the block disequalities, we store a set $D[\Psi]$ of disequalities between representative terms.
+As for the block disequalities, we store a set $D[\Psi]$ of quantitative disequalities between representative terms.
 $D[\Psi]$ is a finite weighted directed graph $D$ with edges $(t_1,z,t_2)$ corresponding to all implied
 quantitative disequalities $t_1 \nequivp z+t_2$, where $t_1$ and $t_2$ are representative terms in the partition $P[\Psi]$ and
 $\{t_1,t_2\}\not\in B$ and at least one
 $t_i$ is not an address expression.
 The set of disequalities following from rule~\ref{item:eq-neq} and rule~\ref{item:block-neq} can be infinite, but we do not need to explicitly store them, as they implicitly derive from the relations $\equivp$ and $bl(\cdot)\nequivp bl(\cdot)$, which are stored in the partition $P[\Psi]$ and the set $B[\Psi]$.
 
-The list $D[\Psi]$ consists of all disequalities and block disequalities deriving from
+The list $D[\Psi]$ consists of all quantitative and block disequalities deriving from
 \labelcref{item:neq-quantitative-equalities,item:neq-quantitative-symmetry,item:inverse-deref,item:eq-neq,item:block-neq},
 but only those that contain representative terms.
 This set is finite because we only store equalities between different representatives and not the implicit equalities following from \labelcref{item:eq-neq,item:block-neq}.
@@ -81,7 +80,7 @@ The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size o
           add $t_1 \neq (z_2 - z_1) + t_2$ to $D$, as described before.
     \item For each disequality $bl(*(z_1 + t_1)) \nequivp bl(*(z_2 + t_2))$ that follows from $\Psi$, add $t_1 \neq (z_2 - z_1) + t_2$ to $D$, as described before.
           These two first rules only add a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
-    \item Compute the closure of the disequalities in $D$ using rule~\labelcref{item:inverse-deref}, and add the normalized disequalities to $D$.
+    \item Compute the closure of the quantitative disequalities in $D$ using rule~\labelcref{item:inverse-deref}, and add the normalized disequalities to $D$.
     \item For each disequality $p \in \Psi$, add $norm_{P[\Psi]}(p)$ to $D$.
     \item Again, compute the closure of the disequalities in $D$ using rule~\labelcref{item:inverse-deref}.
 \end{itemize}

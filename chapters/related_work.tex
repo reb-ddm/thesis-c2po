@@ -66,7 +66,7 @@ In contrast, we track must-equalities and disequalities without considering conc
 The domain in~\cite{Mine06} assumes that \malloc\ is not used in the program, while our analysis explicitly handles the \malloc\ operator.
 This other domain also explicitly handles union types, which are not explicitly considered in our analysis.
 
-\todo[inline]{What about egg/e-graphs?}
+%\todo[inline]{What about egg/e-graphs?}
 
 \subsection{Weakly-Relational Analyses}
 
@@ -74,7 +74,7 @@ The idea of restricting the number of variables considered in relational analyse
 They are so-called \emph{weakly-relational} analyses, as they only consider relations between pairs of variables.
 For example, for numerical analyses, the octagon domain~\cite{octagon} is a well-known weakly-relational domain, which tracks relationships between pairs of variables and a constant.
 It is a simplified version of the polyhedra domain~\cite{polyhedra}, which tracks relationships between arbitrary sets of variables.
-The same idea has been applied to non-numerical domains by \textcite{SeidlETS2023}.\todo{more information here}
+The same idea has been applied to non-numerical domains by \textcite{SeidlETS2023}.
 
 In this master's thesis, we use this concept for pointer analysis by tracking equalities and disequalities between pairs of pointer expressions.
 The advantage of weakly-relational analyses is their simplicity: by focusing on simple propositions, we have been able to provide polynomial-time algorithms for the implementation of our analysis in an abstract interpreter.

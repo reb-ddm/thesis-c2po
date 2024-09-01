@@ -35,6 +35,15 @@ The main idea is to find \emph{minimal representatives} for each state $s$ in th
 which corresponds to the smallest term in $\L_{M_P}(s)$, according to the order defined in \cref{chapter:2pointer}.
 Then, the automaton is transformed to a formula that utilizes only the minimal representatives, thus obtaining a normal form that is independent of the chosen set $\T$ and on the chosen representatives.
 
+The minimal element of a set of terms is defined by using the following order on terms:
+Given a linear order $<$ on atoms, we define:
+\begin{itemize}
+  \item $a < *(z+t)$ whenever $a$ is an atom and
+  \item $*(z_1 + t_1) < *(z_2 + t_2)$ whenever either $t_1 < t_2$ or $t_1 \equiv t_2$ and $z_1 < z_2$.
+\end{itemize}
+
+
+
 Let $M_P = (S, \otau, \eta, \delta)$ be a QFA.\@
 For each state $s \in S$, we compute the minimal term $m_s$ and the corresponding offset $z_s$ such that $M[m_s] = (z_s,s)$.
 This can be computed using a variation of Dijktra's shortest path algorithm, which is described in the following.
@@ -62,7 +71,7 @@ The correctness is given by the fact that longer paths always result in larger t
 Thus, we do not need to update a pair once it was computed.
 
 \begin{example}\label{ex:min-repr}
-    Let $\Psi \equiv B = -1 + \&x \land *B = 2 + A \land *A = 3 + x$.
+    Let $\Psi \equiv B = -1 + \&x \land *B = 2 + A \land *A = 3 + x$.\todo{don't use B}
     The automaton $M_P$\todo{what is P} has can be visualized with the following graph:
     \begin{center}
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
@@ -127,7 +136,7 @@ Therefore, in order to decide the equivalence of two kernels $k_1$ and $k_2$, it
 
 \begin{example}
     Consider the conjunction $\Psi$ from \cref{ex:min-repr}.
-    The normal form of the kernel $k$ representing $\Psi$ is
+    The normal form of the kernel $k$ representing $\Psi$ is\todo{please no B}
     \[
         (B = -1+\&x) \land (*(-1 + \&x) = 2 + A) \land (*A = 3 + x)
     \]

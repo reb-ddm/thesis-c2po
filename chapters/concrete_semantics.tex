@@ -45,7 +45,7 @@ A \emph{fresh} address block $a$ is an address block identifier that does not oc
 
 For a set $H$ of states $(\rho,\nu,\mu)$, we define the concrete semantics of the assignment
 $s_1\,{:=}\,s_2$ as the transformation
-$\sem{s_1\,{:=}\,s_2}\,H$, where:\todo{don't call it V}
+$\sem{s_1\,{:=}\,s_2}\,H$, where:
 \[
     \begin{array}{l}
         \sem{V\,{:=}\,?}\,H =
@@ -97,5 +97,3 @@ The concrete semantics of the edge returning from the function to the caller is 
     \item Correspondingly, $\nu''\,A = \nu'\,A$ for all global auxiliary variables $A \in \X$ and $\nu''\,A = \nu\,A$ for the local variables of the caller, and $\nu''$ is not defined for the function's local variables.
     \item $\mu''\,(a,b)=\mu'\,(a,b)$ for each address $(a,b)$.
 \end{itemize}
-
-\todo{maybe say callee instead of function?}

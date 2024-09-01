@@ -58,7 +58,7 @@ thus merging the two equivalence classes of $t_1$ and $t_2$ with the correct off
 If the two terms are already equivalent with a different offset, i.e., $\tau\,t_1 = \tau\,t_2$, but $z - \omega\,t_1 + \omega\,t_2 \neq 0$, then the conjunction is unsatisfiable.
 
 \begin{example}
-  Consider the conjunction $\Psi \equiv (B = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$.
+  Consider the conjunction $\Psi \equiv (B = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$.\todo{noB!!}
   The tree computed by the union-find algorithm is illustrated in \cref{fig:uf-tree}.
   \begin{figure}
     \begin{tikzpicture}[->, node distance=2cm, auto]
@@ -122,7 +122,6 @@ For each state $s \in S$, the set $\L_{M_P}(s)$ is the set of terms $t \in \oT$ 
 
 Using the automaton, we define the $\closure{t_1}{z}{t_2}{P}$ operation that modifies the partition $P = (\T, \tau, \omega)$ and the automaton $M_P = (S, \otau, \eta, \delta)$ to include the equality $t_1 = z + t_2$ and then computes the closure of the rule \labelcref{item:dereferencing}.
 The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M_{P'} = (S', \otau', \eta', \delta')$  are computed as follows:
-\todo{reread}
 \begin{itemize}
   \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$, then $P' = P$ and $M_P = M_{P'}$.
         If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunction is unsatisfiable.
@@ -202,7 +201,7 @@ The representative of each equivalence class is represented in bold as the menti
 
 \end{figure}
 
-\begin{example}
+\begin{example}\todo{noB}
   A QFA can be visualized by labeling the states with the terms of $\T$ that are in the corresponding equivalence class.
   For example, consider the set of terms $\T = \{A, B, *A, *(1 + B)\}$.
   The edges are labeled with the offsets: for an edge $\delta(s_1, z_1) = (s_2, z_2)$, the edge between $s_1$ and $s_2$ is labeled with $z_1, z_2$.

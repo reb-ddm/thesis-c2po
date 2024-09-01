@@ -60,7 +60,7 @@ as well as the equality $p = p'$.
 
 The abstract combine function $\combine^\sharp$ performs the following steps:
 \begin{enumerate}
-    \item Remove all tainted \todo{explain tainted} variables from the caller state. The set of tainted variables is determined by query \textsf{MayBeTainted}, described in \cref{section:goblint}.
+    \item Remove all tainted variables from the caller state. The set of tainted variables is determined by query \textsf{MayBeTainted}, described in \cref{section:goblint}.
     \item Meet the caller state with the state of the function.
     \item For each parameter $p$, if the function was called with the
     expression $e$ as a value for the parameter $p$, and if this expression is expressible in 2-Pointer Logic,

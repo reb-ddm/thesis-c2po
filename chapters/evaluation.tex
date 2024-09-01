@@ -72,6 +72,7 @@ We ran the analyzer with each of the four configurations and once without \cpo.
     % must use \input instead of \include to compile
     \input{content/eval-table-2}
 \end{table}\todo{caption}
+\todo{add var\_eq to the comparison}
 
 We observed that the analysis with \cpo\ has a 95th percentile slowdown of at most a factor 2.61 compared to the base setting,
 indicating that 95\% of tests in the benchmark take at most around three times as long as the base setup.
@@ -92,6 +93,8 @@ Due to the computational overhead, approximately 120 of the tests that could be 
 out of more than 2000 passed verdicts.
 
 The results are summarized in \cref{tab:summary-svcomp}.
+
+\todo{They all have the Same correct tasks: see what kind of tasks}
 
 Given the negligible performance differences observed across the four configurations, it is reasonable to conclude that these configurations are equivalent in practice in terms of performance and precision.
 Therefore, the most practical choice may be the most straightforward configuration to implement---specifically, the one that avoids computing the normal form and employs the less precise join operation (\cpoq).

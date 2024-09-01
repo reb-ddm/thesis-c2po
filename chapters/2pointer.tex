@@ -4,16 +4,6 @@ The abstract domain of the \cpo\ analysis consists of finite conjunctions of pro
 In the following section, we describe this logic and how to represent the propositions to infer all deriving propositions.
 Then, we discuss the extension of the domain to include additional terms and the restriction of the domain to a subset of terms, which will be needed later for the analysis.
 
-\todo{
-  Move somewhere:
-}
-
-It is possible to define an order on terms, given a linear order $<$ on atoms, by defining:
-\begin{itemize}
-  \item $a < *(z+t)$ whenever $a$ is an atom and
-  \item $*(z_1 + t_1) < *(z_2 + t_2)$ whenever either $t_1 < t_2$ or $t_1 \equiv t_2$ and $z_1 < z_2$.
-\end{itemize}
-
 \textcite{2pointer} introduced the 2-Pointer Logic, which consists of equalities and disequalities between the terms described in \cref{chapter:concrete_semantics}.
 Here, we extend this logic with an additional type of proposition, the \emph{block disequalities}.
 These disequalities express that two terms do not belong to the same address block.
@@ -50,7 +40,7 @@ The kernel is the abstract state of the analysis, and it represents the conjunct
 
 A \emph{kernel} consists of a tuple $k = \angl{P,M_P,B,D}$, where $P = (\T, \tau, \omega)$ is a quantitative partition, as described in \cref{subsection:quantitative-union-find}.
 Each state of the QFA $M$ represents an equivalence class of $P$, as outlined in \cref{subsection:qfa}.
-$B$ and $D$ are sets representing the explicit block disequalities and disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
+$B$ and $D$ are sets representing the explicit block and quantitative disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
 Given a satisfiable conjunction $\Psi$ of 2-Pointer Logic propositions, the kernel representation of $\Psi$ is denoted as $k[\Psi] = \angl{P[\Psi],M_{P[\Psi]},B[\Psi],D[\Psi]}$.
 If $\Psi$ is unsatisfiable, the abstract state is represented as $\bot$.
 
