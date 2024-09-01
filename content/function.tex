@@ -1,37 +1,18 @@
 \section{Interprocedural Analysis}
 
-At the beginning (enter) we add for each parameter $p$ of the function a
-shadow variable $p'$ that represents during the whole analysis of the function
-the initial value of $p$ at the beginning of the function.
-This way, if we have an example code:
-
-\begin{minted}{C}
-void f(int** p, int** q) {
-    *p = *q;
-    p = NULL;
-    q = NULL;
-}
-int main(){
-    int** a;
-    int** b;
-    f(a,b);
-}
-\end{minted}
-
-call $f(a)$, we can assign $a$ to $a'$ at the
-
-\subsection{Abstract Semantics}
-
-When entering a function we need to forget local variables of the caller, but keep the information about
+When entering a function, we need to forget the local variables of the caller, but keep the information about
 global variables and the content of the memory.
-However, if we simply perform the analysis of a function and then return to the caller,
-it is necessary to restore the propositions between the return value or global vars and
-the parameters given to the function in the beginning.
+After performing the analysis of a function and then return to the caller,
+it is necessary to restore the propositions between the return value/global variables and
+the parameters given at the beginning of the function.
 While the parameters may have been overwritten during the function execution,
-when we return to the caller, only the values that were handed over as parameters to the
-function are still unchanged.
-Therefore it is necessary to keep track of the initial value of the parameters in a function.
+the values of local variables that were handed over as parameters to the
+function are still unchanged when we return to the caller.
+Therefore, it is necessary to keep track of the initial value of the parameters in a function.
 This will be illustrated in the following example.
+
+\begin{example}
+    Consider the C program:
 
 \begin{minted}[linenos=true, escapeinside=||]{C}
     int* f(int* a, int* b) { |\label{testlabel3}|
@@ -47,11 +28,11 @@ This will be illustrated in the following example.
     }
 \end{minted}
 
-\begin{example}
-If we simply remove all local variables of the caller from the abtract state, then
-after the abtract enter function ($\enter^\sharp$), the abstact state is an empty conjunction
-at the beginning of the function in line~\ref{testlabel}.
-After line~\ref{testlabel3}, the abstract state is $g = a$.
+
+If we simply remove all local variables of the caller from the abstract state, then
+after the abstract enter function ($\enter^\sharp$), the state represents an empty conjunction
+at the beginning of the function in line~\ref{testlabel3}.
+After line~\ref{testlabel}, the abstract state is $g = a$.
 We lose all information after line~\ref{testlabel4}.
 When returning to \textsf{main}, we cannot retrieve any information from the function,
 and we lose the information that $e = c$.
@@ -63,14 +44,14 @@ to the abstract state.
 After line~\ref{testlabel}, we add the equality $a = g$.
 After line~\ref{testlabel4}, we lose information about $a$, but we still know that $g = a'$.
 When returning to \textsf{main},
-we know that the parameters with ehich we called $f$ were $c$ and $d$,
+we know that the parameters with which we called $f$ were $c$ and $d$,
 so we can add the equalities $c = a'$ and $d = b'$.
 Then we still need to remove the local variables of $f$ from the abstract state,
 as well as the shadow variables $a'$ and $b'$.
 But the  equality $e = c$ is still preserved.
 \end{example}
 
-The abstract enter function $\enter^\sharp$ performs the following steps:
+More in detail, the abstract enter function $\enter^\sharp$ performs the following steps:
 \begin{enumerate}
     \item Remove all local variables of the caller from the abstract state.
     \item For each parameter $p$ of the function, add a shadow variable $p'$ to the abstract state,
@@ -79,15 +60,15 @@ as well as the equality $p = p'$.
 
 The abstract combine function $\combine^\sharp$ performs the following steps:
 \begin{enumerate}
-    \item Remove all tainted \todo{explain tainted} variables from the caller state
+    \item Remove all tainted \todo{explain tainted} variables from the caller state. The set of tainted variables is determined by query \textsf{MayBeTainted}, described in \cref{section:goblint}.
     \item Meet the caller state with the state of the function.
     \item For each parameter $p$, if the function was called with the
     expression $e$ as a value for the parameter $p$, and if this expression is expressible in 2-Pointer Logic,
      add the equality $p' = e$ to the resulting state.
     \item If the return value is assigned to the variable $x$ in the caller,
     and the function returns an expression $e'$ and this expression is expressible in 2-Pointer Logic,
-    then add the assignment $\sem{x = e'}^\sharp$ is performed.
+    then the abstract effect of the assignment $\sem{x = e'}^\sharp$ is applied to the resulting state.
     \item Remove all local variables of the function from the abstract state,
-    as well as the shadow variables.
+    as well as the shadow variables corresponding to the current function call.
 \end{enumerate}
 TODO soundness?
