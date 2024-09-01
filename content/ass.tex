@@ -51,12 +51,6 @@ In the following, we will describe how to find the set of terms
 that are not modified by an assignment.
 For this, we use different information sources: the disequalities implied by the abstract domain, the C-type of the terms to find potential overlaps, and the \emph{MayPointTo} analysis that is present in \goblint\ and which was introduced in \cref{section:goblint}.
 
-\ignore{When overwriting $s_1$, all the terms whose value is written in the memory at the same address as $s_1$ are also modified.
-	In the case that $s_1$ is an auxiliary $B \in \A$, then we can't reach the address of $B$ by dereferencing any other term.
-	Therefore, the only terms that are modified by overwriting $B$ are the terms that contain $B$ as a subterm.
-	On the other hand, if $s_1$ is a pointer term $*(z+t)$, then we need to forget all the terms that contain any subterm that may be equal to $z+t$.
-	Then we need to restrict the kernel $k$ to forget all the equalities and disequalities that contain the prohibited terms.}
-
 Given a kernel $k = \angl{P, M_P, B, D}$, a partition $P = (\T, \tau, \omega)$ and a term $t$,
 we want to compute the set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias or overlap with $t$.
 This is exactly the set of terms that are not modified when the value of $t$ changes.
@@ -143,7 +137,7 @@ that the block of the term $s_1$ is different from the block of the representati
 
 \begin{proof}
 	We only consider the case where $s_1$ equals the expression $*(z+t)$.
-	The other case where $s_1 = B$ is analogous.
+	The other case where $s_1 = V$ is analogous.
 	Let $(\rho',\nu',\mu') \in \sem{s_1\,{:=}\,\malloc}\,(\gamma\,k)$, then we know that there exists $(\rho,\nu,\mu) \in \gamma\,k$ such that $\rho'=\rho$, $\nu'=\nu$ and $\mu' =\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}$ and $a$ is \emph{fresh}.
 	From Proposition~\ref{p:ass-unknown} it follows that $(\rho',\nu',\mu') \models \restr{k}{\neg s_1}$.
 	Given that $a$ is \emph{fresh}, it follows that all addresses stored in any term which is not $s_1$ do not have the same address block as $a$, therefore $(\rho',\nu',\mu') \models \bigwedge_{t\in \T, t \nequiv s_1}(bl(s_1) \neq bl(\tau\,t))$.
