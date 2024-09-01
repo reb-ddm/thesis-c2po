@@ -1,3 +1,12 @@
 \chapter{\abstractname}
 
-%TODO: Abstract
+C is widely used in safety-critical systems, therefore it is important to have static analysis tools that can automatically detect program properties and thus help in the search for bugs.
+This master's thesis introduces \cpo\, a weakly-relational pointer analysis that can infer relationships between pairs of pointer terms in C programs, including pointer arithmetic and dereferencing.
+It is based on the 2-Pointer Logic introduced by \textcite{2pointer} and is extended here with the concept of \emph{block disequalities} that express the confinement of pointers to single memory objects in C.
+Abstract operations are introduced that allow the implementation of \cpo\ in an abstract interpretation framework, including the operations \emph{meet}, \emph{join}, \emph{widening}, and \emph{narrowing}, as well as the abstract effects for assignments and interprocedural analysis.
+Two versions of the \emph{join} and \emph{equals} operation are introduced and compared.
+
+\cpo\ is implemented in the \goblint\ static analyzer.
+For 95\% of SV-COMP tasks, the slowdown incurred by adding
+C-2PO is below a factor of 3. To measure precision, coreutil programs were instrumented with assertions computed by C-2PO.
+For an existing non-relational pointer analysis, 80\% of the assertions are out of reach.
