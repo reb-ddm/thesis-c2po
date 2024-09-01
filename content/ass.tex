@@ -51,7 +51,7 @@ In the following, we will describe how to find the set of terms
 that are not modified by an assignment.
 For this, we use different information sources: the disequalities implied by the abstract domain, the C-type of the terms to find potential overlaps, and the \emph{MayPointTo} analysis that is present in \goblint\ and which was introduced in \cref{section:goblint}.
 
-Given a kernel $k = \angl{P, M_P, B, D}$, a partition $P = (\T, \tau, \omega)$ and a term $t$,
+Given a kernel $k = \angl{P, M, B, D}$, a partition $P = (\T, \tau, \omega)$ and a term $t$,
 we want to compute the set $\restr{\T}{\neg t}$ that contains all terms $t' \in \T$ such that each subterm of $t'$ definitely does not alias or overlap with $t$.
 This is exactly the set of terms that are not modified when the value of $t$ changes.
 We differentiate between two cases: the case where $t$ is an atom and the case where $t$ is a dereferenced term.
@@ -118,7 +118,7 @@ the block of the term $s_1$ is different from the block of any other term in the
 but also different than any other term $t \in \oT$ that is not (yet) in the partition.
 However, we cannot remember an infinite number of equalities that contain an infinite number of possible terms,
 therefore we choose to only remember that this new address is different than the address of any other term in $\T$.
-Let $k = \angl{P, M_P, B,D}$, and $\restr{k}{\neg s_1} = \angl{P', M_P', B', D'}$.
+Let $k = \angl{P, M, B,D}$, and $\restr{k}{\neg s_1} = \angl{P', M', B', D'}$.
 For each equivalence class in the partition $P'$, we add a disequality that states
 that the block of the term $s_1$ is different from the block of the representative of the equivalence class.
 

@@ -91,16 +91,16 @@ The partition takes into account the reflexivity, symmetry, and transitivity rul
 Further, it is necessary to ensure that the equalities deriving from \labelcref{item:dereferencing} are always considered.
 Therefore, for each term $t$, we need to keep track of the equivalence classes that contain terms of the form $*(z+t)$ and merge two equivalence classes if they contain terms that are equal according to the rule \labelcref{item:dereferencing}.
 For example, if $\T = \{A, B, *A, *B\}$ and we perform a union of $A$ and $B$, the closure rule~\labelcref{item:dereferencing} tells us that also the equivalence classes of $*A$ and $*B$ should be merged.
-Thus, we introduce an alternative representation of the partition $P$ as a \emph{quantitative finite automaton} (QFA) $M_P$.
+Thus, we introduce an alternative representation of the partition $P$ as a \emph{quantitative finite automaton} (QFA) $M$.
 
-The QFA is defined by a triple $M_P = (S, \otau, \eta, \delta)$. $S$ is a finite set of states, each representing an equivalence class of the partition.
+The QFA is defined by a triple $M = (S, \otau, \eta, \delta)$. $S$ is a finite set of states, each representing an equivalence class of the partition.
 In order to know which state represents which equivalence class of the partition, the mapping $\otau : S \rightarrow \T$ assigns a representative term to each state.
 If $\otau\,s = t$ for a state $s \in S$, then $s$ represents the equivalence class of all terms whose representative in $P$ is $t$.
 The partial mapping $\eta : (\mathcal{A} \cup \{\&x | x \in \X\} \rightarrow \Z \times S)$ provides initial offsets and states for atoms, meaning that if $\eta\,a = (z,s)$, then $a$ is in the equivalence class represented by $s$.
 $\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition function.
 If $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that it holds that $*(z_1 + \otau\,s_1) \equivp z_2 + \otau\,s_2$.
 
-The QFA $M_P = (S, \otau, \eta, \delta)$ is constructed from a partition  $P = (\T, \tau, \omega)$ as follows:
+The QFA $M = (S, \otau, \eta, \delta)$ is constructed from a partition  $P = (\T, \tau, \omega)$ as follows:
 \begin{itemize}
   \item $S$ contains a state $s$ for each representative term $t$ of $P$ and we set $\otau\,s = t$.
   \item $\eta\,a = (\omega\,a, s)$ if $s \in S$ and $\otau\,s = \tau\,a$
@@ -115,15 +115,15 @@ This shows that the result of $\delta\,z\,s_1$ is well defined and does not depe
 Moreover, we note that $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
 
 We use $\oT$ to denote the set of \emph{all} terms with variable names from $\X$ and auxiliaries from $\A$.
-We can extend the mappings $\eta$ and $\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M_P[a] = \eta(a)$ for atoms $a$, and $M_P[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M_P[t_1] = (z_1,s)$.
+We can extend the mappings $\eta$ and $\delta$ to a partial mapping $M : \oT \rightarrow \Z \times S$ where $M[a] = \eta(a)$ for atoms $a$, and $M[*(z+t_1)] = \delta(z+z_1, s)$ for terms $t_1$ if $M[t_1] = (z_1,s)$.
 
-Furthermore, we define the set $\L(M_P)$ of terms $t \in \oT$ for which $M$ is defined.
-For each state $s \in S$, the set $\L_{M_P}(s)$ is the set of terms $t \in \oT$ for which it holds that $M_P[t] = (z, s)$ for some $z \in \Z$.
+Furthermore, we define the set $\L(M)$ of terms $t \in \oT$ for which $M$ is defined.
+For each state $s \in S$, the set $\L_{M}(s)$ is the set of terms $t \in \oT$ for which it holds that $M[t] = (z, s)$ for some $z \in \Z$.
 
-Using the automaton, we define the $\closure{t_1}{z}{t_2}{P}$ operation that modifies the partition $P = (\T, \tau, \omega)$ and the automaton $M_P = (S, \otau, \eta, \delta)$ to include the equality $t_1 = z + t_2$ and then computes the closure of the rule \labelcref{item:dereferencing}.
-The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M_{P'} = (S', \otau', \eta', \delta')$  are computed as follows:
+Using the automaton, we define the $\closure{t_1}{z}{t_2}{P}$ operation that modifies the partition $P = (\T, \tau, \omega)$ and the automaton $M = (S, \otau, \eta, \delta)$ to include the equality $t_1 = z + t_2$ and then computes the closure of the rule \labelcref{item:dereferencing}.
+The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M' = (S', \otau', \eta', \delta')$  are computed as follows:
 \begin{itemize}
-  \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$, then $P' = P$ and $M_P = M_{P'}$.
+  \item Case 1: $\tau\,t_1 = \tau\,t_2$. If $\omega\,t_1 = z + \omega\,t_2$, then $P' = P$ and $M = M'$.
         If $\omega\,t_1 \neq z + \omega\,t_2$, then the conjunction is unsatisfiable.
   \item Case 2: $\tau\,t_1 \neq \tau\,t_2$. We call $\union{t_1}{z}{t_2}$.
         Afterwards, either $t_1$ or $t_2$ has a new representative, so the transitions of the QFA are updated accordingly.
@@ -222,10 +222,10 @@ The representative of each equivalence class is represented in bold as the menti
 \begin{theorem}
   % This is Theorem 3 in the other paper
   Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
-  The corresponding quantitative partition $P = (\T, \tau,\omega)$ and a corresponding QFA $M_P = (S, \otau, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
-  Then $\T \subseteq \L(M_P)$ and for every $t_1, t_2 \in \L(M_P)$ the following statements are equivalent:
+  The corresponding quantitative partition $P = (\T, \tau,\omega)$ and a corresponding QFA $M = (S, \otau, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
+  Then $\T \subseteq \L(M)$ and for every $t_1, t_2 \in \L(M)$ the following statements are equivalent:
   \begin{enumerate}
-    \item $M_P[t_1] = z + M_P[t_2]$,
+    \item $M[t_1] = z + M[t_2]$,
     \item $\tau\,t_1 = \tau\,t_2$ and $\omega\,t_1 = z + \omega\,t_2$,
     \item $\Psi$ implies $(t_1 = z + t_2)$.
   \end{enumerate}

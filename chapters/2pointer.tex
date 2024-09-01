@@ -38,13 +38,13 @@ If $(\rho, \nu, \mu)\models p$ for each proposition $p$ in $\Psi$, then we say t
 We introduce the \emph{kernel} representation, which groups the quantitative partition, the quantitative automaton, and the two sets of disequalities and block disequalities.
 The kernel is the abstract state of the analysis, and it represents the conjunction of propositions that hold in a specific program point, as well as all propositions that they imply.
 
-A \emph{kernel} consists of a tuple $k = \angl{P,M_P,B,D}$, where $P = (\T, \tau, \omega)$ is a quantitative partition, as described in \cref{subsection:quantitative-union-find}.
+A \emph{kernel} consists of a tuple $k = \angl{P,M,B,D}$, where $P = (\T, \tau, \omega)$ is a quantitative partition, as described in \cref{subsection:quantitative-union-find}.
 Each state of the QFA $M$ represents an equivalence class of $P$, as outlined in \cref{subsection:qfa}.
 $B$ and $D$ are sets representing the explicit block and quantitative disequalities, respectively, as detailed in \cref{section:block-disequalities,section:disequalities}.
-Given a satisfiable conjunction $\Psi$ of 2-Pointer Logic propositions, the kernel representation of $\Psi$ is denoted as $k[\Psi] = \angl{P[\Psi],M_{P[\Psi]},B[\Psi],D[\Psi]}$.
+Given a satisfiable conjunction $\Psi$ of 2-Pointer Logic propositions, the kernel representation of $\Psi$ is denoted as $k[\Psi] = \angl{P[\Psi],M[\Psi],B[\Psi],D[\Psi]}$.
 If $\Psi$ is unsatisfiable, the abstract state is represented as $\bot$.
 
-It is possible to convert a kernel representation $k = \angl{P,M_P,B,D}$ with $M_P = (S, \otau, \eta, \delta)$ to a formula $\F[k]$, that is given by
+It is possible to convert a kernel representation $k = \angl{P,M,B,D}$ with $M = (S, \otau, \eta, \delta)$ to a formula $\F[k]$, that is given by
 
 \[
   \begin{array}{lll}

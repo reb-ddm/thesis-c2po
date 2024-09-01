@@ -1,6 +1,6 @@
 \section{Extension to a Superset of Terms}
 
-When new terms appear during the analysis, the partition $P$ and the automaton $M_P$ need to be updated to express properties about the new terms.
+When new terms appear during the analysis, the partition $P$ and the automaton $M$ need to be updated to express properties about the new terms.
 It is not sufficient to simply add a fresh equivalence class for the new terms, as they sometimes need to be added to existing equivalence classes.
 
 \begin{example}
@@ -10,15 +10,15 @@ It is not sufficient to simply add a fresh equivalence class for the new terms, 
     \todo{The same example is already somewhere else.}
 \end{example}
 
-Let $P = (\T, \tau, \omega)$ be a partition with the corresponding QFA $M_P = (S, \otau, \eta, \delta)$ and let $\T'$ be a superset of $\T$ and closed under subterms.
-We define the operation $\ext{k}{\T'}$ that extends the kernel $k = \angl{P, M_P, B, D}$ to the set of terms $\T'$, without altering the semantics of the representation.
-Only $P$ and $M_P$ need to be modified, while $B$ and $D$ remain unchanged.
+Let $P = (\T, \tau, \omega)$ be a partition with the corresponding QFA $M = (S, \otau, \eta, \delta)$ and let $\T'$ be a superset of $\T$ and closed under subterms.
+We define the operation $\ext{k}{\T'}$ that extends the kernel $k = \angl{P, M, B, D}$ to the set of terms $\T'$, without altering the semantics of the representation.
+Only $P$ and $M$ need to be modified, while $B$ and $D$ remain unchanged.
 
 The extension is built inductively based on the structure of the terms in $\T'$.
 We first describe how to add a new atom and then consider terms of the form $*(z+t)$, where $t$ is already a part of $\T$.
 This is repeated for all terms in $\T'$.
 
-In the case that $\T' = \T \cup \{a\}$ for an atom $a \notin \T$, we simply add a new equivalence class with representative $a$ to $P$, by including a new state $s$ to the states $S$ of $M_P$ and defining $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s)$, $\otau\,s = a$.
+In the case that $\T' = \T \cup \{a\}$ for an atom $a \notin \T$, we simply add a new equivalence class with representative $a$ to $P$, by including a new state $s$ to the states $S$ of $M$ and defining $\tau\,a = a$, $\omega\,a=0$, $\eta(a) = (0,s)$, $\otau\,s = a$.
 
 If $\T' = \T \cup \{*(z+t)\}$ for a term $t \in \T$, but $*(z + t) \notin \T$, we add a new equivalence class $\{*(z+t)\}$ to $P$ and then determine if it needs to be merged with an existing equivalence class.
 We define $\tau\,(*(z+t)) = *(z+t)$ and $\omega\,(*(z+t))=0$.
