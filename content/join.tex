@@ -66,7 +66,7 @@ This first approach is less efficient but more precise, as all terms of the set 
 In particular, circular dependencies between terms are lost in the second approach.
 However, these circular dependencies do not often occur in practice.
 Therefore, we expect that the difference in precision is not significant.
-%-------
+
 \subsection{Join Using the Automaton}
 
 We propose an implementation of the join algorithm of two quantitative finite automata.
@@ -128,24 +128,93 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
 
 \todo[inline]{examples}
 
-\begin{example}
-    We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $A = B + 2 \land A = C + 3$ and $M_2$ represents the conjunction $A = B + 1 \land A = C + 2$.
-    The automaton $M_1$ has one single state $s_0$ that represents the equivalence class $\{A, B+2, C+3\}$
-    and $M_2$ has one single state $s_1$ that represents the equivalence class $s_1 = \{A, B+1, C+2\}$.
-    The product automaton $M_3$ is made of no transitions and two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_1, 1}$, where the first one represents the set $\{A\}$ and the second one the set $\{B, C+1\}$.
-    Therefore the product automaton represents the proposition $B = C + 1$.
-    The join operation keeps the relation between $B$ and $C$, as they have the same distance in $M_1$ and $M_2$.
-    On the other hand, $A$ has not the same distance to $B$ or $C$ in the input automata, therefore we forget all information about $A$.
+\begin{example}\label{join-example}
+    We consider again the two automata of \cref{example:infinite-join}.
+    First, we add the terms of the set $\T = \{A, B, *A,*B,*(1+A)$, $*(1 + B)\}$ to the automaton $M_1$, resulting in the automata $M_1'$.
+    Let $M_3$ be the product automata of $M_1'$ and $M_2$.
+    The automata $M_1'$ and $M_3$ can be visualized as follows:
+
+    \begin{center}
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+
+                \node[state] (Q1) {$\begin{array}{c}
+                            A, B
+                        \end{array}$};
+                \node[state, below=1.3cm of Q1] (Q2) {$\begin{array}{c}
+                            *(1+A), *(1+B)
+                        \end{array}$};
+                \node[state, below left=0.5cm and 1.4cm of Q1] (Q3) {$\begin{array}{c}
+                            *A
+                        \end{array}$};
+                \node[state, below right=0.5cm and 1.4cm of Q1] (Q4) {$\begin{array}{c}
+                            *B
+                        \end{array}$};
+                \path[->]
+                (Q1) edge node {$1,0$} (Q2)
+                (Q1) edge node {$0,0$} (Q3)
+                (Q1) edge node {$0,0$} (Q4);
+
+
+                \node [below left=-0.2cm and 1.2cm of Q1] {$M_1'$:};
+            \end{tikzpicture}
+        \end{minipage}
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
+
+                \node[state] (Q1) {$\begin{array}{c}
+                            A
+                        \end{array}$};
+
+                \node[state, right=1.4cm of Q1] (Q2) {$\begin{array}{c}
+                            B
+                        \end{array}$};
+
+                \node[state, below right=1.8cm and 0.9cm of Q1] (Q3) {$\begin{array}{c}
+                            *(1+A), *(1 + B)
+                        \end{array}$};
+                \node[state, below left=01.1cm and 1.8cm of Q1] (Q4) {$\begin{array}{c}
+                            *A
+                        \end{array}$};
+                \node[state, below right=1.1cm and 1.8cm of Q2] (Q5) {$\begin{array}{c}
+                            *B
+                        \end{array}$};
+                \path[->]
+                (Q1) edge[] node[left] {$1,0$} (Q3)
+                (Q2) edge[] node[right] {$1,0$} (Q3)
+                (Q1) edge[] node[above left=-0.1cm and -0.1cm] {$1,0$} (Q4)
+                (Q2) edge[] node[above] {$1,0$} (Q5);
+
+                \node [below left=-0.2cm and 1cm of Q1] {$M_3$:};
+
+            \end{tikzpicture}
+        \end{minipage}
+    \end{center}
+    From $M_3$ we can infer the equality $*(1 + A) = *(1 + B)$, while the equalities $*(1 + *^n A) = *(1 + *^n B)$ for $n \geq 1$ are implied by $M_1'$ and $M_2$, but not by $M_3$.
 \end{example}
 
-\begin{example}\label{example:join-subset}
-    We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $x = \&x$ and $M_2$ represents the conjunction $*x = \&x$.
-    $M_1$ has one state $s_0$ and one transition from $s_0$ to itself. We have that $\L_{M_1}(s_0) =\{*^n\&x\mid n \geq 0\}$.
-    The automaton $M_2$ has two states $s_1$ and $s_2$ and two transitions from $s_1$ to $s_2$ and from $s_2$ to $s_1$. We have that $\L_{M_2}(s_1) = \{*^{2n}\&x\mid n \geq 0\}$ and $\L_{M_2}(s_2) = \{*^{2n}x\mid n \geq 0\}$.
-    We have that $\eta_1(\&x) = (0, s_0)$ and $\eta_2 (\&x) = (0, s_1)$.
-    The product automaton $M_3$ has two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_2, 0}$ and two transitions from the first state to the second and from the second state to the first state and $\eta_3(\&x) = (0, \angl{s_0, s_1, 0})$.
-    Therefore the product automaton is isomorphic to the second automaton and it represents the same equality $*x = \&x$.
-\end{example}
+\ignore{
+    \begin{example}
+        We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $A = B + 2 \land A = C + 3$ and $M_2$ represents the conjunction $A = B + 1 \land A = C + 2$.
+        The automaton $M_1$ has one single state $s_0$ that represents the equivalence class $\{A, B+2, C+3\}$
+        and $M_2$ has one single state $s_1$ that represents the equivalence class $s_1 = \{A, B+1, C+2\}$.
+        The product automaton $M_3$ is made of no transitions and two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_1, 1}$, where the first one represents the set $\{A\}$ and the second one the set $\{B, C+1\}$.
+        Therefore the product automaton represents the proposition $B = C + 1$.
+        The join operation keeps the relation between $B$ and $C$, as they have the same distance in $M_1$ and $M_2$.
+        On the other hand, $A$ has not the same distance to $B$ or $C$ in the input automata, therefore we forget all information about $A$.
+    \end{example}
+
+    \begin{example}\label{example:join-subset}
+        We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $x = \&x$ and $M_2$ represents the conjunction $*x = \&x$.
+        $M_1$ has one state $s_0$ and one transition from $s_0$ to itself. We have that $\L_{M_1}(s_0) =\{*^n\&x\mid n \geq 0\}$.
+        The automaton $M_2$ has two states $s_1$ and $s_2$ and two transitions from $s_1$ to $s_2$ and from $s_2$ to $s_1$. We have that $\L_{M_2}(s_1) = \{*^{2n}\&x\mid n \geq 0\}$ and $\L_{M_2}(s_2) = \{*^{2n}x\mid n \geq 0\}$.
+        We have that $\eta_1(\&x) = (0, s_0)$ and $\eta_2 (\&x) = (0, s_1)$.
+        The product automaton $M_3$ has two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_2, 0}$ and two transitions from the first state to the second and from the second state to the first state and $\eta_3(\&x) = (0, \angl{s_0, s_1, 0})$.
+        Therefore the product automaton is isomorphic to the second automaton and it represents the same equality $*x = \&x$.
+    \end{example}
+}
 
 \subsection{Join Using the Partition}\label{subsection:join-partition}
 
@@ -179,10 +248,10 @@ Then, we take the intersection of these two sets of block disequalities.
 
 Thus, $B_3$ is defined as
 \[
-\begin{array}{ll}
-    B_3 & = \{\{\tau_3\,t_1, \tau_3\,t_2\}  \mid                                                \\
-        & (\{\tau_1\,t_1, \tau_1\,t_2\} \in B_1 \land \{\tau_2\,t_1, \tau_2\,t_2\} \in B_2) \}.
-\end{array}
+    \begin{array}{ll}
+        B_3 & = \{\{\tau_3\,t_1, \tau_3\,t_2\}  \mid                                                \\
+            & (\{\tau_1\,t_1, \tau_1\,t_2\} \in B_1 \land \{\tau_2\,t_1, \tau_2\,t_2\} \in B_2) \}.
+    \end{array}
 \]
 
 $B_3$ is computed by rewriting each equality $\{t, t'\} \in B_1$ to use the new representatives of the equivalence classes in $P_3$.
@@ -212,11 +281,11 @@ Therefore, we define the join to keep only those disequalities that follow from 
 Let $P_3 = (\T, \tau_3, \omega_3)$.
 We define
 \[
-\begin{array}{ll}
-    D_3 & = \{(\tau_3\,t_1,  z + \omega_3\,t_2 - \omega_3\,t_1, \tau_3\,t_2) \mid                                                                            \\
-        & ((\tau_1\,t_1, \tau_1\,t_2, z + \omega_1\,t_2 - \omega_1\,t_1) \in D_1 \lor (\tau_2\,t_1, \tau_2\,t_2, z + \omega_2\,t_2 - \omega_2\,t_1) \in D_2) \\
-        & \land t_1 \nequiv_{k_1} t_2 + z \land t_1 \nequiv_{k_2} t_2 + z\},
-\end{array}
+    \begin{array}{ll}
+        D_3 & = \{(\tau_3\,t_1,  z + \omega_3\,t_2 - \omega_3\,t_1, \tau_3\,t_2) \mid                                                                            \\
+            & ((\tau_1\,t_1, \tau_1\,t_2, z + \omega_1\,t_2 - \omega_1\,t_1) \in D_1 \lor (\tau_2\,t_1, \tau_2\,t_2, z + \omega_2\,t_2 - \omega_2\,t_1) \in D_2) \\
+            & \land t_1 \nequiv_{k_1} t_2 + z \land t_1 \nequiv_{k_2} t_2 + z\},
+    \end{array}
 \]
 
 where $\nequiv_{k}$ symbolizes the disequalities that are (implicitly or explicitly) implied by $k$, i.e.,
