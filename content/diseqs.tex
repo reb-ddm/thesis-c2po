@@ -28,9 +28,9 @@ If $\Psi$ contains a block disequality $bl(t_1) \neq bl(t_2)$ and for $P[\Psi] =
 $\tau\,t_1 \equiv \tau\,t_2$, then the conjunction $\Psi$ is unsatisfiable.
 
 \begin{example}
-    Consider the conjunction $\Psi \equiv A = 1 + B \land bl(B) \neq bl(*(1 + B))$.\todo{change A and B to something else please because of the set B}
+    Consider the conjunction $\Psi \equiv A = 1 + V \land bl(V) \neq bl(*(1 + V))$.
     The QFA deriving from $\Psi$ is shown in \cref{fig:closure-example}.
-    As $\tau\,B = A$ and $\tau\,(*(1+B)) = *A$, the set $B[\Psi]$ would contain the entry $\{A,A*\}$.
+    As $\tau\,V = A$ and $\tau\,(*(1+V)) = *A$, the set $B[\Psi]$ would contain the entry $\{A,*A\}$.
 \end{example}
 
 \section{Quantitative Disequalities}\label{section:disequalities}

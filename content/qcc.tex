@@ -58,22 +58,22 @@ thus merging the two equivalence classes of $t_1$ and $t_2$ with the correct off
 If the two terms are already equivalent with a different offset, i.e., $\tau\,t_1 = \tau\,t_2$, but $z - \omega\,t_1 + \omega\,t_2 \neq 0$, then the conjunction is unsatisfiable.
 
 \begin{example}
-  Consider the conjunction $\Psi \equiv (B = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$.\todo{noB!!}
+  Consider the conjunction $\Psi \equiv (V = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$.
   The tree computed by the union-find algorithm is illustrated in \cref{fig:uf-tree}.
   \begin{figure}
     \begin{tikzpicture}[->, node distance=2cm, auto]
       \node (x) {$\&x$};
       \node (A) [below left of=x] {$A$};
       \node (D) [below right of=x] {$D$};
-      \node (B) [below=1cm of A] {$B$};
+      \node (V) [below=1cm of A] {$V$};
 
       \path (A) edge node {3} (x);
-      \path (B) edge node {1} (A);
+      \path (V) edge node {1} (A);
       \path (D) edge node {2} (x);
     \end{tikzpicture}
-    \caption{Union-find tree corresponding to the conjunction  $(B = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$}\label{fig:uf-tree}
+    \caption{Union-find tree corresponding to the conjunction  $(V = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$}\label{fig:uf-tree}
   \end{figure}
-  From this representation, we can, for example, derive that $B = 4 + \&x$.
+  From this representation, we can, for example, derive that $V = 4 + \&x$.
   The tree can look different depending on the choice of the representatives.
 \end{example}
 
@@ -149,11 +149,11 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
 
     \node[state] (A) {$A$};
 
-    \node[state, below=1cm of A] (B) {$B$};
+    \node[state, below=1cm of A] (B) {$V$};
 
     \node[state, right of=A] (As) {$*A$};
 
-    \node[state, right of=B] (Bs) {$*(1 + B)$};
+    \node[state, right of=B] (Bs) {$*(1 + V)$};
 
     \path[->]
     (A) edge[] node {$0,0$} (As)
@@ -175,12 +175,12 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
 
   \node[state] (AB) {$\begin{array}{c}
     \boldsymbol{A} = \\
-    1 + B
+    1 + V
   \end{array}$};
 
   \node[state, right of=AB] (ABs) {$\begin{array}{c}
     \boldsymbol{*A} = \\
-    *(1 + B)
+    *(1 + V)
   \end{array}$};
 
   \path[->]
@@ -201,20 +201,20 @@ The representative of each equivalence class is represented in bold as the menti
 
 \end{figure}
 
-\begin{example}\todo{noB}
+\begin{example}
   A QFA can be visualized by labeling the states with the terms of $\T$ that are in the corresponding equivalence class.
-  For example, consider the set of terms $\T = \{A, B, *A, *(1 + B)\}$.
+  For example, consider the set of terms $\T = \{A, V, *A, *(1 + V)\}$.
   The edges are labeled with the offsets: for an edge $\delta(s_1, z_1) = (s_2, z_2)$, the edge between $s_1$ and $s_2$ is labeled with $z_1, z_2$.
 
   The initial automaton would be the one in \cref{fig:initial-example}.
-  If the operation $\closure{A}{1}{B}{P}$ is called,
-  first the $\union{A}{1}{B}$ is performed and the new representative of $B$ becomes $A$, with offset $1$.
-  It would be equivalent to choose $B$ as the new representative, but we choose $A$ here as an example.
+  If the operation $\closure{A}{1}{V}{P}$ is called,
+  first the $\union{A}{1}{V}$ is performed and the new representative of $V$ becomes $A$, with offset $1$.
+  It would be equivalent to choose $V$ as the new representative, but we choose $A$ here as an example.
   Then, we want to move the outgoing transitions from $s_1$ to $s_0$, as the state $s_1$ is removed.
   However, there already exists a transition $\delta(s_0,0) = (s_2, 0)$.
-  Therefore, we add the equality $*(1 + B) = *A$ to a queue of pending equalities.
-  Then we recursively call $\closure{*(1 + B)}{0}{*A}{P'}$ and thus perform the union of $*(1 + B)$ and $*A$.
-  As before, we choose $*A$ as the new representative, but $*(1+B)$ would also be a possible choice.
+  Therefore, we add the equality $*(1 + V) = *A$ to a queue of pending equalities.
+  Then we recursively call $\closure{*(1 + V)}{0}{*A}{P'}$ and thus perform the union of $*(1 + V)$ and $*A$.
+  As before, we choose $*A$ as the new representative, but $*(1+V)$ would also be a possible choice.
   The resulting automaton is visualized in \cref{fig:closure-example}.
 \end{example}
 

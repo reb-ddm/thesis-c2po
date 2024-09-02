@@ -4,10 +4,9 @@ When new terms appear during the analysis, the partition $P$ and the automaton $
 It is not sufficient to simply add a fresh equivalence class for the new terms, as they sometimes need to be added to existing equivalence classes.
 
 \begin{example}
-    Let $\Psi \equiv A = B$ and $\T = \{A, B, *A\}$.
-    The equivalence classes of $P[\Psi]$ are $\{A, B\}$ and $\{*A\}$.
-    If we want to add the term $*B$ to $\T$, we need to add it to the same equivalence class as $*A$, as the two terms are equivalent according to the rules defined in \cref{chapter:qcc}.
-    \todo{The same example is already somewhere else.}
+    Let $\Psi \equiv \&x = \&y$ and $\T = \{\&x, \&y, x\}$.
+    The equivalence classes of $P[\Psi]$ are $\{\&x, \&y\}$ and $\{x\}$.
+    If we want to add the term $y$ to $\T$, we need to add it to the same equivalence class as $x$, as the two terms are equivalent according to the rules defined in \cref{chapter:qcc}.
 \end{example}
 
 Let $P = (\T, \tau, \omega)$ be a partition with the corresponding QFA $M = (S, \otau, \eta, \delta)$ and let $\T'$ be a superset of $\T$ and closed under subterms.

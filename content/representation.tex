@@ -37,17 +37,14 @@ The analyzer \goblint\ can determine the bit offsets of fields within a struct i
     Consider this C struct:
     \begin{minted}{C}
         struct S {
-            int first;
-            int arr[5];
+            int32_t first;
+            int32_t arr[5];
         };
-                \end{minted}
-
-    and the following C variable declaration: \textsf{struct S x[3][2];}.
-    The expression \textsf{x[2][1].arr[4]} is treated as $*(\&x + 1120)$.
-    The size $s$ of an array element of $x$ is the size of the struct, i.e., $192$ bits.
-    The offset of the struct $x[2][1]$ is $(2 \cdot m + 1) \cdot s = 960$, because $m = 2$ is the second dimension of the array $x$.
+    \end{minted}
+    Let $x$ be a variable of type \textsf{struct S}.
+    The expression \textsf{x.arr[4]} is treated as $*(\&x + 160)$.
     Inside the struct, the offset of $arr$ is $32$ and the offset of $arr[4]$ is $32\cdot 4 = 128$.
-    In total, the offset is $960 + 32 + 128 = 1120$.
+    In total, the offset is $32 + 128 = 160$.
 \end{example}
 %struct S x[3][2];
 %struct S {
