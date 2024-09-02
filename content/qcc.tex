@@ -90,7 +90,7 @@ A partition $P = (\T, \tau, \omega)$ groups all terms that are equal up to an in
 The partition takes into account the reflexivity, symmetry, and transitivity rules.
 Further, it is necessary to ensure that the equalities deriving from \labelcref{item:dereferencing} are always considered.
 Therefore, for each term $t$, we need to keep track of the equivalence classes that contain terms of the form $*(z+t)$ and merge two equivalence classes if they contain terms that are equal according to the rule \labelcref{item:dereferencing}.
-For example, if $\T = \{A, B, *A, *B\}$ and we perform a union of $A$ and $B$, the closure rule~\labelcref{item:dereferencing} tells us that also the equivalence classes of $*A$ and $*B$ should be merged.
+For example, if $\T = \{A, V, *A, *V\}$ and we perform a union of $A$ and $V$, the closure rule~\labelcref{item:dereferencing} tells us that also the equivalence classes of $*A$ and $*V$ should be merged.
 Thus, we introduce an alternative representation of the partition $P$ as a \emph{quantitative finite automaton} (QFA) $M$.
 
 The QFA is defined by a triple $M = (S, \otau, \eta, \delta)$. $S$ is a finite set of states, each representing an equivalence class of the partition.
@@ -149,20 +149,20 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
 
     \node[state] (A) {$A$};
 
-    \node[state, below=1cm of A] (B) {$V$};
+    \node[state, below=1cm of A] (V) {$V$};
 
     \node[state, right of=A] (As) {$*A$};
 
-    \node[state, right of=B] (Bs) {$*(1 + V)$};
+    \node[state, right of=V] (Vs) {$*(1 + V)$};
 
     \path[->]
     (A) edge[] node {$0,0$} (As)
-    (B) edge[] node {$1,0$} (Bs);
+    (V) edge[] node {$1,0$} (Vs);
 
     \node[above left=0.5cm and 0.3cm of A] {$s_0$};
-    \node[above left=0.5cm and 0.3cm of B] {$s_1$};
+    \node[above left=0.5cm and 0.3cm of V] {$s_1$};
     \node[above left=0.5cm and 0.3cm of As] {$s_2$};
-    \node[above left=0.5cm and 0.3cm of Bs] {$s_3$};
+    \node[above left=0.5cm and 0.3cm of Vs] {$s_3$};
 
   \end{tikzpicture}
 \end{centering}
@@ -191,11 +191,11 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
 \end{tikzpicture}
 \end{centering}
 
-  \caption{The same QFA after the operation $\closure{A}{1}{B}{P}$.}\label{fig:closure-example}
+  \caption{The same QFA after the operation $\closure{A}{1}{V}{P}$.}\label{fig:closure-example}
 \end{subfigure}
 
-\caption{An example of the $\closure{A}{1}{B}{P}$ operation on a QFA over the set of terms
-$\T = \{A, B, *A, *(1 + B)\}$.
+\caption{An example of the $\closure{A}{1}{V}{P}$ operation on a QFA over the set of terms
+$\T = \{A, V, *A, *(1 + V)\}$.
 The representative of each equivalence class is represented in bold as the mentioned first term.}
 
 

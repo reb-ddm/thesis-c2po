@@ -48,7 +48,7 @@ Let $M = (S, \otau, \eta, \delta)$ be a QFA.\@
 For each state $s \in S$, we compute the minimal term $m_s$ and the corresponding offset $z_s$ such that $M[m_s] = (z_s,s)$.
 This can be computed using a variation of Dijktra's shortest path algorithm, which is described in the following.
 
-Let $P$ be an initially empty FIFO queue, which we use to store all states $s$ for which $(m_s,z_s)$ is already computed but where the outgoing edges still have to be processed.
+Let $Q$ be an initially empty FIFO queue, which we use to store all states $s$ for which $(m_s,z_s)$ is already computed but where the outgoing edges still have to be processed.
 
 \begin{enumerate}
     \item
@@ -56,39 +56,39 @@ Let $P$ be an initially empty FIFO queue, which we use to store all states $s$ f
           \[
               (m_s,z_s) = (a,z)
           \]
-          and add $s$ to $P$.
+          and add $s$ to $Q$.
     \item
-          Then, we process the queue $P$ in a FIFO manner until it is empty.
-          For each state $s$ in $P$, we consider all outgoing edges $\delta\,z\,s = (z',s')$ in order of ascending $z$.
+          Then, we process the queue $Q$ in a FIFO manner until it is empty.
+          For each state $s$ in $Q$, we consider all outgoing edges $\delta\,z\,s = (z',s')$ in order of ascending $z$.
           For each such edge where $(m_{s'},z_{s'})$ is not defined yet, we set
           \[
               (m_{s'},z_{s'}) = (*((z-z_s)+m_s),z')
           \]
-          and add $s'$ to $P$.
+          and add $s'$ to $Q$.
 \end{enumerate}
 
 The correctness is given by the fact that longer paths always result in larger terms than shorter paths.
 Thus, we do not need to update a pair once it was computed.
 
 \begin{example}\label{ex:min-repr}
-    Let $\Psi \equiv B = -1 + \&x \land *B = 2 + A \land *A = 3 + x$.\todo{don't use B}
-    The automaton $M$\todo{what is P} has can be visualized with the following graph:
+    Let $\Psi \equiv V = -1 + \&x \land *V = 2 + A \land *V = 3 + x$.
+    The corresponding automaton $M$ has can be visualized by the following graph:
     \begin{center}
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
             \node[state] (Q1) {$\begin{array}{c}
                         \boldsymbol{\&x}, \\
-                        1 + B
+                        1 + V
                     \end{array}$};
 
             \node[state, right=4.5cm of Q1] (Q2) {$\begin{array}{c}
-                        \boldsymbol{*B}, 2 + A, \\
+                        \boldsymbol{*V}, 2 + A, \\
                         *(-1+\&x )
                     \end{array}$};
 
             \node[state, right=5.6cm of Q2] (Q3) {$\begin{array}{c}
-                        \boldsymbol{x}, *(1 + B), -3 + *A, \\
-                        -3 + *(-2+*B),...
+                        \boldsymbol{x}, *(1 + V), -3 + *A, \\
+                        -3 + *(-2+*V),...
                     \end{array}$};
 
             \path[->]
@@ -104,11 +104,11 @@ Thus, we do not need to update a pair once it was computed.
     \end{center}
 
     The minimal representatives are computed by first considering the atoms in ascending order.
-    Assuming that the linear order on atoms is $\&x < A < B$,
+    Assuming that the linear order on atoms is $\&x < A < V$,
     we define first $m_{s_0} = \&x$ and $z_{s_0} = 0$.
     Then we define $m_{s_1} = A$ and $z_{s_1} = -2$.
-    There is nothing to do for $B$ because we already defined $m_{s_0}$.
-    The queue $P$ is now $\{s_0, s_1\}$.
+    There is nothing to do for $V$ because we already defined $m_{s_0}$.
+    The queue $Q$ is now $\{s_0, s_1\}$.
     We consider the outgoing edge of $s_0$ with $z = -1$.
     There is nothing to do for $s_1$, as $m_{s_1}$ is already defined.
     Then we consider the outgoing edge of $s_0$ with $z = 0$
@@ -136,11 +136,11 @@ Therefore, in order to decide the equivalence of two kernels $k_1$ and $k_2$, it
 
 \begin{example}
     Consider the conjunction $\Psi$ from \cref{ex:min-repr}.
-    The normal form of the kernel $k$ representing $\Psi$ is\todo{please no B}
+    The normal form of the kernel $k$ representing $\Psi$ is
     \[
-        (B = -1+\&x) \land (*(-1 + \&x) = 2 + A) \land (*A = 3 + x)
+        (V = -1+\&x) \land (*(-1 + \&x) = 2 + A) \land (*A = 3 + x)
     \]
-    where $B = -1 + \&x$ originates from $\eta\,B = (-1,s_0)$.
+    where $V = -1 + \&x$ originates from $\eta\,V = (-1,s_0)$.
     The equalities originating from $\eta\,\&x = (0,s_0)$ and $\eta\,A = (0, s_1)$ are removed, because they are trivial.
     The edge $\delta\,(-1,s_0) = (0,s_0)$ gives rise to the equality $*(-1 + \&x) = 2 + A$ and $\delta\,(-2,s_1) = (3,s_2)$ generates the equality $*A = 3 + x$.
     The last edge $\delta\,(0,s_0) = (0,s_2)$ generates the trivial equality $x = 0 + x$.

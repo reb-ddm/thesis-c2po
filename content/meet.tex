@@ -22,10 +22,10 @@ the conjunction $p \meet k$ of a kernel $k$ and a proposition $p$ is defined as 
               \item Otherwise, we compute the $\closure{t_1}{z}{t_2}{P}$.
                     Let $P' = (\T, \tau', \omega')$ and $M'$ be the partition and QFA resulting from the closure operation.
                     Now, we need to update the block and quantitative disequalities to be about the representatives of $P'$.
-                    For each block disequality $bl(t_1) \neq bl(t_2)$ in $B$, we convert it to the disequality $bl(\tau'\,t_1) \neq bl(\tau'\,t_2)$.
+                    For each block disequality $\{t_1,t_2\}$ in $B$, we convert it to the disequality $bl(\tau'\,t_1) \neq bl(\tau'\,t_2)$.
                     $B'$ is the result of updating all terms of $B$ to the new representatives:
                     \[
-                        B' = \{bl(\tau'\,t_1) \neq bl(\tau'\,t_2) \mid bl(t_1) \neq bl(t_2) \in B\}.
+                        B' = \{\{\tau'\,t_1, \tau'\,t_2\} \mid \{t_1,t_2\} \in B\}.
                     \]
                     We set $D' = D[\F[k_1] \land p]$.
                     If a contradiction occurs during the construction of $D'$, we set $p \meet k = \bot$.
