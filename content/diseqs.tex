@@ -27,10 +27,10 @@ The disequalities deriving from rule~\ref{item:distinct-vars-block-neq} are cons
 If $\Psi$ contains a block disequality $bl(t_1) \neq bl(t_2)$ and for $P[\Psi] = (\T, \tau, \omega)$ it holds that
 $\tau\,t_1 \equiv \tau\,t_2$, then the conjunction $\Psi$ is unsatisfiable.
 
-\begin{example}
-    Consider the conjunction $\Psi \equiv A = 1 + V \land bl(V) \neq bl(*(1 + V))$.
+\begin{example}\label{ex:bldiseq}
+    Consider the conjunction $\Psi \equiv A = 1 + y \land bl(y) \neq bl(*(1 + y))$.
     The QFA deriving from $\Psi$ is shown in \cref{fig:closure-example}.
-    As $\tau\,V = A$ and $\tau\,(*(1+V)) = *A$, the set $B[\Psi]$ would contain the entry $\{A,*A\}$.
+    As $\tau\,y = A$ and $\tau\,(*(1+y)) = *A$, the set $B[\Psi]$ would contain the entry $\{A,*A\}$.
 \end{example}
 
 \section{Quantitative Disequalities}\label{section:disequalities}
@@ -75,10 +75,10 @@ Given a set $D$, a disequality $t_1 \nequivp z + t_2$ can be added by:
 The disequalities $D = D[\Psi]$ can be computed in polynomial time in the size of the formula $\Psi$ in the following way:
 
 \begin{itemize}
-    \item For each equality $*(z_1 + t_1) \equivp z + *(z_2 + t_2)$ for $z \neq 0$
+    \item\label{item:diseq-equalities} For each equality $*(z_1 + t_1) \equivp z + *(z_2 + t_2)$ for $z \neq 0$
           that follows from $\Psi$,
           add $t_1 \neq (z_2 - z_1) + t_2$ to $D$, as described before.
-    \item For each disequality $bl(*(z_1 + t_1)) \nequivp bl(*(z_2 + t_2))$ that follows from $\Psi$, add $t_1 \neq (z_2 - z_1) + t_2$ to $D$, as described before.
+    \item\label{item:diseq-bldiseq} For each disequality $bl(*(z_1 + t_1)) \nequivp bl(*(z_2 + t_2))$ that follows from $\Psi$, add $t_1 \neq (z_2 - z_1) + t_2$ to $D$, as described before.
           These two first rules only add a finite amount of disequalities to the set, given that each equality and each block disequality implies at most one disequality of the type $*(z_1 + t_1) \nequivp *(z_2 + t_2)$.
     \item Compute the closure of the quantitative disequalities in $D$ using rule~\labelcref{item:inverse-deref}, and add the normalized disequalities to $D$.
     \item For each disequality $p \in \Psi$, add $norm_{P[\Psi]}(p)$ to $D$.
@@ -95,3 +95,12 @@ it holds that $\Psi$ implies $p$ if and only if $t_1 \nequivp z + t_2$ and if an
     \item\label{item:eqs} or $t_1 \equivp z' + t_2$ for any $z' \neq z$.
 \end{enumerate}
 We call the disequalities that follow from \labelcref{item:diseqs}.\ the \emph{explicit} disequalities and those following from \labelcref{item:bl-diseqs}.\ and \labelcref{item:eqs}.\ the \emph{implicit} disequalities.
+
+\begin{example}
+    We consider the conjunction from \cref{ex:bldiseq} and add a quantitative disequality.
+    Let $\Psi \equiv (A = 1 + y) \land (bl(y) \neq bl(*(1 + y))) \land (\&y \neq 3 + *(1+y)) $.
+    The QFA deriving from $\Psi$ is again the one in \cref{fig:closure-example}.
+    We can derive the disequality between representatives $\&y \neq 3 + *A$.
+    From the block disequality $bl(y) \neq bl(*(1 + y))$ we derive the disequality between representatives $\&y \neq A$ using the rules \labelcref{item:block-neq} and \labelcref{item:inverse-deref}.
+    Therefore, $D[\Psi] = (\&y \neq 3 + *A) \land (\&y \neq A)$.
+  \end{example}
