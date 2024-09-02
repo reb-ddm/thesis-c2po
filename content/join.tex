@@ -126,8 +126,6 @@ Let $\T' = \{t \mid \exists s \in S_3 . \otau_3(s) = t\}$ be the set of terms ch
 The partition $P_3$ is defined as $P_3 = (\T' \cup \T, \tau_3, \omega_3)$,
 where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t = z$ if $M_3[t] = (z,s)$.
 
-\todo[inline]{examples}
-
 \begin{example}\label{join-example}
     We consider again the two automata of \cref{example:infinite-join}.
     First, we add the terms of the set $\T = \{A, V, *A,*V,*(1+A)$, $*(1 + V)\}$ to the automaton $M_1$, resulting in the automata $M_1'$.
@@ -194,27 +192,6 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
     \end{center}
     From $M_3$ we can infer the equality $*(1 + A) = *(1 + V)$, while the equalities $*(1 + *^n A) = *(1 + *^n V)$ for $n \geq 1$ are implied by $M_1'$ and $M_2$, but not by $M_3$.
 \end{example}
-
-\ignore{
-    \begin{example}
-        We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $A = B + 2 \land A = C + 3$ and $M_2$ represents the conjunction $A = B + 1 \land A = C + 2$.
-        The automaton $M_1$ has one single state $s_0$ that represents the equivalence class $\{A, B+2, C+3\}$
-        and $M_2$ has one single state $s_1$ that represents the equivalence class $s_1 = \{A, B+1, C+2\}$.
-        The product automaton $M_3$ is made of no transitions and two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_1, 1}$, where the first one represents the set $\{A\}$ and the second one the set $\{B, C+1\}$.
-        Therefore the product automaton represents the proposition $B = C + 1$.
-        The join operation keeps the relation between $B$ and $C$, as they have the same distance in $M_1$ and $M_2$.
-        On the other hand, $A$ has not the same distance to $B$ or $C$ in the input automata, therefore we forget all information about $A$.
-    \end{example}
-
-    \begin{example}\label{example:join-subset}
-        We consider two automata $M_1$ and $M_2$, where $M_1$ represents the conjunction $x = \&x$ and $M_2$ represents the conjunction $*x = \&x$.
-        $M_1$ has one state $s_0$ and one transition from $s_0$ to itself. We have that $\L_{M_1}(s_0) =\{*^n\&x\mid n \geq 0\}$.
-        The automaton $M_2$ has two states $s_1$ and $s_2$ and two transitions from $s_1$ to $s_2$ and from $s_2$ to $s_1$. We have that $\L_{M_2}(s_1) = \{*^{2n}\&x\mid n \geq 0\}$ and $\L_{M_2}(s_2) = \{*^{2n}x\mid n \geq 0\}$.
-        We have that $\eta_1(\&x) = (0, s_0)$ and $\eta_2 (\&x) = (0, s_1)$.
-        The product automaton $M_3$ has two states $\angl{s_0, s_1, 0}$ and $\angl{s_0, s_2, 0}$ and two transitions from the first state to the second and from the second state to the first state and $\eta_3(\&x) = (0, \angl{s_0, s_1, 0})$.
-        Therefore the product automaton is isomorphic to the second automaton and it represents the same equality $*x = \&x$.
-    \end{example}
-}
 
 \subsection{Join Using the Partition}\label{subsection:join-partition}
 
