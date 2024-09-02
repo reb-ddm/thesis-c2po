@@ -106,19 +106,16 @@ The new partition $\restr{P}{\Set} = (\T', \tau', \omega')$ is defined as follow
 \end{itemize}
 
 \begin{theorem}\label{restriction}
-    \todo[inline]{Not only prove this, but also explain it}
     Let $M = (S, \otau, \eta, \delta)$ be a QFA and let $\restr{M}{\Set} = (S', \otau', \eta', \delta')$ be the automaton that is obtained by restricting $M$ as described above.
     Then,
     \begin{enumerate}
         \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M}{\Set})$, it holds that $M[t] = (z, s)$ and $M[\otau'\,s] = (z', s')$ iff $\restr{M}{\Set}[t] = (z - z', s)$ and $s = s'$,
-        \item $\L(\restr{M}{\Set}) = \L(M) \cap \Set$ and
               \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M}{\Set})$, it holds that $M[t_1] = z + M[t_2]$ iff $\restr{M}{\Set}[t_1] = z + \restr{M}{\Set}[t_2]$.
     \end{enumerate}
 \end{theorem}
 \begin{proof}
     The first point can be proven by induction over the structure of the term $t$.
-    \todo[inline]{Proof of point 2}
-    Point~\labelcref{item:correctness-restriction} follows from point~\labelcref{item:lemma-restriction}.
+    Point~\labelcref{item:correctness-restriction} follows directly from point~\labelcref{item:lemma-restriction}.
 \end{proof}
 
 \subsubsection{(Block-)Disequalities}

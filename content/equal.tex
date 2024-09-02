@@ -146,10 +146,6 @@ Therefore, in order to decide the equivalence of two kernels $k_1$ and $k_2$, it
     The last edge $\delta\,(0,s_0) = (0,s_2)$ generates the trivial equality $x = 0 + x$.
 \end{example}
 
-\todo[inline]{Correctness proof}
-
-\todo[inline]{Proof that they are equivalent}
-
 The advantage of computing the normal form instead of comparing the equivalence classes is that it only needs to be computed once per kernel, and the resulting normal form can be reused for each equality check.
 In the implementation, it is possible to configure which of the two algorithms for equality is used by the analysis.
 If the normal form algorithm is chosen, then the kernel contains an additional field containing the normal form.
