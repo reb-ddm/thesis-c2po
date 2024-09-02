@@ -71,7 +71,7 @@ The correctness is given by the fact that longer paths always result in larger t
 Thus, we do not need to update a pair once it was computed.
 
 \begin{example}\label{ex:min-repr}
-    Let $\Psi \equiv V = -1 + \&x \land *V = 2 + A \land *V = 3 + x$.
+    Let $\Psi \equiv (V = -1 + \&x) \land (*V = 2 + A) \land (*V = 3 + x)$.
     The corresponding automaton $M$ has can be visualized by the following graph:
     \begin{center}
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]

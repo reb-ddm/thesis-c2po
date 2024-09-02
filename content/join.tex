@@ -106,7 +106,7 @@ The product can be computed in polynomial time, as we need to add an initial sta
     We prove it by induction over the structure of the term $t$.
 \end{proof}
 
-As shown in Example~\ref{example:infinite-join}, it is not possible to define a join algorithm that is complete.
+As shown in \cref{example:infinite-join}, it is not possible to define a join algorithm that is complete.
 In fact, we can only show for our definition of the join algorithm that it is at least complete over the terms in $\L(M_1) \cap \L(M_2)$.
 The following proposition shows that our definition of join is complete over the set of terms $\L(M_1) \cap \L(M_2)$ and that it is sound.
 
@@ -137,18 +137,18 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
     \begin{center}
         \begin{minipage}{0.45\textwidth}
             \centering
-            \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=3pt, align=center}]
+            \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
                 \node[state] (Q1) {$\begin{array}{c}
                             A, V
                         \end{array}$};
-                \node[state, below=1.3cm of Q1] (Q2) {$\begin{array}{c}
+                \node[state, below=2cm of Q1] (Q2) {$\begin{array}{c}
                             *(1+A), *(1+V)
                         \end{array}$};
-                \node[state, below left=0.5cm and 1.4cm of Q1] (Q3) {$\begin{array}{c}
+                \node[state, below left=1cm and 2cm of Q1] (Q3) {$\begin{array}{c}
                             *A
                         \end{array}$};
-                \node[state, below right=0.5cm and 1.4cm of Q1] (Q4) {$\begin{array}{c}
+                \node[state, below right=1cm and 2cm of Q1] (Q4) {$\begin{array}{c}
                             *V
                         \end{array}$};
                 \path[->]
@@ -157,7 +157,7 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
                 (Q1) edge node {$0,0$} (Q4);
 
 
-                \node [below left=-0.2cm and 1.2cm of Q1] {$M_1'$:};
+                \node [below left=-0.5cm and 1.7cm of Q1] {$M_1'$:};
             \end{tikzpicture}
         \end{minipage}
         \begin{minipage}{0.45\textwidth}
@@ -168,26 +168,26 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
                             A
                         \end{array}$};
 
-                \node[state, right=1.4cm of Q1] (Q2) {$\begin{array}{c}
+                \node[state, right=2cm of Q1] (Q2) {$\begin{array}{c}
                             V
                         \end{array}$};
 
-                \node[state, below right=1.8cm and 0.9cm of Q1] (Q3) {$\begin{array}{c}
+                \node[state, below right=2cm and 1cm of Q1] (Q3) {$\begin{array}{c}
                             *(1+A), *(1 + V)
                         \end{array}$};
-                \node[state, below left=01.1cm and 1.8cm of Q1] (Q4) {$\begin{array}{c}
+                \node[state, below left=1cm and 2cm of Q1] (Q4) {$\begin{array}{c}
                             *A
                         \end{array}$};
-                \node[state, below right=1.1cm and 1.8cm of Q2] (Q5) {$\begin{array}{c}
+                \node[state, below right=1.1cm and 2cm of Q2] (Q5) {$\begin{array}{c}
                             *V
                         \end{array}$};
                 \path[->]
                 (Q1) edge[] node[left] {$1,0$} (Q3)
                 (Q2) edge[] node[right] {$1,0$} (Q3)
-                (Q1) edge[] node[above left=-0.1cm and -0.1cm] {$1,0$} (Q4)
+                (Q1) edge[] node[above left=0cm and -0.2cm] {$1,0$} (Q4)
                 (Q2) edge[] node[above] {$1,0$} (Q5);
 
-                \node [below left=-0.2cm and 1cm of Q1] {$M_3$:};
+                \node [below left=-0.5cm and 1.7cm of Q1] {$M_3$:};
 
             \end{tikzpicture}
         \end{minipage}
@@ -231,6 +231,59 @@ for each $t \in Q_i$ we define $\tau_3\,t = t_i$ and $\omega_3\,t = \omega_1\,t 
 
 The corresponding automaton $M_3$ can be computed starting from the partition $P_3$,
 as described in \cref{subsection:qfa}.
+
+
+\begin{example}\label{ex:join-cycle}
+
+\begin{figure}\begin{subfigure}{0.5\textwidth}
+    \begin{centering}
+      \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
+
+            \node[state] (Q1) {$\&x, *x$};
+            \node[state, right=of Q1] (Q2) {$x, {*}{*}x$};
+
+            \path[->]
+              (Q1) edge[bend left, above] node {$0,0$} (Q2)
+              (Q2) edge[bend left, below] node {$0,0$} (Q1);
+
+          \end{tikzpicture}
+
+    \end{centering}
+
+      \caption{The QFA of the conjunction $\&x = *x$.}\label{fig:join-diff-example}
+    \end{subfigure}
+    \begin{subfigure}{0.5\textwidth}
+        \begin{centering}
+          \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
+
+                \node[state] (Q1) {$\&x, {*}{*}x$};
+                \node[state, right=of Q1] (Q2) {$x$};
+                \node[state, below right=of Q1] (Q3) {$*x$};
+
+
+                \path[->]
+                  (Q1) edge[bend left] node {$0,0$} (Q2)
+                  (Q2) edge[bend left] node {$0,0$} (Q3)
+                  (Q3) edge[bend left] node {$0,0$} (Q1);
+
+              \end{tikzpicture}
+
+        \end{centering}
+
+          \caption{The QFA of the conjunction $\&x = {*}{*}x$.}\label{fig:join-diff-example2}
+        \end{subfigure}
+        \caption{QFAs for the conjunctions $\&x = *x$ and $\&x = {*}{*}x$.}
+    \end{figure}
+
+    The main difference between the two join algorithms is the behavior when the automata contain cycles.
+    For example, let $\Psi_1 \equiv \&x = *x$ and $\Psi_2 \equiv \&x = {*}{*}x$.
+    Assume that $\T = \{\&x, x, *x, {*}{*}x\}$.
+    The automaton $M[\Psi_1]$ is a cycle of length 2 (\cref{fig:join-diff-example}) and the automaton $M[\Psi_2]$ is a cycle of length 3 (\cref{fig:join-diff-example2}).
+    If we use the join of the automata, the resulting automaton is a cycle of length 6.
+    However, the join of the partitions only considers the terms in $\T$, which are all in distinct equivalence classes in the join.
+    Therefore, all information about any equalities are lost with the partitions-join.
+
+\end{example}
 
 \subsection{Join of Two Kernels}
 
