@@ -11,8 +11,8 @@ Here, it is extended with block disequalities, which model that pointer arithmet
 
 The abstract domain of \cpo\ is represented by a representation of 2-Pointer Logic conjunctions, including a congruence closure of the equalities and representations of quantitative disequalities and block disequalities.
 
-Operations for the analysis by abstract interpretation are described, including the \emph{equals}, \emph{meet}, \emph{join}, \emph{widening}, and \emph{narrowing} operations.
-Two algorithms for the \emph{equals} and \emph{join} operations are presented, which differ in their precision and efficiency.
+Operations for the analysis by abstract interpretation are described, including the \emph{equal}, \emph{meet}, \emph{join}, \emph{widening}, and \emph{narrowing} operations.
+Two algorithms for the \emph{equal} and \emph{join} operations are presented, which differ in their precision and efficiency.
 Transfer functions for assignments and dynamic memory allocation are defined.
 For interprocedural analysis, the \emph{enter} and \emph{combine} functions are described.
 
@@ -22,7 +22,7 @@ In order to evaluate the performance of the analysis, we ran the analysis on the
 
 Our experiments demonstrate that our analysis scales reasonably for large programs and
 that it infers some properties that the \goblint\ analyzer without \cpo\ was not able to infer.
-The difference in precision and performance between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation is evaluated,
+The difference in precision and performance between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equal} operation is evaluated,
 but no significant difference was found.
 Therefore, the simpler algorithms are preferred for their easier implementation.
 

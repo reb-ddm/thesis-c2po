@@ -81,13 +81,13 @@ This master's thesis is structured as follows:
           For example the proposition $*(\&z + 2) \neq x - 2$ is implied by the conjunction~\labelcref{example:introduction}.
           The implied conjunctions are computed using the \emph{quantitative congruence closure} of all the equalities that are present in the conjunction and
           the closure of the disequalities, using the rule that when $*t_1 \neq *t_2$, this implies that the pointers are also different, i.e., $t_1 \neq t_2$.
-    \item \cref{chapter:analysis} describes the abstract domain used in the analysis and the corresponding operations that are needed to implement an abstract interpretation analysis, including the \emph{equals}, \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing} operations.
-          Two possible algorithms of the \emph{equals} and the \emph{join} operation are presented, which differ in
+    \item \cref{chapter:analysis} describes the abstract domain used in the analysis and the corresponding operations that are needed to implement an abstract interpretation analysis, including the \emph{equal}, \emph{meet}, \emph{join}, \emph{widening} and \emph{narrowing} operations.
+          Two possible algorithms of the \emph{equal} and the \emph{join} operation are presented, which differ in
           their precision and efficiency.
           Transfer functions are described, which define the behavior of the analysis during an assignment and a function call.
     \item \cref{chapter:evaluation} evaluates the implementation of the \cpo\ analysis in \goblint\ on a set of benchmarks,
           comparing the analysis with the existing non-relational pointer analysis in \goblint, and also
-          evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equals} operation.
+          evaluating the differences between the two algorithms for the \emph{join} operation and the two possibilities for the \emph{equal} operation.
     \item \cref{chapter:related-work} gives an overview of the related work on congruence closure, pointer analysis, and weakly-relational analyses.
     \item \cref{chapter:conclusion} concludes the thesis and gives an outlook on future work.
 \end{itemize}
