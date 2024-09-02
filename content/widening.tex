@@ -3,7 +3,7 @@
 The join operation that we defined does not compute the exact least upper bound of two automata, but only an approximation.
 However, the loss of information is not enough to guarantee that the join operation always reaches a fixpoint after a finite number of iterations.
 
-\begin{example}
+\begin{example}\label{ex:widen-ascending-chain}
   Consider the sequence of kernels corresponding to the conjunctions
   \[
     \Psi_n \equiv (*^{2^n} \&x = \&x)\hspace{6pt} (n\geq 0).
@@ -36,15 +36,14 @@ but it avoids computing a restriction.
 For a given set $\T$ of terms, there is only a finite number of possible automata and sets of disequalities that contain only terms of $\T$.
 The set of terms doesn't change after having applied the widening operation, therefore the widening operator will always reach a fixpoint after a finite amount of iterations.
 
-\begin{example}\label{ex:widen}\todo{fix and add graph}
-  If we consider the sequence of conjunctions $\Psi_n$ from \cref{ex:widen-ascending-chain}, the automaton representation $M$\todo{what is P} is a cycle of length $2^n$.
-  If we apply widening to $\Psi_n$ and $\Psi_{n+1}$, the resulting automaton will contain a simple path from the equivalence class of $\&x$ to the equivalence class of $*^{2^{n}-1}\&x$,
-  and no cycles.
-  This means that each term is in its own equivalence class, we have lost all information about equalities.
+\begin{example}\label{ex:widen}
+  If we consider the sequence of conjunctions $\Psi_n$ from \cref{ex:widen-ascending-chain}, the automaton representation $M$ is a cycle of length $2^n$.
+  For example, \cref{fig:join-diff-example} shows the automaton for $\Psi_1$
+  If we apply widening to $\Psi_n$ and $\Psi_{n+1}$, the resulting automaton is restricted to only contain the terms in $\Psi_n$.
+  The term $*^{2^(n+1)}$ is therefore removed, together with the corresponding state in the automaton, thus removing the cycle.
+  Afterward, each term is in its own equivalence class,s and we have lost all information about equalities.
   Therefore, the widening terminates in the next iteration,
   as we already reached the top element of our domain.
-  % For two cycle-free automata $M_1$ and $M_2$, if $\L(M_2) \subseteq \L(M_1)$,
-  % then the widen is equivalent to the join operation.
 \end{example}
 
 \section{Narrowing}
@@ -57,7 +56,7 @@ As shown in~\cite{2pointer}, the domain of 2-pointer propositions also has infin
 	\Phi_n \equiv\bigwedge_{i=1}^n (\&y = *(i+\&x))\qquad(n\geq 0)
 	\]
 	Then $\Phi_{n+1}\implies\Phi_n$ for all $n\geq 0$ and all are inequivalent.
-	Thus, the $\Phi_n,n\geq 0$, constitute an infinite strictly descending chain in \cpo.
+	Thus, the conjunctions $\Phi_n$ constitute an infinite strictly descending chain in \cpo.
 \end{example}
 
 Similarly to the widening operation, we define the narrowing as the meet operation with a limited set of terms.
@@ -94,12 +93,3 @@ Otherwise, we consider the formula representations $\F[k_1]$, and we keep only t
 We also filter out the disequalities in $k_2$ that contain offsets $z$ where $\lvert z \rvert > max\_offset(D_1)$.
 Then we add each remaining proposition of $\F[k_1]$ to the kernel $k_2$,
 as is done for the meet operation in \cref{section:meet}.
-
-\begin{example}\todo{this is not a good example and it' wrong}
-    If we consider the result of widen of \cref{ex:widen}, we assume that the result automaton $M$
-    is, for example, a simple path from the equivalence class of $\&x$ to the equivalence class of $*x$.
-    If we apply the narrowing operation to this automaton and the equality $\&x = *x$, this equality will
-    be added to the automaton, as the terms $\&x$ and $*x$ are in the set of reachable terms of $M$.
-    If on the other hand we apply the narrowing operation to the automaton and the equality $\&x = *(*x)$,
-    this equality is ignored, as the term $*(*x)$ is not in the set of reachable terms of $M$.
-\end{example}
