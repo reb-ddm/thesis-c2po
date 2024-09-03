@@ -4,7 +4,7 @@
 The \cpo\ analysis was implemented in the \goblint\ static analyzer for C programs, which is based on abstract interpretation.
 \goblint\ already contains a set of basic abstract domains and analyses,
 including interval analysis, inter-procedural analyses, and a non-relational pointer analysis.
-The group of these basic analyzes is denoted as \base\.
+The group of these basic analyzes is denoted as \base.
 An additional \goblint\ analysis, called \vareq, tracks must-equalities between general expressions
 and thus can handle a subset of the behavior of \cpo.
 We evaluated the precision gain and the performance loss of the \cpo\ analysis and compared it to \base\ and \vareq.
@@ -29,17 +29,18 @@ The first suite consists of 29 \emph{litmus} tests inspired by real-world progra
 designed to incorporate complex manipulations of pointers.
 Each test was annotated with assertions to be verified.
 \cpou\ could prove all assertions,
-while only 16\% of the assertions could be proven by \base.
+while only 16\% of the assertions could be proven by \base
+and 23\% by \vareq.
 \cpod\ proved all assertions except one, which was the \cref{ex:join-cycle}.
 These programs may serve as benchmarks for future analyzers.
 
 We further evaluated the precision of \cpo\ on 11 GNU core utilities programs (Coreutils).
 We used \cpou\ to identify program invariants and automatically generate assertions.
 For one of these programs, the generation of invariants timed out after one hour.
-For the remaining nine programs, the \base\ analysis could prove only 24\% of the generated invariants.
+For the remaining nine programs, the \base\ analysis could prove only 24\% of the generated invariants
+and \vareq 42\%.
 In contrast, \cpou\ was able to prove all invariants.
 \cpod\ could prove more than 99\% of the invariants.
-\todo[inline]{I will add a comparison with var\_eq, as in the paper}
 
 Table~\ref{tab:summary} summarizes these results.
 
@@ -51,7 +52,7 @@ Table~\ref{tab:summary} summarizes these results.
     \input{content/eval-table}
 \end{table}
 
-We can conclude that the \cpo\ analysis can prove many assertions about relations between pointers that are out of reach for the \base\ analysis.
+We can conclude that the \cpo\ analysis can prove many assertions about relations between pointers that are out of reach for the \base\ analysis, and it is also more precise than the \vareq\ analysis.
 As expected, the \cpou\ analysis is more precise than the \cpod\ analysis, as its join operation maintains more equalities in case the quantitative automaton contains cycles.
 However, the difference in precision is minimal, indicating that in practice, the cases where there is a cycle in the automaton do not occur frequently.
 Therefore, the choice of the join operation does not significantly affect the precision of the analysis.
