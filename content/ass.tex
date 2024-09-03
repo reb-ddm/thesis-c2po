@@ -42,8 +42,79 @@ Let $t_1$ be a pointer to a value that is $k_1$ bits large and $t_2$ be a pointe
 The two terms $t_1$ and $z + t_2$ overlap iff
 \begin{itemize}
 	\item $t_1 \equiv_{k} z' + t_2$ and
-	\item $z' < 0$ and $-z' < k_1$, or $z' > 0$ and $z' < k_2$,
-\end{itemize}\todo{add visualization?}
+	\item $(z - z') \geq 0$ and $(z - z') < k_1$ (as in \cref{fig:overlap2}), or $(z - z') < 0$ and $(z' - z) < k_2$ (see \cref{fig:overlap1}),
+\end{itemize}
+
+\begin{figure}
+	\centering
+
+	\begin{tikzpicture}[
+		memory/.style={draw, thick, minimum height=0.6cm},
+		pointer/.style={-Stealth, thick},
+		bracket/.style={decorate,decoration={brace, amplitude=10pt, mirror}},
+		bracketabove/.style={decorate,decoration={brace, amplitude=10pt}}
+	]
+
+	\draw[memory] (0,0) rectangle (8,0.6);
+
+	\draw[pointer] (0, 1.3) node[above] {$t_2$} -- (0, 0.7);
+	\draw[pointer] (6, 1.3) node[above] {$z + t_2$} -- (6, 0.7);
+	\draw[pointer] (3, -0.7) node[below] {$t_1$} -- (3, -0.1);
+
+	\draw[bracketabove] (0, 0.6) -- node[above=7pt] {$z$} (6, 0.6);
+	\draw[bracketabove] (6, 0.6) -- node[above=7pt] {$k_2$} (9, 0.6);
+	\draw[bracket] (0, 0) -- node[below=5pt] {$z'$} (3, 0);
+	\draw[bracket] (3, 0) -- node[below=5pt] {$k_1$} (8, 0);
+
+	\draw[dashed] (3, 0) -- (3, 0.6);
+	\draw[dashed] (6, 0) -- (6, 0.6);
+
+	\fill[TUMBlue!20] (6,0) rectangle (8,0.6); % overlap
+
+	\end{tikzpicture}
+	\caption[Another possibility of two pointers $t_1$ and $z+ t_2$ that have an overlapping region.]{Visualization of two pointers $z+ t_2$ and $t_1$ that have an overlapping region.
+	It holds that $t_1 \equiv_{k} z' + t_2$.
+	The pointer $t_1$ points to a value of size $k_1$ and
+	$z+ t_2$ points to a region inside this value.
+	The highlighted region is the overlap.}\label{fig:overlap2}
+	\end{figure}
+
+
+\begin{figure}
+	\centering
+
+	\begin{tikzpicture}[
+		memory/.style={draw, thick, minimum height=0.6cm},
+		pointer/.style={-Stealth, thick},
+		bracket/.style={decorate,decoration={brace, amplitude=10pt, mirror}},
+		bracketabove/.style={decorate,decoration={brace, amplitude=10pt}}
+	]
+
+	\draw[memory] (0,0) rectangle (8,0.6);
+
+	\draw[pointer] (0, 1.3) node[above] {$t_2$} -- (0, 0.7);
+	\draw[pointer] (3, 1.3) node[above] {$z + t_2$} -- (3, 0.7);
+	\draw[pointer] (6, -0.7) node[below] {$t_1$} -- (6, -0.1);
+
+	\draw[bracketabove] (0, 0.6) -- node[above=7pt] {$z$} (3, 0.6);
+	\draw[bracketabove] (3, 0.6) -- node[above=7pt] {$k_2$} (8, 0.6);
+	\draw[bracket] (0, 0) -- node[below=5pt] {$z'$} (6, 0);
+	\draw[bracket] (6, 0) -- node[below=5pt] {$k_1$} (9, 0);
+
+	\draw[dashed] (3, 0) -- (3, 0.6);
+	\draw[dashed] (6, 0) -- (6, 0.6);
+
+	\fill[TUMBlue!20] (6,0) rectangle (8,0.6); % overlap
+
+	\end{tikzpicture}
+	\caption[Visualization of two pointers $t_1$ and $z+ t_2$ that have an overlapping region.]{Visualization of two pointers $t_1$ and $z+ t_2$ that have an overlapping region.
+	It holds that $t_1 \equiv_{k} z' + t_2$.
+	The pointer $z+ t_2$ points to a value of size $k_2$ and
+	$t_1$ points to a region inside this value.
+	The highlighted region is the overlap.}\label{fig:overlap1}
+	\end{figure}
+
+
 where $\equiv_{k}$ symbolizes the equalities that are implied by $k$, i.e.,
 it is equal to $\equiv_{\F[k],\T}$.
 
