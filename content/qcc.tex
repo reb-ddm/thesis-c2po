@@ -71,7 +71,7 @@ If the two terms are already equivalent with a different offset, i.e., $\tau\,t_
       \path (V) edge node {1} (A);
       \path (D) edge node {2} (x);
     \end{tikzpicture}
-    \caption{Union-find tree corresponding to the conjunction  $(V = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$}\label{fig:uf-tree}
+    \caption[An example of a union-find tree.]{Union-find tree corresponding to the conjunction  $(V = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$}\label{fig:uf-tree}
   \end{figure}
   From this representation, we can, for example, derive that $V = 4 + \&x$.
   The tree can look different depending on the choice of the representatives.
@@ -203,7 +203,7 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
   \caption{The same QFA after the operation $\closure{A}{1}{y}{P}$.}\label{fig:closure-example}
 \end{subfigure}
 
-\caption{An example of the $\closure{A}{1}{y}{P}$ operation on a QFA over the set of terms
+\caption[Visualization of the $\closure{A}{1}{y}{P}$ operation]{An example of the $\closure{A}{1}{y}{P}$ operation on a QFA over the set of terms
 $\T = \{\&y, A, y, *A, *(1 + y)\}$.
 The representative of each equivalence class is represented in bold as the mentioned first term.}
 
