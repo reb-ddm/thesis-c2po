@@ -62,7 +62,7 @@ Therefore, the choice of the join operation does not significantly affect the pr
 For evaluating the performance, we executed \cpo\ on the reachability set
 of the SV-COMP 2024 benchmarks~\cite{Beyer24} and compared the performance of the four possible configurations against \base.
 Each task was given a timeout of 900 seconds and a memory limit of 15 GB.\@
-We used the configuration of the analyzer for SV-COMP but removed the optimistic equality analysis mentioned before.
+We used the configuration of the analyzer for SV-COMP but removed the \vareq\ analysis.
 We ran the analyzer with each of the four configurations and once without \cpo.
 
 \begin{table}[t]
@@ -97,9 +97,8 @@ The analysis with \cpo\ infers extra properties, which do not necessarily improv
 as finding the correct verdict may require intricate arithmetic reasoning, which is orthogonal to our goal here.
 For this reason, our analysis only succeeds in proving the verdict for 20 SV-COMP tests that \base\ could not prove.
 They are the same 20 passed tests for each of the four configurations.
-\todo[inline]{Find out what kinds of tests they are.}
-Due to the computational overhead, approximately 80 of the tests that could be proven by \base\ timed out with \cpo\
-out of more than 2000 passed verdicts.
+As expected, those 20 tests contain complicated pointer or struct manipulations.
+Due to the computational overhead, approximately 80 of the tests that could be proven by \base\ timed out with \cpo\ out of more than 2000 passed verdicts.
 
 The results are summarized in \cref{tab:summary-svcomp}.
 
