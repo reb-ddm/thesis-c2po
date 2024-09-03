@@ -38,8 +38,8 @@ Then, the automaton is transformed to a formula that utilizes only the minimal r
 The minimal element of a set of terms is defined by using the following order on terms:
 Given a linear order $<$ on atoms, we define:
 \begin{itemize}
-  \item $a < *(z+t)$ whenever $a$ is an atom and
-  \item $*(z_1 + t_1) < *(z_2 + t_2)$ whenever either $t_1 < t_2$ or $t_1 \equiv t_2$ and $z_1 < z_2$.
+    \item $a < *(z+t)$ whenever $a$ is an atom and
+    \item $*(z_1 + t_1) < *(z_2 + t_2)$ whenever either $t_1 < t_2$ or $t_1 \equiv t_2$ and $z_1 < z_2$.
 \end{itemize}
 
 
@@ -72,8 +72,9 @@ Thus, we do not need to update a pair once it was computed.
 
 \begin{example}\label{ex:min-repr}
     Let $\Psi \equiv (V = -1 + \&x) \land (*V = 2 + A) \land (*V = 3 + x)$.
-    The corresponding automaton $M$ has can be visualized by the following graph:
-    \begin{center}
+    The corresponding automaton $M$ is shown in \cref{automaton-min-repr-ex}.
+    \begin{figure}
+        \centering
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
             \node[state] (Q1) {$\begin{array}{c}
@@ -101,7 +102,8 @@ Thus, we do not need to update a pair once it was computed.
             \node [above left=1cm and 0.7cm of Q3] {$s_2$};
 
         \end{tikzpicture}
-    \end{center}
+        \caption{Visualization of the QFA corresponding to the conjunction $(V = -1 + \&x) \land (*V = 2 + A) \land (*V = 3 + x)$.}\label{automaton-min-repr-ex}
+    \end{figure}
 
     The minimal representatives are computed by first considering the atoms in ascending order.
     Assuming that the linear order on atoms is $\&x < A < V$,
@@ -120,9 +122,9 @@ defined as follows:
 
 \[
     \begin{array}{lll}
-        \F_{normal}[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = (z - z_s) + m_s) \land                                                                     \\
-                       &        & \bigwedge_{\delta\,z\,s=(z',s')} (*((z-z_s) + m_s) = ((z'-z_{s'}) + m_{s'}) \land                                         \\
-                       &        & \bigwedge_{s,s' \in S \land \{\otau\,s,\otau\,s'\}\in B} (bl(m_{s}) \neq bl(m_{s'})) \land           \\
+        \F_{normal}[k] & \equiv & \bigwedge_{\eta\,a=(z,s)} (a = (z - z_s) + m_s) \land                                               \\
+                       &        & \bigwedge_{\delta\,z\,s=(z',s')} (*((z-z_s) + m_s) = ((z'-z_{s'}) + m_{s'}) \land                   \\
+                       &        & \bigwedge_{s,s' \in S \land \{\otau\,s,\otau\,s'\}\in B} (bl(m_{s}) \neq bl(m_{s'})) \land          \\
                        &        & \bigwedge_{s,s' \in S \land (\otau\,s, z,\otau\,s') \in D} (m_{s} \neq (z+ z_{s} -z_{s'}) + m_{s'})
     \end{array}
 \]

@@ -10,7 +10,7 @@ The equalities implied by $\Psi$ containing terms from $\T$ are described by the
   \item\label{item:quantitative-reflexivity} $t \equivp 0+t$ for all $t\in\T$ (\emph{quantitative reflexivity});
   \item\label{item:quantitative-symmetry} If $t_1 \equivp z+t_2$, then $t_2 \equivp -z+t_1$ (\emph{quantitative symmetry});
   \item\label{item:quantitative-transitivity} If $t_1 \equivp z_1+t_2$ and $t_2 \equivp z_2 + t_3$,
-  then $t_1 \equivp (z_1+z_2)+t_3$ (\emph{quantitative transitivity});
+        then $t_1 \equivp (z_1+z_2)+t_3$ (\emph{quantitative transitivity});
   \item\label{item:dereferencing} If $t_1 \equivp (z_2 - z_1) + t_2$, then $*(z_1 + t_1) \equivp *(z_2 + t_2)$ holds as well, whenever $*(z_1 + t_1),  *(z_2 + t_2)$ are in $\T$ (\emph{dereferencing}).
 \end{enumerate}
 
@@ -144,68 +144,66 @@ The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M' = (S', \ot
 This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but it is restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets.
 
 \begin{figure}\begin{subfigure}{0.5\textwidth}
-\begin{centering}
-  \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
+    \centering
+    \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
-    \node[state] (y1) {$\&y$};
+      \node[state] (y1) {$\&y$};
 
-    \node[state, right=2cm of y1] (y2) {$y$};
+      \node[state, right=2cm of y1] (y2) {$y$};
 
-    \node[state, below=1.5cm of y2] (A) {$A$};
+      \node[state, below=1.5cm of y2] (A) {$A$};
 
-    \node[state, right=2cm of A] (As) {$*A$};
+      \node[state, right=2cm of A] (As) {$*A$};
 
-    \node[state, right=2.5cm of y2] (ys) {$*(1 + y)$};
+      \node[state, right=2.5cm of y2] (ys) {$*(1 + y)$};
 
-    \path[->]
-    (A) edge[] node {$0,0$} (As)
-    (y1) edge[] node {$0,0$} (y2)
-    (y2) edge[] node {$1,0$} (ys);
+      \path[->]
+      (A) edge[] node {$0,0$} (As)
+      (y1) edge[] node {$0,0$} (y2)
+      (y2) edge[] node {$1,0$} (ys);
 
-    \node[above left=0.5cm and 0cm of A] {$s_0$};
-    \node[above left=0.6cm and 0cm of y2] {$s_1$};
-    \node[above left=0.5cm and 0cm of As] {$s_2$};
-    \node[above left=0.6cm and 0cm of ys] {$s_3$};
-    \node[above left=0.6cm and 0cm of y1] {$s_4$};
+      \node[above left=0.5cm and 0cm of A] {$s_0$};
+      \node[above left=0.6cm and 0cm of y2] {$s_1$};
+      \node[above left=0.5cm and 0cm of As] {$s_2$};
+      \node[above left=0.6cm and 0cm of ys] {$s_3$};
+      \node[above left=0.6cm and 0cm of y1] {$s_4$};
 
-  \end{tikzpicture}
-\end{centering}
-  \caption{A QFA representing the empty conjunction.}\label{fig:initial-example}
-\end{subfigure}
-\begin{subfigure}{0.5\textwidth}
-  \begin{centering}
+    \end{tikzpicture}
+    \caption{A QFA representing the empty conjunction.}\label{fig:initial-example}
+  \end{subfigure}
+  \begin{subfigure}{0.5\textwidth}
+    \centering
 
-  \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
+    \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
-    \node[state] (y) {$\&y$};
+      \node[state] (y) {$\&y$};
 
-  \node[state, right=2.5cm of y] (AB) {$\begin{array}{c}
-    \boldsymbol{A} = \\
-    1 + y
-  \end{array}$};
+      \node[state, right=2.5cm of y] (AB) {$\begin{array}{c}
+            \boldsymbol{A} = \\
+            1 + y
+          \end{array}$};
 
-  \node[state, right=3cm of AB] (ABs) {$\begin{array}{c}
-    \boldsymbol{*A} = \\
-    *(1 + y)
-  \end{array}$};
+      \node[state, right=3cm of AB] (ABs) {$\begin{array}{c}
+            \boldsymbol{*A} = \\
+            *(1 + y)
+          \end{array}$};
 
-  \path[->]
-  (y) edge[] node {$0,1$} (AB)
-  (AB) edge[] node {$0,0$} (ABs);
+      \path[->]
+      (y) edge[] node {$0,1$} (AB)
+      (AB) edge[] node {$0,0$} (ABs);
 
-  \node[above left=0.9cm and 0cm of AB] {$s_0$};
-  \node[above left=0.9cm and 0cm of ABs] {$s_2$};
-  \node[above left=0.6cm and 0cm of y] {$s_4$};
+      \node[above left=0.9cm and 0cm of AB] {$s_0$};
+      \node[above left=0.9cm and 0cm of ABs] {$s_2$};
+      \node[above left=0.6cm and 0cm of y] {$s_4$};
 
-\end{tikzpicture}
-\end{centering}
+    \end{tikzpicture}
 
-  \caption{The same QFA after the operation $\closure{A}{1}{y}{P}$.}\label{fig:closure-example}
-\end{subfigure}
+    \caption{The same QFA after the operation $\closure{A}{1}{y}{P}$.}\label{fig:closure-example}
+  \end{subfigure}
 
-\caption[Visualization of the $\closure{A}{1}{y}{P}$ operation]{An example of the $\closure{A}{1}{y}{P}$ operation on a QFA over the set of terms
-$\T = \{\&y, A, y, *A, *(1 + y)\}$.
-The representative of each equivalence class is represented in bold as the mentioned first term.}
+  \caption[Visualization of the $\closure{A}{1}{y}{P}$ operation]{An example of the $\closure{A}{1}{y}{P}$ operation on a QFA over the set of terms
+    $\T = \{\&y, A, y, *A, *(1 + y)\}$.
+    The representative of each equivalence class is represented in bold as the mentioned first term.}
 
 
 \end{figure}

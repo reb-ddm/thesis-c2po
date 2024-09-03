@@ -124,7 +124,7 @@ The abstract value of a program point with multiple incoming edges is
 the least upper bound of the set of all abstract states of the incoming edges.
 Formally, the abstract state $X[p]$ of a node $p$ is defined by the constraint
 \[
- X[p] \sqsupseteq \bigsqcup \{\sem{l}^\sharp\,X[p] \mid \text{there is an edge from $p$ to $p'$ in the CFG labeled with $l$}\}.
+  X[p] \sqsupseteq \bigsqcup \{\sem{l}^\sharp\,X[p] \mid \text{there is an edge from $p$ to $p'$ in the CFG labeled with $l$}\}.
 \]
 The abstract states are the solution of the system of constraints generated at each program point by this definition.
 According to the Knaster-Tarski theorem, each monotonic function $f$ on a complete lattice has a least fixpoint, equal to the least solution of the inequality $x \sqsubseteq f(x)$.
@@ -151,49 +151,46 @@ of the function to the caller CFG, labeled with the $\combine$ function.
 These edges are visualized in \cref{fig:function-cfg}, where $p_4$ is the first node of the function, and $p_5$ is the final node.
 
 \begin{figure}
-  \begin{center}
+  \centering
+  \begin{tikzpicture}[
+      node distance=1cm and 4cm,
+      every node/.style={font=\small},
+      call/.style={->, >=Stealth, thick, dashed, blue},
+      combine/.style={>=Stealth, thick, dashed, red},
+      block/.style={draw, circle,align=center}
+    ]
 
-    \begin{tikzpicture}[
-        node distance=1cm and 4cm,
-        every node/.style={font=\small},
-        call/.style={->, >=Stealth, thick, dashed, blue},
-        combine/.style={>=Stealth, thick, dashed, red},
-        block/.style={draw, circle,align=center}
-      ]
+    % Nodes for main function
+    \node[block, initial, initial text=main()] (start) {$p_0$};
+    \node[below=of start] (usw1) {...};
+    \node[block, below=of usw1] (beforecall) {$p_1$};
+    \node[block, below=of beforecall] (aftercall) {$p_2$};
+    \node[below=of aftercall] (usw2) {...};
+    \node[block, below=of usw2] (end) {$p_3$};
 
-      % Nodes for main function
-      \node[block, initial, initial text=main()] (start) {$p_0$};
-      \node[below=of start] (usw1) {...};
-      \node[block, below=of usw1] (beforecall) {$p_1$};
-      \node[block, below=of beforecall] (aftercall) {$p_2$};
-      \node[below=of aftercall] (usw2) {...};
-      \node[block, below=of usw2] (end) {$p_3$};
+    % Nodes for function f
+    \node[block, right=of usw1, initial right, initial text=f()] (fstart) {$p_4$};
+    \node[below=of fstart] (usw3) {...};
+    \node[block, below=of usw3] (fend) {$p_5$};
 
-      % Nodes for function f
-      \node[block, right=of usw1, initial right, initial text=f()] (fstart) {$p_4$};
-      \node[below=of fstart] (usw3) {...};
-      \node[block, below=of usw3] (fend) {$p_5$};
+    % Edges for main function
+    \draw[->] (start) -- (usw1);
+    \draw[->] (usw1) -- (beforecall);
+    \draw[->] (beforecall) -- node[right] {f(...)} (aftercall);
+    \draw[->] (aftercall) -- (usw2);
+    \draw[->] (usw2) -- (end);
 
-      % Edges for main function
-      \draw[->] (start) -- (usw1);
-      \draw[->] (usw1) -- (beforecall);
-      \draw[->] (beforecall) -- node[right] {f(...)} (aftercall);
-      \draw[->] (aftercall) -- (usw2);
-      \draw[->] (usw2) -- (end);
+    % Edges for function f
+    \draw[->] (fstart) -- (usw3);
+    \draw[->] (usw3) -- node[right] {return} (fend);
 
-      % Edges for function f
-      \draw[->] (fstart) -- (usw3);
-      \draw[->] (usw3) -- node[right] {return} (fend);
+    % Enter and combine edges
+    \draw[call] (beforecall.east) to node[above] {$\enter(C[p_1])$} (fstart.west);
+    \draw[combine] (beforecall) ++(0,-1.1cm) .. controls +(right:1cm) and +(down:0.5cm) .. (aftercall.east);
+    \draw[->, combine] (fend.west) to node[below] {$\combine(C[p_1],C[p_5])$} (aftercall.east);
 
-      % Enter and combine edges
-      \draw[call] (beforecall.east) to node[above] {$\enter(C[p_1])$} (fstart.west);
-      \draw[combine] (beforecall) ++(0,-1.1cm) .. controls +(right:1cm) and +(down:0.5cm) .. (aftercall.east);
-      \draw[->, combine] (fend.west) to node[below] {$\combine(C[p_1],C[p_5])$} (aftercall.east);
+  \end{tikzpicture}
 
-    \end{tikzpicture}
-
-
-  \end{center}
   \caption[The CFG for a function call.]{Visualization of the CFG of a program during a function call.}\label{fig:function-cfg}
 \end{figure}
 

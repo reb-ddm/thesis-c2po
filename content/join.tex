@@ -8,8 +8,9 @@ The conjunction of all propositions implied by a disjunction is not always repre
 
 
 \begin{example}\label{example:infinite-join}
-    Adapting the original example by \textcite{join} to \cpo, consider the conjunctions $\Psi_1 \equiv (A = V)$ and $\Psi_2 \equiv (*A = A)\land (*V=V) \land (*(1 + A) = *(1 + V))$, represented by the automata $M_1$ and $M_2$ shown below:
-    \begin{center}
+    Adapting the original example by \textcite{join} to \cpo, consider the conjunctions $\Psi_1 \equiv (A = V)$ and $\Psi_2 \equiv (*A = A)\land (*V=V) \land (*(1 + A) = *(1 + V))$, represented by the automata $M_1$ and $M_2$ shown in \cref{qfa-infinite-join}.
+    \begin{figure}
+\centering
         \begin{minipage}{0.3\textwidth}
             \centering
             \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
@@ -46,8 +47,8 @@ The conjunction of all propositions implied by a disjunction is not always repre
 
             \end{tikzpicture}
         \end{minipage}
-    \end{center}
-
+    \caption{QFAs for $\Psi_1 \equiv (A = V)$ and $\Psi_2 \equiv (*A = A)\land (*V=V) \land (*(1 + A) = *(1 + V))$}\label{qfa-infinite-join}
+\end{figure}
     Then for each $n \geq 0$, the equality $*(1+*^n A) = *(1 + *^n V)$ is implied both by $\Psi_1$ and $\Psi_2$, where $*^m$ denotes $m$-fold dereference.
     It can be shown that the set of quantitative equalities implied both by $\Psi_1$ and $\Psi_2$ cannot be represented by a finite conjunction~\cite{join, 2pointer}.
 \end{example}
@@ -130,9 +131,9 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
     We consider again the two automata of \cref{example:infinite-join}.
     First, we add the terms of the set $\T = \{A, V, *A,*V,*(1+A)$, $*(1 + V)\}$ to the automaton $M_1$, resulting in the automata $M_1'$.
     Let $M_3$ be the product automata of $M_1'$ and $M_2$.
-    The automata $M_1'$ and $M_3$ can be visualized as follows:
-
-    \begin{center}
+    The automata $M_1'$ and $M_3$ are shown in \cref{m1-m3-qfa}
+\begin{figure}
+    \centering
         \begin{minipage}{0.45\textwidth}
             \centering
             \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
@@ -189,7 +190,9 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
 
             \end{tikzpicture}
         \end{minipage}
-    \end{center}
+
+    \caption{Visualization of the automata $M_1'$ and $M_3$.}\label{m1-m3-qfa}
+\end{figure}
     From $M_3$ we can infer the equality $*(1 + A) = *(1 + V)$, while the equalities $*(1 + *^n A) = *(1 + *^n V)$ for $n \geq 1$ are implied by $M_1'$ and $M_2$, but not by $M_3$.
 \end{example}
 
@@ -213,7 +216,7 @@ as described in \cref{subsection:qfa}.
 \begin{example}\label{ex:join-cycle}
 
 \begin{figure}\begin{subfigure}{0.5\textwidth}
-    \begin{centering}
+    \centering
       \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
             \node[state] (Q1) {$\&x, *x$};
@@ -225,12 +228,11 @@ as described in \cref{subsection:qfa}.
 
           \end{tikzpicture}
 
-    \end{centering}
 
       \caption{The QFA of the conjunction $\&x = *x$.}\label{fig:join-diff-example}
     \end{subfigure}
     \begin{subfigure}{0.5\textwidth}
-        \begin{centering}
+        \centering
           \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
                 \node[state] (Q1) {$\&x, {*}{*}x$};
@@ -245,7 +247,6 @@ as described in \cref{subsection:qfa}.
 
               \end{tikzpicture}
 
-        \end{centering}
 
           \caption{The QFA of the conjunction $\&x = {*}{*}x$.}\label{fig:join-diff-example2}
         \end{subfigure}

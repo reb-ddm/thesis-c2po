@@ -21,9 +21,9 @@ To avoid this, we add for each $s \in S'$ the term $\otau'\,s$ to $\T'$, ensurin
 
 \begin{example}
     Consider the conjunction $\Psi \equiv (\&x = \&z) \land (*x = \&y)$.
-    We choose $\T = \{\&x, \&y, \&z, x, *x\}$. The corresponding automaton $M$ can be visualized as follows:
-    \todo{should I make this Figure 4.3 and reference it, or is it ok like this?}
-    \begin{center}
+    We choose $\T = \{\&x, \&y, \&z, x, *x\}$. The corresponding automaton $M$ is visualized in \cref{fig:psi-rest}.
+    \begin{figure}
+        \centering
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto,
                 state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
             \node[state] (q_0) {$\&x, \&z$};
@@ -37,7 +37,8 @@ To avoid this, we add for each $s \in S'$ the term $\otau'\,s$ to $\T'$, ensurin
             (q_0) edge node [above] {$0,0$} (q_1)
             (q_1) edge node [above] {$0,0$} (q_2);
         \end{tikzpicture}
-    \end{center}
+        \caption{The QFA for the conjunction $(\&x = \&z) \land (*x = \&y)$.}\label{fig:psi-rest}
+    \end{figure}
     Let $\Set$ be the (infinite) set of terms that do not contain the variable $x$.
     We want to compute $\restr{M}{\Set}$.
     It holds that $\T \cap \Set = \{\&y, \&z\}$.
@@ -46,9 +47,9 @@ To avoid this, we add for each $s \in S'$ the term $\otau'\,s$ to $\T'$, ensurin
     However, $\L_{M}(s_2)$ contains $z$, which is in $\Set$, and is therefore allowed to appear in $\restr{M}{\Set}$.
     Therefore, we can choose $z$ as the new representative $\tau'\,s_2$.
     The new set of terms after the restriction is $\T' = (\T \cap \Set) \cup \{z\} = \{\&y, \&z, z\}$.
-    The resulting automaton can be visualized as follows:
-
-    \begin{center}
+    The resulting automaton is visualized in \cref{restriction}.
+    \begin{figure}
+        \centering
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto,
                 state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
             \node[state] (q_0) {$\&z$};
@@ -62,7 +63,8 @@ To avoid this, we add for each $s \in S'$ the term $\otau'\,s$ to $\T'$, ensurin
             (q_0) edge node [above] {$0,0$} (q_1)
             (q_1) edge node [above] {$0,0$} (q_2);
         \end{tikzpicture}
-    \end{center}
+        \caption{The automaton $M$ after the restriction.}\label{fig:restriction}
+    \end{figure}
     It represents the formula $*z = \&y$.
 \end{example}
 
@@ -80,7 +82,7 @@ The algorithm proceeds as follows, with $\V$ representing the set of visited sta
                     Define $\eta'(a) = (z - z', s)$.
           \end{itemize}
 
-          \item\label{item:remove-from-Q} Remove a state $s_1$ from the queue $Q$.
+    \item\label{item:remove-from-Q} Remove a state $s_1$ from the queue $Q$.
           Consider all outgoing transitions $\delta(z_1, s_1) = (z_2, s_2)$.
           \begin{itemize}
               \item If a term $*(z+t) \in \L(M) \cap \Set$ exists such that $M[t] = (z_1', s_1)$ and $z = z_1 - z_1'$,
@@ -110,7 +112,7 @@ The new partition $\restr{P}{\Set} = (\T', \tau', \omega')$ is defined as follow
     Then,
     \begin{enumerate}
         \item\label{item:lemma-restriction} for each term $t \in \L(\restr{M}{\Set})$, it holds that $M[t] = (z, s)$ and $M[\otau'\,s] = (z', s')$ iff $\restr{M}{\Set}[t] = (z - z', s)$ and $s = s'$,
-              \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M}{\Set})$, it holds that $M[t_1] = z + M[t_2]$ iff $\restr{M}{\Set}[t_1] = z + \restr{M}{\Set}[t_2]$.
+        \item\label{item:correctness-restriction} for each term $t_1, t_2 \in \L(\restr{M}{\Set})$, it holds that $M[t_1] = z + M[t_2]$ iff $\restr{M}{\Set}[t_1] = z + \restr{M}{\Set}[t_2]$.
     \end{enumerate}
 \end{theorem}
 \begin{proof}
