@@ -27,11 +27,11 @@ To avoid this, we add for each $s \in S'$ the term $\otau'\,s$ to $\T'$, ensurin
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto,
                 state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
             \node[state] (q_0) {$\&x, \&z$};
-            \node[below=0.5cm of q_0] {$s_1$};
+            \node[below=0.6cm of q_0] {$s_1$};
             \node[state] (q_1) [right=of q_0] {$x$};
             \node[below=0.5cm of q_1] {$s_2$};
             \node[state] (q_2) [right=of q_1] {$*x, \&y$};
-            \node[below=0.5cm of q_2] {$s_3$}; % Label for the third state
+            \node[below=0.6cm of q_2] {$s_3$}; % Label for the third state
 
             \path[->]
             (q_0) edge node [above] {$0,0$} (q_1)
