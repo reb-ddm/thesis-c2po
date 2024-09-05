@@ -16,7 +16,7 @@ The conjunction of all propositions implied by a disjunction is not always repre
             \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
                 \node[state] (Q1) {$\begin{array}{c}
-                            A,V
+                            A=V
                         \end{array}$};
                 \node [left=1.5cm of Q1] {$M_1$:};
             \end{tikzpicture}
@@ -26,15 +26,15 @@ The conjunction of all propositions implied by a disjunction is not always repre
             \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
                 \node[state] (Q1) {$\begin{array}{c}
-                            A,*A,..
+                            A=*A=..
                         \end{array}$};
 
                 \node[state, right=3cm of Q1] (Q2) {$\begin{array}{c}
-                            V,*V,..
+                            V=*V=..
                         \end{array}$};
 
                 \node[state, below right=2cm and 1.5cm of Q1] (Q3) {$\begin{array}{c}
-                            *(1+A), *(1 + V),...
+                            *(1+A)= *(1 + V),...
                         \end{array}$};
 
                 \path[->]
@@ -139,10 +139,10 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
             \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
                 \node[state] (Q1) {$\begin{array}{c}
-                            A, V
+                            A= V
                         \end{array}$};
                 \node[state, below=2cm of Q1] (Q2) {$\begin{array}{c}
-                            *(1+A), *(1+V)
+                            *(1+A)= *(1+V)
                         \end{array}$};
                 \node[state, below left=1cm and 2cm of Q1] (Q3) {$\begin{array}{c}
                             *A
@@ -172,7 +172,7 @@ where for each $t \in \T' \cup \T$, $\tau_3\,t = \otau_3\,(s)$ and $\omega_3\,t 
                         \end{array}$};
 
                 \node[state, below right=2cm and 1cm of Q1] (Q3) {$\begin{array}{c}
-                            *(1+A), *(1 + V)
+                            *(1+A)= *(1 + V)
                         \end{array}$};
                 \node[state, below left=1cm and 2cm of Q1] (Q4) {$\begin{array}{c}
                             *A
@@ -219,8 +219,8 @@ as described in \cref{subsection:qfa}.
     \centering
       \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
-            \node[state] (Q1) {$\&x, *x$};
-            \node[state, right=of Q1] (Q2) {$x, {*}{*}x$};
+            \node[state] (Q1) {$\&x= *x$};
+            \node[state, right=of Q1] (Q2) {$x= {*}{*}x$};
 
             \path[->]
               (Q1) edge[bend left, above] node {$0,0$} (Q2)
@@ -235,7 +235,7 @@ as described in \cref{subsection:qfa}.
         \centering
           \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
-                \node[state] (Q1) {$\&x, {*}{*}x$};
+                \node[state] (Q1) {$\&x= {*}{*}x$};
                 \node[state, right=of Q1] (Q2) {$x$};
                 \node[state, below right=of Q1] (Q3) {$*x$};
 

@@ -78,17 +78,17 @@ Thus, we do not need to update a pair once it was computed.
         \begin{tikzpicture}[shorten >=1pt, node distance=3cm, on grid, auto, state/.style={rectangle, rounded corners, draw, inner sep=5pt, align=center}]
 
             \node[state] (Q1) {$\begin{array}{c}
-                        \boldsymbol{\&x}, \\
+                        \boldsymbol{\&x} =\\
                         1 + V
                     \end{array}$};
 
             \node[state, right=4.5cm of Q1] (Q2) {$\begin{array}{c}
-                        \boldsymbol{*V}, 2 + A, \\
+                        \boldsymbol{*V} = 2 + A = \\
                         *(-1+\&x )
                     \end{array}$};
 
             \node[state, right=5.6cm of Q2] (Q3) {$\begin{array}{c}
-                        \boldsymbol{x}, *(1 + V), -3 + *A, \\
+                        \boldsymbol{x} = *(1 + V) = -3 + *A = \\
                         -3 + *(-2+*V),...
                     \end{array}$};
 

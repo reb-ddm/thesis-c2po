@@ -15,12 +15,12 @@ However, the loss of information is not enough to guarantee that the join operat
 
 Therefore, we need to define a widening operator~\cite{widening} that finds an even less precise upper bound of two automata than the join, such that it reaches a fixpoint after a finite number of iterations.
 
-We decide to define the widening operator in a way that the result can't contain terms of arbitrary size, such that there can't be ascending chains of arbitrary size.
+We decide to define the widening operator in a way that the result cannot contain terms of arbitrary size, such that there cannot be ascending chains of arbitrary size.
 Therefore, we define the widening operator as first computing the join and then restricting the set of terms of the result to the set of terms that occur in the first input conjunction.
 
 \begin{definition}
-  For two conjunctions $\Psi_1$ and $\Psi_2$ over the sets of terms $\T_1$ and $\T_2$, respectively, we define the widening operation as
-  $\Psi_1 \widen \Psi_2 = \restr{(\Psi_1 \join \Psi_2)}{\T_1}$.
+  For two kernels $k_1$ and $k_2$ over the sets of terms $\T_1$ and $\T_2$, respectively, we define the widening operation as
+  $k_1 \widen k_2 = \restr{(k_1 \join k_2)}{\T_1}$.
 \end{definition}
 
 The widening operator depends on which join operator was chosen, and it
@@ -34,21 +34,21 @@ This computes the same result as the above defined widening operator,
 but it avoids computing a restriction.
 
 For a given set $\T$ of terms, there is only a finite number of possible automata and sets of disequalities that contain only terms of $\T$.
-The set of terms doesn't change after having applied the widening operation, therefore the widening operator will always reach a fixpoint after a finite amount of iterations.
+The set of terms does not change after having applied the widening operation, therefore the widening operator will always reach a fixpoint after a finite amount of iterations.
 
 \begin{example}\label{ex:widen}
-  If we consider the sequence of conjunctions $\Psi_n$ from \cref{ex:widen-ascending-chain}, the automaton representation $M$ is a cycle of length $2^n$.
+  If we consider the sequence of conjunctions $\Psi_n$ from \cref{ex:widen-ascending-chain}, the automaton representation $M[\Psi_n]$ is a cycle of length $2^n$.
   For example, \cref{fig:join-diff-example} shows the automaton for $\Psi_1$
   If we apply widening to $\Psi_n$ and $\Psi_{n+1}$, the resulting automaton is restricted to only contain the terms in $\Psi_n$.
-  The term $*^{2^(n+1)}$ is therefore removed, together with the corresponding state in the automaton, thus removing the cycle.
-  Afterward, each term is in its own equivalence class,s and we have lost all information about equalities.
+  The term $*^{2^(n+1)} \&x$ is therefore removed, together with the corresponding state in the automaton, thus removing the cycle.
+  Afterward, each term is in its own equivalence class, and we have lost all information about equalities.
   Therefore, the widening terminates in the next iteration,
   as we already reached the top element of our domain.
 \end{example}
 
 \section{Narrowing}
 
-As shown in~\cite{2pointer}, the domain of 2-pointer propositions also has infinite strictly descending chains.
+As shown in~\cite{2pointer}, the domain of 2-Pointer propositions also has infinite strictly descending chains.
 
 \begin{example}
 	Consider the sequence of conjunctions
@@ -68,7 +68,7 @@ appearing in disequalities.\cite{new-paper-todo}
 	\[
 	\Psi_n \equiv (y\neq n+\&x)\qquad(n\geq 0)
 	\]
-	Let $k_n$ denote the kernel of $\Psi_n$.
+	Let $k_n$ denote the $k[\Psi_n]$.
   Then all kernels consider the set $\T=\{\&x,\&y,y\}$ of terms.
 	The sets $D_n$ of disequalities, are given by $D_n=\{(y,n,\&x)\}$.
   Consider the sequence $a_n, n\geq 0$ defined by $a_0 = k_0$ and $a_n = a_{n-1}\meet k_n$ for $n>0$.
