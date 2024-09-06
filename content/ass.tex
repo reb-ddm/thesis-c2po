@@ -1,16 +1,16 @@
 \section{Assignment}
 
-In the following, we will describe the abstract semantics $\sem{s_1\,{:=}\,s_2}^\sharp\,k$ of the assignment $s_1\,{:=}\,s_2$ over the kernel $k$, for each of the three possibilities of $s_2$.
-If $k \equiv \bot$, then $\sem{s_1\,{:=}\,s_2}^\sharp\,k \equiv \bot$.
+In the following, we will describe the abstract semantics $\sem{t_1\,{:=}\,t_2}^\sharp\,k$ of the assignment $t_1\,{:=}\,t_2$ over the kernel $k$, for each of the three possibilities of $t_2$.
+If $k \equiv \bot$, then $\sem{t_1\,{:=}\,t_2}^\sharp\,k \equiv \bot$.
 In the following, assume that $k \neq \bot$.
 
 \subsection{Indefinite Assignment}
 
-We consider an assignment of the form $s_1\,{:=}\,?$.
-After this assignment, the value of $s_1$ changes to an unknown value,
-so we must forget all the equalities and disequalities that contain the term $s_1$,
-but also all other terms that may be modified by overwriting $s_1$.
-Only the terms where we know that each subterm is definitely not equal to the address of $s_1$ and also definitely not overlapping with $s_1$ are not modified by overwriting $s_1$.
+We consider an assignment of the form $t_1\,{:=}\,?$.
+After this assignment, the value of $t_1$ changes to an unknown value,
+so we must forget all the equalities and disequalities that contain the term $t_1$,
+but also all other terms that may be modified by overwriting $t_1$.
+Only the terms where we know that each subterm is definitely not equal to the address of $t_1$ and also definitely not overlapping with $t_1$ are not modified by overwriting $t_1$.
 
 \begin{example}
 	Consider the following C program:
@@ -130,10 +130,10 @@ We differentiate between two cases: the case where $t$ is an atom and the case w
 If $t$ is an atom, then it is impossible to reach the address of $t$ by dereferencing.
 Therefore, $\restr{\T}{\neg t}$ is the set of all terms that do not contain $t$ as a subterm.
 
-If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms, where for each subterm of the form $*(z' + v)$ it holds that:
+If $t \equiv *(z + t')$ is a dereferenced term, then $\restr{\T}{\neg t}$ contains all the terms where for each subterm of the form $*(z' + v)$ it holds that:
 \begin{itemize}
 	\item\label{item:diseqs} The disequality $v \nequiv_k (z - z') + t'$ is implied by $D$ or $B$;
-    \item\label{item:eqs} or $t_1 \equiv_k z' + t_2$ for any $z' \neq z$ and the terms $v$ and $(z - z') + t'$ do not overlap. The C-type of the terms is used to determine the size in bits of the value that is stored at the address of the term;
+    \item\label{item:eqs} or $v \equiv_k z'' + t$ for any $z'' \neq (z - z')$ and the terms $v$ and $(z' + z'' - z) + t'$ do not overlap. The C-type of the terms is used to determine the size in bits of the value that is stored at the address of the term;
     \item or the intersection of the sets of addresses that $v$ may point to and the addresses that $(z - z') + t'$ may point to is empty.
     These sets are computed using the \emph{MayPointTo} analysis of \goblint.
 \end{itemize}
@@ -143,13 +143,13 @@ It represents all propositions that follow from $k$ and that are still valid aft
 The assignment is defined as follows:
 
 \[
-	\sem{s_1\,{:=}\;?}^\sharp\,k \equiv \restr{k}{\neg s_1}.
+	\sem{t_1\,{:=}\;?}^\sharp\,k \equiv \restr{k}{\neg t_1}.
 \]
 
 \begin{proposition}\label{p:ass-unknown}
-	For every kernel $k$ and assignment $s_1\,{:=}\,?$,
+	For every kernel $k$ and assignment $t_1\,{:=}\,?$,
 	\[
-		\sem{s_1\,{:=}\,?}\,(\gamma\,k) \subseteq \gamma\,(\sem{s_1\,{:=}\,?}^\sharp\,k)
+		\sem{t_1\,{:=}\,?}\,(\gamma\,k) \subseteq \gamma\,(\sem{t_1\,{:=}\,?}^\sharp\,k)
 	\]
 \end{proposition}
 
@@ -158,24 +158,24 @@ This proof can easily be adapted to the two-dimensional model.
 
 \subsection{Definite Assignment}
 
-We consider an assignment of the form $s_1\,{:=}\,z_1+s$.
-As before, we need to forget all the equalities and disequalities about terms that may be modified by overwriting $s_1$.
-After this, is not sufficient to simply add the equality $s_1 = z_1+s$ to the set of equalities,
-because the term $z_1 + s$ may also be modified by the assignment. For example, when we assign $V\,{:=}\,1+V$, the equality $V = 1 + V$ would incorrectly lead to an unsatisfiable conjunction.
-Therefore, we introduce a fresh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $s_1$ to $A$.
-This way we can remember the original value of $z_1 + s$ trough the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
+We consider an assignment of the form $t_1\,{:=}\,z_1+t$.
+As before, we need to forget all the equalities and disequalities about terms that may be modified by overwriting $t_1$.
+After this, is not sufficient to simply add the equality $t_1 = z_1+t$ to the set of equalities,
+because the term $z_1 + t$ may also be modified by the assignment. For example, when we assign $V\,{:=}\,1+V$, the equality $V = 1 + V$ would incorrectly lead to an unsatisfiable conjunction.
+Therefore, we introduce a fresh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $t_1$ to $A$.
+This way we can remember the original value of $z_1 + t$ trough the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
 
 Thus, the abstract effect of the definite assignment is defined as follows:
 
 \[
-	\sem{s_1\,{:=}\,z_1+s}^\sharp\,k\;\equiv\;
-	\restr{((s_1=A)\land\restr{((A=z_1+s)\land\Psi)}{\neg s_1})}{\neg A}
+	\sem{t_1\,{:=}\,z_1+t}^\sharp\,k\;\equiv\;
+	\restr{((t_1=A)\land\restr{((A=z_1+t)\land\Psi)}{\neg t_1})}{\neg A}
 \]
 
 \begin{proposition}\label{p:ass-definite}
-	For every kernel $k$ and any assignment of the form $s_1\,{:=}\,z_1+s$,
+	For every kernel $k$ and any assignment of the form $t_1\,{:=}\,z_1+t$,
 	\[
-		\sem{s_1\,{:=}\,z_1+s}\,(\gamma\,k) \subseteq \gamma\,(\sem{s_1\,{:=}\,z_1+s}^\sharp\,k)
+		\sem{t_1\,{:=}\,z_1+t}\,(\gamma\,k) \subseteq \gamma\,(\sem{t_1\,{:=}\,z_1+t}^\sharp\,k)
 	\]
 \end{proposition}
 
@@ -183,34 +183,34 @@ As before, the proof of this proposition for the case of a one-dimensional memor
 
 \subsection{Memory Allocation}
 
-We consider an assignment of the form $s_1\,{:=}\,\malloc$.
-The term $s_1$ is assigned to a fresh address, therefore we know that after the assignment,
-the block of the term $s_1$ is different from the block of any other term in the set $\T$ of the partition,
+We consider an assignment of the form $t_1\,{:=}\,\malloc$.
+The term $t_1$ is assigned to a fresh address, therefore we know that after the assignment,
+the block of the term $t_1$ is different from the block of any other term in the set $\T$ of the partition,
 but also different than any other term $t \in \oT$ that is not (yet) in the partition.
 However, we cannot remember an infinite number of equalities that contain an infinite number of possible terms,
 therefore we choose to only remember that this new address is different than the address of any other term in $\T$.
-Let $k = \angl{P, M, B,D}$, and $\restr{k}{\neg s_1} = \angl{P', M', B', D'}$.
+Let $k = \angl{P, M, B,D}$, and $\restr{k}{\neg t_1} = \angl{P', M', B', D'}$.
 For each equivalence class in the partition $P'$, we add a disequality that states
-that the block of the term $s_1$ is different from the block of the representative of the equivalence class.
+that the block of the term $t_1$ is different from the block of the representative of the equivalence class.
 
 \[
-	\sem{s_1\,{:=}\,\text{\malloc}}^\sharp\,k \equiv
-	\restr{k}{\neg s_1}\;\meet
-	\bigwedge_{t\in \T, t \nequiv s_1}(bl(s_1) \neq bl(\tau\,t))
+	\sem{t_1\,{:=}\,\text{\malloc}}^\sharp\,k \equiv
+	\restr{k}{\neg t_1}\;\meet
+	\bigwedge_{t\in \T, t \nequiv t_1}(bl(t_1) \neq bl(\tau\,t))
 \]
 
 \begin{proposition}\label{p:ass-malloc}
-	For every kernel $k$ and any assignment of the form $s_1\,{:=}\,\malloc$,
+	For every kernel $k$ and any assignment of the form $t_1\,{:=}\,\malloc$,
 	\[
-		\sem{s_1\,{:=}\,\malloc}\,(\gamma\,k) \subseteq \gamma\,(\sem{s_1\,{:=}\,\malloc}^\sharp\,k)
+		\sem{t_1\,{:=}\,\malloc}\,(\gamma\,k) \subseteq \gamma\,(\sem{t_1\,{:=}\,\malloc}^\sharp\,k)
 	\]
 \end{proposition}
 
 \begin{proof}
-	We only consider the case where $s_1$ equals the expression $*(z+t)$.
-	The other case where $s_1 = V$ is analogous.
-	Let $(\rho',\nu',\mu') \in \sem{s_1\,{:=}\,\malloc}\,(\gamma\,k)$, then we know that there exists $(\rho,\nu,\mu) \in \gamma\,k$ such that $\rho'=\rho$, $\nu'=\nu$ and $\mu' =\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}$ and $a$ is \emph{fresh}.
-	From Proposition~\ref{p:ass-unknown} it follows that $(\rho',\nu',\mu') \models \restr{k}{\neg s_1}$.
-	Given that $a$ is \emph{fresh}, it follows that all addresses stored in any term which is not $s_1$ do not have the same address block as $a$, therefore $(\rho',\nu',\mu') \models \bigwedge_{t\in \T, t \nequiv s_1}(bl(s_1) \neq bl(\tau\,t))$.
-	It directly follows that $(\rho',\nu',\mu') \in \gamma\,(\sem{s_1\,{:=}\,\malloc}^\sharp\,k)$
+	We only consider the case where $t_1$ equals the expression $*(z+t)$.
+	The other case where $t_1 = V$ is analogous.
+	Let $(\rho',\nu',\mu') \in \sem{t_1\,{:=}\,\malloc}\,(\gamma\,k)$, then we know that there exists $(\rho,\nu,\mu) \in \gamma\,k$ such that $\rho'=\rho$, $\nu'=\nu$ and $\mu' =\mu\oplus\{(z+\sem{t}\,(\rho,\nu,\mu))\mapsto (a,0))\}$ and $a$ is \emph{fresh}.
+	From Proposition~\ref{p:ass-unknown} it follows that $(\rho',\nu',\mu') \models \restr{k}{\neg t_1}$.
+	Given that $a$ is \emph{fresh}, it follows that all addresses stored in any term which is not $t_1$ do not have the same address block as $a$, therefore $(\rho',\nu',\mu') \models \bigwedge_{t\in \T, t \nequiv t_1}(bl(t_1) \neq bl(\tau\,t))$.
+	It directly follows that $(\rho',\nu',\mu') \in \gamma\,(\sem{t_1\,{:=}\,\malloc}^\sharp\,k)$
 \end{proof}
