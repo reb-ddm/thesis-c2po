@@ -22,15 +22,14 @@ All benchmarks were conducted on a machine with two Intel Xeon Platinum 8260 CPU
 \section{Precision}
 
 The precision of the \cpo\ analysis does not depend on the choice of the algorithm for \emph{equal}, as the two possible implementations are functionally equivalent.
-Therefore, in the following, we will only compare the precision of the \cpou, \cpod\, \base\, and \vareq analyses.
+Therefore, in the following, we will only compare the precision of the \cpou, \cpod, \base, and \vareq\ analyses.
 They were evaluated on two test suites.
 
 The first suite consists of 29 \emph{litmus} tests inspired by real-world programming patterns,
 designed to incorporate complex manipulations of pointers.
 Each test was annotated with assertions to be verified.
 \cpou\ could prove all assertions,
-while only 16\% of the assertions could be proven by \base
-and 23\% by \vareq.
+while only 16\% of the assertions could be proven by \base\ and 23\% by \vareq.
 \cpod\ proved all assertions except one, which was the \cref{ex:join-cycle}.
 These programs may serve as benchmarks for future analyzers.
 
@@ -38,7 +37,7 @@ We further evaluated the precision of \cpo\ on 11 GNU core utilities programs (C
 We used \cpou\ to identify program invariants and automatically generate assertions.
 For one of these programs, the generation of invariants timed out after one hour.
 For the remaining nine programs, the \base\ analysis could prove only 24\% of the generated invariants
-and \vareq 42\%.
+and \vareq\ 42\%.
 In contrast, \cpou\ was able to prove all invariants.
 \cpod\ could prove more than 99\% of the invariants.
 
