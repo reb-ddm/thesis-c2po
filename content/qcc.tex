@@ -80,7 +80,7 @@ If the two terms are already equivalent with a different offset, i.e., $\tau\,t_
 
 In a practical implementation, the representatives are chosen such that the trees have the lowest possible height, thus making the $\find{t}$ operation more efficient.
 This optimization is called \emph{union by rank} and consists of adding the edge from the smallest to the largest equivalence class during the $\union{t_1}{z}{t_2}$ operation.
-Another possible optimization is, during the $\find{t}$ operation, to set the parent node of a term to the representative of the tree each time a node is traversed.
+Another possible optimization is, during the $\find{t}$ operation, to set the parent node of each traversed node to its representative.
 This way, the tree is flattened, which makes the $\find{t}$ operation
 more efficient if we call it again for the same term $t$ or a term in the same equivalence class.
 This is the so-called \emph{path compression}.~\cite{uf-tarjan}
@@ -180,12 +180,12 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
       \node[state] (y) {$\&y$};
 
       \node[state, right=2.5cm of y] (AB) {$\begin{array}{c}
-            \boldsymbol{A} = \\
+            A = \\
             1 + y
           \end{array}$};
 
       \node[state, right=3cm of AB] (ABs) {$\begin{array}{c}
-            \boldsymbol{*A} = \\
+            *A = \\
             *(1 + y)
           \end{array}$};
 
@@ -199,12 +199,12 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
 
     \end{tikzpicture}
 
-    \caption{The same QFA after the operation $\closure{A}{1}{y}{P}$.}\label{fig:closure-example}
+    \caption{The result of $\closure{A}{1}{y}{P}$.}\label{fig:closure-example}
   \end{subfigure}
 
   \caption[Visualization of the $\closure{A}{1}{y}{P}$ operation]{An example of the $\closure{A}{1}{y}{P}$ operation on a QFA over the set of terms
     $\T = \{\&y, A, y, *A, *(1 + y)\}$.
-    The representative of each equivalence class is represented in bold as the mentioned first term.}
+    The representative of each equivalence class is the first mentioned term.}
 
 
 \end{figure}
