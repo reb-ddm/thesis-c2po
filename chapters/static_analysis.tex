@@ -9,12 +9,11 @@ They will later be used in collaboration with the \cpo\ analysis to increase pre
 \section{Abstract Interpretation}
 
 Abstract interpretation is a theoretical framework used to infer the properties of programs that are proven to be correct for all possible executions of the program.
-It was first introduced by Patrick and Radhia Cousot in 1977~\cite{ai,aibook}, and it has since been widely used in the fields of static analysis \cite{ai-static-analysis} and compiler construction \cite{ai-compiler-design}.
-The analysis is performed at compile-time (i.e., statically) without requiring the program to be executed.
-It consists in replacing the concrete
+It was first introduced by Patrick and Radhia Cousot in 1977~\cite{ai,aibook}, and it has since been widely used in the fields of static analysis~\cite{ai-static-analysis} and compiler construction~\cite{ai-compiler-design}.
+Static analysis by abstract interpretation consists in abstracting the concrete
 semantics of a program with an abstract over-approximation of the program's behavior.
-This abstract semantics is a simplified version of the concrete semantics
-and can thus be computed efficiently.
+As the abstract semantics is an approximated version of the concrete semantics,
+it can be computed more efficiently.
 \ignore{This way, it is also possible, for example, to prove the non-termination of a program.
   The \cpo\ analysis described in this thesis, however, focuses on analyzing
   relationships between pairs of pointer variables at each program point.}
@@ -65,8 +64,8 @@ int main(){
 \end{figure}
 
 The concrete edge effect $\sem{l}$ describes the alteration of the concrete state after an edge with label $l$.
-For example in \cref{fig:example-CFG}, the concrete state at node $p_2$ is $C[p_2] = \angl{x \rightarrow 1}$.
-The state of node $p_3$ is equal to $C[p_3] = \sem{x = x+1}\,C[p_2] = \angl{x \rightarrow 2}$.
+For example in \cref{fig:example-CFG}, the concrete state at node $p_2$ is $C[p_2] = \{x \rightarrow 1\}$.
+The state of node $p_3$ is equal to $C[p_3] = \sem{x = x+1}\,C[p_2] = \{x \rightarrow 2\}$.
 
 The abstract interpretation method consists of computing an abstract over-approximation of the concrete semantics at each node in the CFG with an abstract description of the state.
 Each analysis chooses an abstract domain that can characterize specific properties of interest of the program.
@@ -74,25 +73,27 @@ For a node $p$ in the CFG, the abstract state is denoted as $X[p]$.
 For example, the abstract domain of the \cpo\ analysis is a conjunction of equalities between pointers.
 One conjunction is computed at each program point, over-approximating all possible concrete states.
 Another simpler example would be an abstract domain that tracks whether each variable is even or odd.
-An abstract state that only contains the variable $x$ is represented as $\angl{x \rightarrow \text{even}}$, $\angl{x \rightarrow \text{odd}}$,  or $\angl{x \rightarrow \text{unknown}}$ if the parity of $x$ is not known.
+An abstract state that only contains the variable $x$ is represented as $\{x \rightarrow \text{even}\}$, $\{x \rightarrow \text{odd}\}$,  or $\{x \rightarrow \text{unknown}\}$ if the parity of $x$ is not known.
 
 The abstract edge effect $\sem{l}^\sharp$ describes the effect that an edge with label $l$ has on the abstract state.
 It must be an over-approximation of the corresponding concrete effect $\sem{l}$.
-For example, in the CFG in \cref{fig:example-CFG}, the abstract state at node $p_2$ is $X[p_2] = \angl{x \rightarrow \text{odd}}$.
-After the edge with label $x = x+1$, the abstract state at node $p_3$ is $X[p_3] = \sem{x = x+1}^\sharp\,X[p_2] = \angl{x \rightarrow \text{even}}$.
+For example, in the CFG in \cref{fig:example-CFG}, the abstract state at node $p_2$ is $X[p_2] = \{x \rightarrow \text{odd}\}$.
+After the edge with label $x = x+1$, the abstract state at node $p_3$ is $X[p_3] = \sem{x = x+1}^\sharp\,X[p_2] = \{x \rightarrow \text{even}\}$.
 
-The elements of the abstract domain must create a complete lattice, meaning that there is a partial order denoted by $\sqsubseteq$ between the components, and for every subset of elements, there must be a least upper bound (or join, denoted by $\join$) and a greatest lower bound (or meet, denoted by $\meet$).
-When it is impossible to find an exact computation of the meet or the join, a sound over-approximation can be used instead without losing the correctness of the analysis.
+The abstract domain is often required to be a complete lattice, meaning that there is a partial order denoted by $\sqsubseteq$ between the domain elements, and for every subset of elements, there must be a least upper bound (or join, denoted by $\join$) and a greatest lower bound (or meet, denoted by $\meet$).
+However, some domains do not have a \emph{least} upper bound for each subset.
+In this case, an over-approximation in the form of an upper bound can be used instead without losing the correctness of the analysis.
+The same holds for the greatest lower bound.
 Complete lattices also have a top element ($\top$) and a bottom element ($\bot$), representing the lattice's least and greatest elements, respectively.
 During the analysis, the value $\top$ represents an abstract state with no information about any variable, while $\bot$ represents an unreachable program point.
 
 The concrete and the abstract semantics are related by the concretization function $\gamma$ and the abstraction function $\alpha$.
 The concretization function maps an abstract element to the set of all concrete elements represented by the abstract element.
-For example, the concretization of $\angl{x \rightarrow \text{even}}$ is the set of all concrete states where $x$ is an even number:
+For example, the concretization of $\{x \rightarrow \text{even}\}$ is the set of all concrete states where $x$ is an even number:
 \[
-  \gamma(\angl{x \rightarrow \text{even}}) = \{\angl{x \rightarrow 0}, \angl{x \rightarrow 2}, \angl{x \rightarrow 4},\ldots\}
+  \gamma(\{x \rightarrow \text{even}\}) = \{\{x \rightarrow 0\}, \{x \rightarrow 2\}, \{x \rightarrow 4\},\ldots\}
 \]
-The abstraction function maps a concrete element to the most precise abstract element that represents the concrete element. For example, $\alpha(\angl{x \rightarrow 0}) = \angl{x \rightarrow \text{even}}$.
+The abstraction function maps a concrete element to the most precise abstract element that represents the concrete element. For example, $\alpha(\{x \rightarrow 0\}) = \{x \rightarrow \text{even}\}$.
 
 The functions $\gamma$ and $\alpha$ form a Galois connection, which ensures the following property for each abstract state $a$ and each edge label $l$:
 \[
@@ -114,19 +115,19 @@ The abstract effect of an assignment $\sem{x = e}^\sharp$ computes the change in
 For example, if $x$ and $e$ are pointers, the \cpo\ analysis removes all previous propositions involving $x$ since the value of $x$ might have changed.
 Then, it adds the equality $x = e$ to the abstract state.
 \subsubsection{Conditionals}
-When there is an \textsf{if} statement with the condition $c$, the CFG is split into two branches, one for the \emph{true} branch (denoted by $Pos(c)$) and one for the \emph{false} branch (denoted by $Neg(c)$).
+When there is an \textsf{if} statement with the condition $c$, the CFG diverges into two paths, one for the \emph{true} branch (denoted by $Pos(c)$) and one for the \emph{false} branch (denoted by $Neg(c)$).
 The analysis can compute the abstract state $a_c$ corresponding to the condition $c$ and then meet the previous abstract state $a$ with $a_c$, resulting in the state $a \meet a_c$.
 The analysis does the same for the false branch with the abstract state corresponding to $\neg c$.
 For example, if the condition is $x = y$, the \cpo\ analysis adds the equality $x = y$ in the positive branch and the disequality $x \neq y$ in the negative branch.
 \subsubsection{Loops}
-The CFG represents for-loops and while-loops as backward edges.
+The CFG represents for-loops and while-loops as edges that lead from the loop's end back to its beginning.
 The abstract value of a program point with multiple incoming edges is
 the least upper bound of the set of all abstract states of the incoming edges.
-Formally, the abstract state $X[p]$ of a node $p$ is defined by the constraint
+Formally, for each node $p$, the abstract state $X[p]$ is defined by the constraint
 \[
   X[p] \sqsupseteq \bigsqcup \{\sem{l}^\sharp\,X[p] \mid \text{there is an edge from $p$ to $p'$ in the CFG labeled with $l$}\}.
 \]
-The abstract states are the solution of the system of constraints generated at each program point by this definition.
+The values $X[p]$ are computed by solving the system of constraints generated at each program point by this definition.
 According to the Knaster-Tarski theorem, each monotonic function $f$ on a complete lattice has a least fixpoint, equal to the least solution of the inequality $x \sqsubseteq f(x)$.
 Therefore, the system of inequalities can be solved by starting with the bottom element $\bot$ for each program point and iteratively applying the abstract semantics until the computation reaches a fixpoint.
 However, in some cases, this approach does not converge.
@@ -143,7 +144,7 @@ The narrowing operation over-approximates the meet operation to partially regain
 
 \subsubsection{Interprocedural Analysis}
 
-Before diving into the abstract effects of a function call, we discuss a concrete semantic for functions.
+Before diving into the abstract effects of a function call, we discuss a concrete semantic for function calls.
 The concrete semantics of a function depends not only on the function definition but also on the values of the parameters, global variables, and the state of the memory at the time when the function is called.
 Therefore, a separate CFG is created for each possible value that the parameters and memory can have.
 An edge is added from the caller CFG to the function's entry point, labeled with the $\enter$ function, and one from the entry point
@@ -169,7 +170,7 @@ These edges are visualized in \cref{fig:function-cfg}, where $p_4$ is the first 
     \node[block, below=of usw2] (end) {$p_3$};
 
     % Nodes for function f
-    \node[block, right=of usw1, initial right, initial text=f()] (fstart) {$p_4$};
+    \node[block, below right=0.5cm and 4cm of usw1, initial right, initial text=f()] (fstart) {$p_4$};
     \node[below=of fstart] (usw3) {...};
     \node[block, below=of usw3] (fend) {$p_5$};
 
@@ -185,9 +186,9 @@ These edges are visualized in \cref{fig:function-cfg}, where $p_4$ is the first 
     \draw[->] (usw3) -- node[right] {return} (fend);
 
     % Enter and combine edges
-    \draw[call] (beforecall.east) to node[above] {$\enter(C[p_1])$} (fstart.west);
+    \draw[call, bend left=30] (beforecall.east) to node[above] {$\enter(C[p_1])$} (fstart.west);
     \draw[combine] (beforecall) ++(0,-1.1cm) .. controls +(right:1cm) and +(down:0.5cm) .. (aftercall.east);
-    \draw[->, combine] (fend.west) to node[below] {$\combine(C[p_1],C[p_5])$} (aftercall.east);
+    \draw[->, combine, bend left=30] (fend.west) to node[below] {$\combine(C[p_1],C[p_5])$} (aftercall.east);
 
   \end{tikzpicture}
 
@@ -212,7 +213,7 @@ As for the concrete semantics, the abstract CFG has an edge from the node before
 
 Let $s$ be the abstract state before the function call.
 The start state of the function is $\enter^\sharp\,s$.
-There is a copy of the function's CFG for each possible initial abstract value of the function.
+A separate CFG is generated for each possible abstract value at the beginning of the function.
 Let the final state of the function be $s'$.
 After the function call, the state is $\combine^\sharp\,(s,s')$.
 

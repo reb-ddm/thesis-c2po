@@ -23,7 +23,7 @@ struct alloc_functions {
  void (*free)(void *);
 };
 \end{minted}
-    There are two variables \texttt{malloc\_f} and \texttt{free\_f} that point to the currently used implementation of the functions \texttt{malloc} and \texttt{free}, respectively.
+    Assume there are two variables \texttt{malloc\_f} and \texttt{free\_f} that point to the currently used implementation of the functions \texttt{malloc} and \texttt{free}, respectively.
 
     An interesting property to confirm is whether the two variables \texttt{malloc\_f} and \texttt{free\_f} point to matching implementations, thus ensuring that the correct \texttt{free} function is called for each \texttt{malloc} call.
     This prevents bugs that arise from incompatible implementations of the two functions.
@@ -53,7 +53,7 @@ which express that two pointers refer to different memory objects that we call \
 Memory objects are, for example, distinct variables or separate memory blocks allocated by \malloc.
 For two variables $x$ and $y$, we know that their addresses $\&x$ and $\&y$ belong to different memory blocks,
 allowing us to infer that $bl(\&x) \neq bl(\&y)$, where $bl(p)$ denotes the memory block of the pointer $p$.
-Moreover, for two variables $x$ and $z$ that are initialized with different \malloc calls,
+Moreover, for two variables $x$ and $z$ that are initialized with different \malloc\ calls,
 we can infer that $bl(x) \neq bl(z)$.
 
 Analyzing disequalities and block disequalities alongside equalities is essential for achieving a precise analysis during assignments.
@@ -92,4 +92,4 @@ The thesis is structured as follows:
     \item \cref{chapter:conclusion} concludes the thesis and gives an outlook on future work.
 \end{itemize}
 
-The implementation of \cpo\ is available under \todo{TODO}. Parts of this thesis have been submitted to \dots.
+The implementation of \cpo\ is available under \todo{TODO}. Parts of this thesis have been submitted to \cite{c2po}.

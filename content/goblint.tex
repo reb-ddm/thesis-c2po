@@ -2,7 +2,7 @@
 
 The \goblint\ tool is an abstract interpretation framework for analyzing C programs.
 It allows the definition of custom abstract domains by specifying the lattice operations and all abstract edge effects.
-Then, \goblint\ can analyze C programs by transforming them into a CFG, generating the system of inequalities arising from each edge, and solving these constraints using appropriate fixpoint algorithms.
+Then, \goblint\ can analyze C programs by transforming them into a set of CFGs, generating the system of inequalities arising from each edge, and solving these constraints using appropriate fixpoint algorithms.
 There are already several abstract domains implemented in \goblint. These include relational and non-relational value analyses, concurrency and mutex analyses, as well as out-of-bounds access analyses.
 
 The different analyses can communicate through \emph{queries}, which allows the combination of the results of different analyses, leading to an increase in the precision of each analysis.
@@ -13,14 +13,14 @@ The \cpo\ analysis utilizes information from two existing analyses of \goblint: 
 The pointer analysis in \goblint\ is a non-relational value analysis that tracks for each expression the set of possible addresses it can take.
 The query \textsf{MayPointTo} determines the set of possible addresses an expression can refer to.
 It is a may-analysis, meaning that the result is an over-approximation of the possible addresses, and it is impossible for the expression to point to an address that is not in the result of \textsf{MayPointTo}.
-In opposition, the \cpo\ analysis is a must-analysis, meaning that each proposition is definitely true for the current state. However, there might be even more true propositions that the analysis did not find.
+On the other hand, the \cpo\ analysis is a must-analysis, meaning that each proposition is definitely true for the current state. However, there might be even more true propositions that the analysis did not find.
 The \textsf{MayPointTo} analysis complements the \cpo\ analysis by determining additional disequalities between terms.
 Two terms are not equal if the \textsf{MayPointTo} sets of the two terms have an empty intersection.
 
 \subsubsection{Tainted Variables Analysis}
 
 An additional analysis used in the \cpo\ analysis is the tainted variables analysis.
-A \emph{tainted} variable is a variable that was overwritten with a new value during the execution of a function.
+Here, a \emph{tainted} variable is defined as a variable that was overwritten with a new value during the execution of a function.
 The query \textsf{MayBeTainted} returns an over-approximation of the set of tainted variables in the current function.
 \cpo\ uses this information to remove the tainted variables from the abstract state of the caller when returning from the function.
 This analysis is necessary to remove only the changed values from the caller state, thus allowing us to keep the information about all the caller variables that were not modified during the function call.
