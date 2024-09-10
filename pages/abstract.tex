@@ -1,7 +1,7 @@
 \chapter{\abstractname}
 
-C is widely used in safety-critical systems, therefore it is important to have static analysis tools that can automatically detect program properties and thus help in the search for bugs.
-This master's thesis introduces \cpo\, a weakly-relational pointer analysis that can infer relationships between pairs of pointer terms in C programs, including pointer arithmetic and dereferencing.
+C is widely used in safety-critical systems, therefore it is important to have static analysis tools that can automatically identify program properties and thus help in the search for bugs.
+Here, we introduce \cpo, a weakly-relational pointer analysis that can infer relationships between pairs of pointer terms in C programs, including pointer arithmetic and dereferencing.
 It is based on the 2-Pointer Logic introduced by \textcite{2pointer} and is extended here with the concept of \emph{block disequalities} that express the confinement of pointers to single memory objects in C.
 Abstract operations are introduced that allow the implementation of \cpo\ in an abstract interpretation framework, including the operations \emph{meet}, \emph{join}, \emph{widening}, and \emph{narrowing}, as well as the abstract effects for assignments and interprocedural analysis.
 Two versions of the \emph{join} and \emph{equal} operation are introduced and compared.

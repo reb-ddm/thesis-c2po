@@ -13,7 +13,7 @@ Examples of such methods are implemented in tools like \textsc{Mopsa}~\cite{mops
 On the other hand, there exist highly precise analyses capable of accurately modeling the shape and content of dynamic data structures in the heap~\cite{rivalpapers,kreiker,predator}.
 However, these methods are less efficient and thus not suitable for large-scale programs.
 
-This master's thesis introduces a relational pointer analysis that can infer relationships between pointer variables in C programs, including pointer arithmetic and dereferencing.
+Here, we introduce a relational pointer analysis that can infer relationships between pointer variables in C programs, including pointer arithmetic and dereferencing.
 \begin{example}
     Consider a C program with multiple possible implementations for the functions \texttt{malloc} and \texttt{free}.
     A pair of these functions is defined in a struct \texttt{alloc\_functions}:
@@ -70,7 +70,7 @@ It is easily possible to implement the collaboration of the different analyses, 
 
 \section{Thesis Structure}
 
-This master's thesis is structured as follows:
+The thesis is structured as follows:
 \begin{itemize}
     \item \cref{chapter:background} gives an overview of the abstract interpretation method, which builds the theoretical foundation on which the \cpo\ analysis is designed.
           It also includes a brief description of the abstract interpreter \goblint\, where the \cpo\ analysis is implemented, and some \goblint\ analyses that collaborate with \cpo\ to augment the precision of the analysis.

@@ -7,7 +7,7 @@ which is used by the \cpo\ analysis.
 Moreover, multiple approaches to pointer analysis are presented, as well as weakly-relational analyses employing domains different from pointers.
 
 The 2-Pointer Logic~\cite{2pointer} is based on these foundational concepts, offering a weakly-relational pointer analysis that utilizes a quantitative congruence closure of pointer expressions.
-Building upon this approach, the \cpo\ analysis presented in this master's thesis was developed by defining the necessary operations for abstract interpretation.
+Building upon this approach, the \cpo\ analysis was developed by defining the necessary operations for abstract interpretation.
 
 \section{Congruence Closure}
 
@@ -15,7 +15,7 @@ The congruence closure algorithm is widely used in formal verification for reaso
 Different variations of congruence closure were introduced in the early 1980s.
 \textcite{cc-tarjan} described a congruence closure algorithm
 where each element is directly mapped to its representative, thus not requiring the union-find data structure.
-The methods of \textcite{cc-nelson,cc-shostak} are based on a union-find data structure~\cite{uf-tarjan}, as in this master's thesis.
+The methods of \textcite{cc-nelson,cc-shostak} are based on a union-find data structure~\cite{uf-tarjan}.
 They define the procedure directly on graphs instead of using a finite automaton, thus allowing the construction of the congruence closure of terms that contain arbitrary uninterpreted function symbols of any arity.
 On the other hand, our quantitative congruence closure is restricted to a single uninterpreted function $*$ and extended to handle simple arithmetic operations.
 This quantitative congruence closure for 2-Pointer Logic was introduced by \textcite{2pointer}.
@@ -27,7 +27,7 @@ Arbitrary terms with uninterpreted functions of any arity can be rewritten using
 Our quantitative congruence closure is less expressive, as we only consider the unary uninterpreted function $*$.
 
 Join algorithms for congruence closure are described by \textcite{join}, where the join operation is defined over the congruence closure described as a rewrite system.
-In this master's thesis, this join was adapted for the congruence closure that uses a quantitative finite automaton.
+Here, this join was adapted for the congruence closure that uses a quantitative finite automaton.
 We also introduced an alternative join that does not consider the information deriving from the quantitative automaton but only from the partition of the union-find data structure.
 It is less precise, but it can find almost the same number of invariants as the more precise join in practical examples.
 
@@ -49,7 +49,7 @@ The same idea can be applied in a context- and flow-sensitive analysis by tracki
 This approach is used in multiple practical C analyzers, such as \textsc{Mopsa}~\cite{mopsa}, \textsc{Frama-C}~\cite{framac,Bühler2024} and \goblint~\cite{goblint}.
 This non-relational analysis is more precise than the flow-insensitive analysis, but when the sets are not singletons, it can no longer infer relational properties about the pointers.
 Our relational analysis is, therefore, an excellent complement to these analyses, as it can infer additional properties about the pointers, i.e., must-equalities and disequalities between terms made up of pointers, dereferencing, and pointer arithmetic.
-In this master's thesis, the non-relational pointer analysis by \textcite{goblint} is used in combination with the newly implemented relational analysis to augment the precision.
+\cpo\ uses the non-relational pointer analysis by \textcite{goblint} in combination with the newly implemented relational analysis to augment the precision.
 The non-relational analysis infers disequalities between two pointer variables whose sets of possible values do not intersect.
 These disequalities are then used by the \cpo\ analysis.
 
@@ -57,7 +57,7 @@ Shape analyses are a third category of pointer analyses, which are extremely pre
 Some examples are methods that use separation logic \cite{separationlogic,rivalpapers}, or graph-based representations \cite{predator} to abstract the shapes of data structures in the heap.
 \textcite{kreiker} introduced a shape analysis that considers overlapping data structures.
 These analyses are precise but very expensive in terms of time and memory consumption.
-The analysis of this master's thesis is a compromise between the precision of shape analysis and the efficiency of less precise analyses by only considering relations between pairs of pointers.
+\cpo\ is a compromise between the precision of shape analysis and the efficiency of less precise analyses by only considering relations between pairs of pointers.
 
 Moreover, the \cpo\ domain is comparable to the domain introduced by~\textcite{Mine06}, which, similarly to \cpo, considers dereferencing and pointer arithmetic.
 Pointer values are interpreted as a tuple of a variable and an offset.
@@ -74,6 +74,6 @@ For example, for numerical analyses, the octagon domain~\cite{octagon} is a well
 It is a simplified version of the polyhedra domain~\cite{polyhedra}, which tracks relationships between arbitrary sets of variables.
 The same idea has been applied to non-numerical domains by \textcite{SeidlETS2023}.
 
-In this master's thesis, we use this concept for pointer analysis by tracking equalities and disequalities between pairs of pointer expressions.
+Here, we use this concept for pointer analysis by tracking equalities and disequalities between pairs of pointer expressions.
 The advantage of weakly-relational analyses is their simplicity: by focusing on simple propositions, we have been able to provide polynomial-time algorithms for the implementation of our analysis in an abstract interpreter.
 Therefore, our analysis complements the computationally expensive full-fledged shape analyses.
