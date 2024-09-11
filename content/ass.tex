@@ -163,7 +163,7 @@ As before, we need to forget all the equalities and disequalities about terms th
 After this, is not sufficient to simply add the equality $t_1 = z_1+t$ to the set of equalities,
 because the term $z_1 + t$ may also be modified by the assignment. For example, when we assign $V\,{:=}\,1+V$, the equality $V = 1 + V$ would incorrectly lead to an unsatisfiable conjunction.
 Therefore, we introduce a fresh auxiliary $A$ and first assign $A$ to the right-hand side of the assignment, then restrict the automaton, and then assign $t_1$ to $A$.
-This way we can remember the original value of $z_1 + t$ trough the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
+This way we can remember the original value of $z_1 + t$ through the auxiliary $A$ and reconstruct the equalities that still hold after the assignment.
 
 Thus, the abstract effect of the definite assignment is defined as follows:
 
@@ -186,9 +186,9 @@ As before, the proof of this proposition for the case of a one-dimensional memor
 We consider an assignment of the form $t_1\,{:=}\,\malloc$.
 The term $t_1$ is assigned to a fresh address, therefore we know that after the assignment,
 the block of the term $t_1$ is different from the block of any other term in the set $\T$ of the partition,
-but also different than any other term $t \in \oT$ that is not (yet) in the partition.
+but also different from any other term $t \in \oT$ that is not (yet) in the partition.
 However, we cannot remember an infinite number of equalities that contain an infinite number of possible terms,
-therefore we choose to only remember that this new address is different than the address of any other term in $\T$.
+therefore we choose to only remember that this new address is different from the address of any other term in $\T$.
 Let $k = \angl{P, M, B,D}$, and $\restr{k}{\neg t_1} = \angl{P', M', B', D'}$.
 For each equivalence class in the partition $P'$, we add a disequality that states
 that the block of the term $t_1$ is different from the block of the representative of the equivalence class.

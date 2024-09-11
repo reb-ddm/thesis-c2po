@@ -20,7 +20,7 @@ They define the procedure directly on graphs instead of using a finite automaton
 On the other hand, our quantitative congruence closure is restricted to a single uninterpreted function $*$ and extended to handle simple arithmetic operations.
 This quantitative congruence closure for 2-Pointer Logic was introduced by \textcite{2pointer}.
 
-The congruence closure algorithm can also be viewed as a rewrite system for finding canonical normal forms of terms by replacing subterms with their representatives, as in \cite{cc-kapur,abstract-cc}.
+The congruence closure algorithm can also be viewed as a rewrite system for finding canonical normal forms of terms by replacing subterms with their representatives, as in~\cite{cc-kapur,abstract-cc}.
 There exists an extension with integer offsets for this approach, as described by \textcite{cc-offsets}.
 The extension does not use union-find, and it considers a binary function $\cdot(f, a)$, where the offset is added to the second argument, for example, $\cdot(f, a + 2)$.
 Arbitrary terms with uninterpreted functions of any arity can be rewritten using only the function $\cdot$ by \emph{curryfying} the terms.

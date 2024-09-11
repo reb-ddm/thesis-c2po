@@ -32,13 +32,13 @@ Given an equality $p \equiv t_1 = z + t_2$ and a partition $P = (\Pi, \tau, \ome
 the normalized equality $norm_P(p)$ is an equivalent equality that only contains representatives of $P$,
 i.e., $\tau\,t_1 = z - \omega\,t_1 + \omega\,t_2 + \tau\,t_2$.
 Equivalently, the normalized disequality $norm_P(p)$ for $p \equiv t_1 \neq z + t_2$ is the disequality $\tau\,t_1 = z - \omega\,t_1 + \omega\,t_2 + \tau\,t_2$.
-The normalized block disequality $norm_P(p)$ for $p \equiv bl(t_1) \neq bl(t_2)$ is the disequality $bl(\tau\,t_1) \neq bl(\tau\,t_2$).
+The normalized block disequality $norm_P(p)$ for $p \equiv bl(t_1) \neq bl(t_2)$ is the disequality $bl(\tau\,t_1) \neq bl(\tau\,t_2)$.
 
 \subsubsection{Implementation}
 
 The quantitative partition is represented using a data structure similar to union-find but extended with integer offsets.
 The union-find data structure is represented as a forest of trees, each representing an equivalence class.
-Each node in the tree corresponds to a term $t \in \T$, and the roots are representative elements $\tau\,t$.\cite{uf-tarjan}
+Each node in the tree corresponds to a term $t \in \T$, and the roots are representative elements $\tau\,t$. \cite{uf-tarjan}
 All the edges in the tree are directed towards the root.
 In order to represent the integer offset, each edge is labeled with an integer weight.
 
@@ -72,7 +72,7 @@ If the two terms are already equivalent with a different offset, i.e., $\tau\,t_
       \path (V) edge node {1} (A);
       \path (D) edge node {2} (x);
     \end{tikzpicture}
-    \caption[An example of a union-find tree.]{Union-find tree corresponding to the conjunction  $(V = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$}\label{fig:uf-tree}
+    \caption[An example of a union-find tree.]{Union-find tree corresponding to the conjunction  $(V = 1 + A) \land (D = 2 + \&x) \land (A = 3 + \&x)$.}\label{fig:uf-tree}
   \end{figure}
   From this representation, we can, for example, derive that $V = 4 + \&x$.
   The tree can look different depending on the choice of the representatives.
@@ -101,9 +101,9 @@ The partial mapping $\eta : (\mathcal{A} \cup \{\&x | x \in \X\} \rightarrow \Z 
 $\delta : \Z \rightarrow S \rightarrow \Z \times S$ is the partial transition function.
 If $\delta\,z_1\,s_1 = (z_2, s_2)$, this means that it holds that $*(z_1 + \otau\,s_1) \equivp z_2 + \otau\,s_2$.
 
-The QFA $M = (S, \otau, \eta, \delta)$ is constructed from a partition  $P = (\T, \tau, \omega)$ as follows:
+The QFA $M = (S, \otau, \eta, \delta)$ is constructed from a partition $P = (\T, \tau, \omega)$ as follows:
 \begin{itemize}
-  \item $S$ contains a state $s$ for each representative term $t$ of $P$ and we set $\otau\,s = t$.
+  \item $S$ contains a state $s$ for each representative term $t$ of $P$, and we set $\otau\,s = t$.
   \item $\eta\,a = (\omega\,a, s)$ if $s \in S$ and $\otau\,s = \tau\,a$
   \item $\delta\,z\,s_1 = (\omega\,t', s_2)$ if there is a $\tau\,t'=\otau\,s_2$, such that $t' \equiv *(z_1 + t_1)$ with $\tau \,t_1= \otau\,s_1$ and $z = z_1 + \omega\,t_1$.
 \end{itemize}
@@ -111,8 +111,8 @@ The QFA $M = (S, \otau, \eta, \delta)$ is constructed from a partition  $P = (\
 We remark that following this definition, a transition $\delta\,z\,s_1$ could derive not only from a single term $t'$ but also from a second term $*(z_2 + t_2) \in \T$ with $\tau\,t_2=\otau\,s_1$ and $z = z_2 + \omega\,t_2$.
 However, we show that the resulting mapping $\delta\,z\,s_1$  would have the same value in this case.
 Since $t_i \equivp (\omega t_i) + (\tau Q_i)$ for $i = 1,2$, it follows that $t_1 \equivp (z_2 - z_1)+ t_2$.
-Therefore $\tau\,*(z_2+t_2)=\otau\,s_2$ with offset $\omega(*(z_2+t_2)) = \omega\,t'$.
-This shows that the result of $\delta\,z\,s_1$ is well defined and does not depend on which term $t'$ we choose for deriving a transition.
+Therefore, $\tau\,*(z_2+t_2)=\otau\,s_2$ with offset $\omega(*(z_2+t_2)) = \omega\,t'$.
+This shows that the result of $\delta\,z\,s_1$ is well-defined and does not depend on which term $t'$ we choose for deriving a transition.
 Moreover, we note that $\delta$ is defined only for a finite amount of values, given that each term $*(z + t) \in \T$ defines at most one mapping for $\delta$.
 
 We use $\oT$ to denote the set of \emph{all} terms with variable names from $\X$ and auxiliaries from $\A$.
@@ -142,7 +142,7 @@ The resulting partition $P' = (\T, \tau', \omega')$ and automaton $M' = (S', \ot
         \end{itemize}
 \end{itemize}
 
-This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but it is restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets.
+This algorithm is similar to congruence closure~\cite{cc-tarjan,cc-shostak}, but it is restricted to a unary uninterpreted function symbol $*$ and extended with integer offsets.
 
 \begin{figure}\begin{subfigure}{0.5\textwidth}
     \centering
@@ -228,7 +228,7 @@ This algorithm is similar to congruence closure \cite{cc-tarjan,cc-shostak}, but
 
 \begin{theorem}
   % This is Theorem 3 in the original paper
-  Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occuring in $\Psi$.
+  Assume that $\Psi$ is a satisfiable conjunction of equalities, let $\T$ be a subterm-closed set of terms which contains all terms occurring in $\Psi$.
   The corresponding quantitative partition $P = (\T, \tau,\omega)$ and a corresponding QFA $M = (S, \otau, \eta, \delta)$ are constructed by applying the closure operation with all equalities in $\Psi$.
   Then $\T \subseteq \L(M)$ and for every $t_1, t_2 \in \L(M)$ the following statements are equivalent:
   \begin{enumerate}
